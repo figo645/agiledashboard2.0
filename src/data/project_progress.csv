@@ -1,4 +1,0 @@
-progress_id,project_id,task_id,completion_percentage,update_date,notes
-1,1,1,60,2024-01-10,需求文档初稿已完成
-2,1,2,0,2024-01-10,等待需求分析完成后开始
-3,2,3,30,2024-02-05,已完成初步市场调研 

@@ -1,8 +1,10 @@
 package com.example.dashboard.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class TeamData {
     private String teamName;
     private int teamSize;

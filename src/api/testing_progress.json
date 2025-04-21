@@ -1,0 +1,35 @@
+{
+  "testing_data": {
+    "labels": ["第1周", "第2周", "第3周", "第4周"],
+    "planned_testing": [30, 60, 90, 100],
+    "actual_testing": [25, 55, 80, 95],
+    "test_cases": {
+      "total": 200,
+      "completed": 180,
+      "passed": 175,
+      "failed": 5
+    },
+    "teams": [
+      {
+        "team_name": "团队A",
+        "actual_testing": [20, 50, 75, 90],
+        "test_cases": {
+          "total": 80,
+          "completed": 75,
+          "passed": 72,
+          "failed": 3
+        }
+      },
+      {
+        "team_name": "团队B",
+        "actual_testing": [30, 60, 85, 100],
+        "test_cases": {
+          "total": 120,
+          "completed": 105,
+          "passed": 103,
+          "failed": 2
+        }
+      }
+    ]
+  }
+} 
