@@ -1,0 +1,52 @@
+{
+  "changes": [
+    {
+      "week": 1,
+      "newTasks": 10,
+      "modifiedTasks": 5,
+      "removedTasks": 2,
+      "teamANewTasks": 4,
+      "teamAModifiedTasks": 2,
+      "teamARemovedTasks": 1,
+      "teamBNewTasks": 6,
+      "teamBModifiedTasks": 3,
+      "teamBRemovedTasks": 1
+    },
+    {
+      "week": 2,
+      "newTasks": 8,
+      "modifiedTasks": 4,
+      "removedTasks": 1,
+      "teamANewTasks": 3,
+      "teamAModifiedTasks": 2,
+      "teamARemovedTasks": 0,
+      "teamBNewTasks": 5,
+      "teamBModifiedTasks": 2,
+      "teamBRemovedTasks": 1
+    },
+    {
+      "week": 3,
+      "newTasks": 12,
+      "modifiedTasks": 6,
+      "removedTasks": 3,
+      "teamANewTasks": 5,
+      "teamAModifiedTasks": 3,
+      "teamARemovedTasks": 1,
+      "teamBNewTasks": 7,
+      "teamBModifiedTasks": 3,
+      "teamBRemovedTasks": 2
+    },
+    {
+      "week": 4,
+      "newTasks": 9,
+      "modifiedTasks": 5,
+      "removedTasks": 2,
+      "teamANewTasks": 4,
+      "teamAModifiedTasks": 2,
+      "teamARemovedTasks": 1,
+      "teamBNewTasks": 5,
+      "teamBModifiedTasks": 3,
+      "teamBRemovedTasks": 1
+    }
+  ]
+} 
