@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>敏捷迭代看板</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .panel {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .panel-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .table-container {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-bottom: 20px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sprint Planning Analysis Table -->
+        <div class="panel">
+            <div class="panel-title">Sprint计划分析</div>
+            <div class="table-container">
+                <table id="sprintTable">
+                    <thead>
+                        <tr>
+                            <th>团队</th>
+                            <th>团队人数</th>
+                            <th>Sprint总点数</th>
+                            <th>人均点数</th>
+                            <th>Story占比%</th>
+                            <th>技术任务占比%</th>
+                            <th>优化任务占比%</th>
+                            <th>测试投入占比%</th>
+                            <th>第一周提测速率</th>
+                            <th>开发Delay卡片数</th>
+                            <th>测试Delay卡片数</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>团队A</td>
+                            <td>10</td>
+                            <td>100</td>
+                            <td>10</td>
+                            <td>60%</td>
+                            <td>20%</td>
+                            <td>10%</td>
+                            <td>10%</td>
+                            <td>30%</td>
+                            <td>5</td>
+                            <td>2</td>
+                        </tr>
+                        <tr>
+                            <td>团队B</td>
+                            <td>8</td>
+                            <td>80</td>
+                            <td>10</td>
+                            <td>50%</td>
+                            <td>30%</td>
+                            <td>10%</td>
+                            <td>10%</td>
+                            <td>25%</td>
+                            <td>3</td>
+                            <td>1</td>
+                        </tr>
+                        <tr>
+                            <td>团队C</td>
+                            <td>12</td>
+                            <td>120</td>
+                            <td>10</td>
+                            <td>70%</td>
+                            <td>15%</td>
+                            <td>5%</td>
+                            <td>10%</td>
+                            <td>35%</td>
+                            <td>4</td>
+                            <td>3</td>
+                        </tr>
+                        <tr>
+                            <td>团队D</td>
+                            <td>9</td>
+                            <td>90</td>
+                            <td>10</td>
+                            <td>55%</td>
+                            <td>25%</td>
+                            <td>10%</td>
+                            <td>10%</td>
+                            <td>28%</td>
+                            <td>4</td>
+                            <td>2</td>
+                        </tr>
+                        <tr>
+                            <td>团队E</td>
+                            <td>11</td>
+                            <td>110</td>
+                            <td>10</td>
+                            <td>65%</td>
+                            <td>20%</td>
+                            <td>5%</td>
+                            <td>10%</td>
+                            <td>32%</td>
+                            <td>3</td>
+                            <td>2</td>
+                        </tr>
+                        <tr>
+                            <td>团队F</td>
+                            <td>7</td>
+                            <td>70</td>
+                            <td>10</td>
+                            <td>45%</td>
+                            <td>35%</td>
+                            <td>10%</td>
+                            <td>10%</td>
+                            <td>22%</td>
+                            <td>2</td>
+                            <td>1</td>
+                        </tr>
+                        <tr>
+                            <td>团队G</td>
+                            <td>13</td>
+                            <td>130</td>
+                            <td>10</td>
+                            <td>75%</td>
+                            <td>15%</td>
+                            <td>5%</td>
+                            <td>5%</td>
+                            <td>38%</td>
+                            <td>5</td>
+                            <td>3</td>
+                        </tr>
+                        <tr>
+                            <td>团队H</td>
+                            <td>10</td>
+                            <td>100</td>
+                            <td>10</td>
+                            <td>60%</td>
+                            <td>20%</td>
+                            <td>10%</td>
+                            <td>10%</td>
+                            <td>30%</td>
+                            <td>4</td>
+                            <td>2</td>
+                        </tr>
+                        <tr>
+                            <td>团队I</td>
+                            <td>8</td>
+                            <td>80</td>
+                            <td>10</td>
+                            <td>50%</td>
+                            <td>30%</td>
+                            <td>10%</td>
+                            <td>10%</td>
+                            <td>25%</td>
+                            <td>3</td>
+                            <td>1</td>
+                        </tr>
+                        <tr>
+                            <td>团队J</td>
+                            <td>12</td>
+                            <td>120</td>
+                            <td>10</td>
+                            <td>70%</td>
+                            <td>15%</td>
+                            <td>5%</td>
+                            <td>10%</td>
+                            <td>35%</td>
+                            <td>4</td>
+                            <td>3</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- Iteration Completion Progress -->
+            <div class="panel">
+                <div class="panel-title">迭代完成进度</div>
+                <div class="chart-container">
+                    <canvas id="completionChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Change Tracking -->
+            <div class="panel">
+                <div class="panel-title">变更情况</div>
+                <div class="chart-container">
+                    <canvas id="changeChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Testing Progress -->
+            <div class="panel">
+                <div class="panel-title">测试进度</div>
+                <div class="chart-container">
+                    <canvas id="testingChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Bug Handling Progress -->
+            <div class="panel">
+                <div class="panel-title">Bug处理进度</div>
+                <div class="chart-container">
+                    <canvas id="bugChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 定义10个团队
+        const teams = ['团队A', '团队B', '团队C', '团队D', '团队E', '团队F', '团队G', '团队H', '团队I', '团队J'];
+
+        // Iteration Completion Progress Chart
+        const completionCtx = document.getElementById('completionChart').getContext('2d');
+        new Chart(completionCtx, {
+            type: 'bar',
+            data: {
+                labels: teams,
+                datasets: [
+                    {
+                        label: '计划任务',
+                        data: [20, 15, 25, 18, 22, 16, 28, 20, 15, 25],
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)'
+                    },
+                    {
+                        label: '已完成任务',
+                        data: [15, 12, 20, 15, 18, 12, 22, 16, 12, 20],
+                        backgroundColor: 'rgba(0, 128, 0, 0.8)'
+                    }
+                ]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Change Tracking Chart
+        const changeCtx = document.getElementById('changeChart').getContext('2d');
+        new Chart(changeCtx, {
+            type: 'bar',
+            data: {
+                labels: teams,
+                datasets: [
+                    {
+                        label: '迭代插入',
+                        data: [3, 2, 4, 3, 2, 1, 4, 3, 2, 4],
+                        backgroundColor: 'rgba(0, 0, 139, 0.8)'
+                    },
+                    {
+                        label: '原计划',
+                        data: [15, 12, 20, 15, 18, 12, 22, 16, 12, 20],
+                        backgroundColor: 'rgba(0, 0, 255, 0.8)'
+                    },
+                    {
+                        label: '迭代移出',
+                        data: [2, 1, 1, 2, 1, 1, 2, 1, 1, 2],
+                        backgroundColor: 'rgba(128, 128, 128, 0.8)'
+                    }
+                ]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        stacked: true
+                    },
+                    y: {
+                        stacked: true
+                    }
+                }
+            }
+        });
+
+        // Testing Progress Chart
+        const testingCtx = document.getElementById('testingChart').getContext('2d');
+        new Chart(testingCtx, {
+            type: 'bar',
+            data: {
+                labels: teams,
+                datasets: [
+                    {
+                        label: '实际测试',
+                        data: [70, 60, 80, 65, 75, 55, 85, 70, 60, 80],
+                        backgroundColor: 'rgba(0, 128, 0, 0.8)'
+                    },
+                    {
+                        label: '计划测试',
+                        data: [30, 40, 20, 35, 25, 45, 15, 30, 40, 20],
+                        backgroundColor: 'rgba(128, 128, 128, 0.8)'
+                    }
+                ]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        stacked: true,
+                        max: 100
+                    },
+                    y: {
+                        stacked: true
+                    }
+                }
+            }
+        });
+
+        // Bug Handling Progress Chart
+        const bugCtx = document.getElementById('bugChart').getContext('2d');
+        new Chart(bugCtx, {
+            type: 'bar',
+            data: {
+                labels: teams,
+                datasets: [
+                    {
+                        label: 'PRE-待修复',
+                        data: [5, 3, 4, 4, 3, 2, 5, 4, 3, 4],
+                        backgroundColor: 'rgba(255, 0, 0, 0.8)',
+                        stack: 'PRE'
+                    },
+                    {
+                        label: 'PRE-已修复',
+                        data: [10, 8, 12, 11, 9, 7, 13, 10, 8, 12],
+                        backgroundColor: 'rgba(0, 128, 0, 0.8)',
+                        stack: 'PRE'
+                    },
+                    {
+                        label: 'UAT-待修复',
+                        data: [3, 2, 3, 2, 2, 1, 3, 2, 2, 3],
+                        backgroundColor: 'rgba(255, 165, 0, 0.8)',
+                        stack: 'UAT'
+                    },
+                    {
+                        label: 'UAT-已修复',
+                        data: [7, 5, 8, 6, 6, 4, 9, 7, 5, 8],
+                        backgroundColor: 'rgba(144, 238, 144, 0.8)',
+                        stack: 'UAT'
+                    }
+                ]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        stacked: true
+                    },
+                    y: {
+                        stacked: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html> 
