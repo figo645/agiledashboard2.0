@@ -1,0 +1,5 @@
+member_id,name,role,email,department
+1,张三,项目经理,zhangsan@example.com,项目管理部
+2,李四,系统架构师,lisi@example.com,技术部
+3,王五,市场分析师,wangwu@example.com,市场部
+4,赵六,开发工程师,zhaoliu@example.com,技术部 
