@@ -1,5 +1,0 @@
-week,planned_testing,actual_testing,team_a_actual,team_b_actual,total_cases,completed_cases,passed_cases,failed_cases,team_a_total,team_a_completed,team_a_passed,team_a_failed,team_b_total,team_b_completed,team_b_passed,team_b_failed
-第1周,30,25,20,30,200,180,175,5,80,75,72,3,120,105,103,2
-第2周,60,55,50,60,200,180,175,5,80,75,72,3,120,105,103,2
-第3周,90,80,75,85,200,180,175,5,80,75,72,3,120,105,103,2
-第4周,100,95,90,100,200,180,175,5,80,75,72,3,120,105,103,2 
