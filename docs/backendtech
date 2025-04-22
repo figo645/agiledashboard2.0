@@ -6,8 +6,6 @@ id="testingChart"
 id="bugChart"
 请基于这些chart生成对应的后台api，并确保数据格式正确
 测试数据请从后台代码中提供
-
 index.html的5个chart在改动后应该与静态的保持一致，数据从后端获取
-
-
+修改后，请确保springboot可以正常运行这个程序
 
