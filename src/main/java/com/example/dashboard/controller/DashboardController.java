@@ -6,53 +6,51 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.stereotype.Controller;
 
-@Controller
+import java.io.IOException;
+import java.util.List;
+
+@RestController
 @RequestMapping("/api")
 public class DashboardController {
+
     @Autowired
     private SprintPlanningService sprintPlanningService;
-    
+
     @Autowired
     private IterationCompletionService iterationCompletionService;
-    
+
     @Autowired
     private ChangeTrackingService changeTrackingService;
-    
+
     @Autowired
     private TestingProgressService testingProgressService;
-    
+
     @Autowired
     private BugProgressService bugProgressService;
 
-    @GetMapping("/")
-    public String index() {
-        return "index";
-    }
-
     @GetMapping("/sprint-planning")
-    public SprintPlanningData getSprintPlanningData() {
-        return sprintPlanningService.getSprintPlanningData();
+    public List<TeamData> getSprintPlanningData() throws IOException {
+        return sprintPlanningService.getSprintPlanningData().getTeams();
     }
 
     @GetMapping("/iteration-completion")
-    public IterationCompletionData getIterationCompletionData() {
+    public IterationCompletionData getIterationCompletionData() throws IOException {
         return iterationCompletionService.getIterationCompletionData();
     }
 
     @GetMapping("/change-tracking")
-    public ChangeTrackingData getChangeTrackingData() {
+    public List<ChangeData> getChangeTrackingData() throws IOException {
         return changeTrackingService.getChangeTrackingData();
     }
 
     @GetMapping("/testing-progress")
-    public TestingProgressData getTestingProgressData() {
+    public List<TestingData> getTestingProgressData() throws IOException {
         return testingProgressService.getTestingProgressData();
     }
 
     @GetMapping("/bug-progress")
-    public BugProgressData getBugProgressData() {
+    public List<BugData> getBugProgressData() throws IOException {
         return bugProgressService.getBugProgressData();
     }
 } 

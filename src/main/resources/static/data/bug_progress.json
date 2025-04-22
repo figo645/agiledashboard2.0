@@ -1,0 +1,68 @@
+{
+  "bugs": [
+    {
+      "week": 1,
+      "newBugs": 15,
+      "fixedBugs": 10,
+      "remainingBugs": 5,
+      "teamANewBugs": 8,
+      "teamAFixedBugs": 5,
+      "teamARemainingBugs": 3,
+      "teamBNewBugs": 7,
+      "teamBFixedBugs": 5,
+      "teamBRemainingBugs": 2,
+      "criticalBugs": 2,
+      "highBugs": 5,
+      "mediumBugs": 6,
+      "lowBugs": 2
+    },
+    {
+      "week": 2,
+      "newBugs": 20,
+      "fixedBugs": 15,
+      "remainingBugs": 10,
+      "teamANewBugs": 10,
+      "teamAFixedBugs": 8,
+      "teamARemainingBugs": 5,
+      "teamBNewBugs": 10,
+      "teamBFixedBugs": 7,
+      "teamBRemainingBugs": 5,
+      "criticalBugs": 3,
+      "highBugs": 7,
+      "mediumBugs": 8,
+      "lowBugs": 2
+    },
+    {
+      "week": 3,
+      "newBugs": 18,
+      "fixedBugs": 20,
+      "remainingBugs": 8,
+      "teamANewBugs": 9,
+      "teamAFixedBugs": 10,
+      "teamARemainingBugs": 4,
+      "teamBNewBugs": 9,
+      "teamBFixedBugs": 10,
+      "teamBRemainingBugs": 4,
+      "criticalBugs": 2,
+      "highBugs": 6,
+      "mediumBugs": 8,
+      "lowBugs": 2
+    },
+    {
+      "week": 4,
+      "newBugs": 12,
+      "fixedBugs": 15,
+      "remainingBugs": 5,
+      "teamANewBugs": 6,
+      "teamAFixedBugs": 8,
+      "teamARemainingBugs": 3,
+      "teamBNewBugs": 6,
+      "teamBFixedBugs": 7,
+      "teamBRemainingBugs": 2,
+      "criticalBugs": 1,
+      "highBugs": 4,
+      "mediumBugs": 5,
+      "lowBugs": 2
+    }
+  ]
+} 

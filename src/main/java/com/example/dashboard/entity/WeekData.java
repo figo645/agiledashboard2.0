@@ -1,79 +1,59 @@
 package com.example.dashboard.entity;
 
 public class WeekData {
-    private int weekNumber;
-    private int plannedTasks;
-    private int completedTasks;
-    private int teamAPlanned;
-    private int teamAActual;
-    private int teamBPlanned;
-    private int teamBActual;
-
-    public WeekData(int weekNumber, int plannedTasks, int completedTasks,
-                   int teamAPlanned, int teamAActual, int teamBPlanned, int teamBActual) {
-        this.weekNumber = weekNumber;
-        this.plannedTasks = plannedTasks;
-        this.completedTasks = completedTasks;
-        this.teamAPlanned = teamAPlanned;
-        this.teamAActual = teamAActual;
-        this.teamBPlanned = teamBPlanned;
-        this.teamBActual = teamBActual;
-    }
+    private int week;
+    private int plannedProgress;
+    private int actualProgress;
+    private int teamAProgress;
+    private int teamBProgress;
+    private int teamCProgress;
 
     // Getters and Setters
-    public int getWeekNumber() {
-        return weekNumber;
+    public int getWeek() {
+        return week;
     }
 
-    public void setWeekNumber(int weekNumber) {
-        this.weekNumber = weekNumber;
+    public void setWeek(int week) {
+        this.week = week;
     }
 
-    public int getPlannedTasks() {
-        return plannedTasks;
+    public int getPlannedProgress() {
+        return plannedProgress;
     }
 
-    public void setPlannedTasks(int plannedTasks) {
-        this.plannedTasks = plannedTasks;
+    public void setPlannedProgress(int plannedProgress) {
+        this.plannedProgress = plannedProgress;
     }
 
-    public int getCompletedTasks() {
-        return completedTasks;
+    public int getActualProgress() {
+        return actualProgress;
     }
 
-    public void setCompletedTasks(int completedTasks) {
-        this.completedTasks = completedTasks;
+    public void setActualProgress(int actualProgress) {
+        this.actualProgress = actualProgress;
     }
 
-    public int getTeamAPlanned() {
-        return teamAPlanned;
+    public int getTeamAProgress() {
+        return teamAProgress;
     }
 
-    public void setTeamAPlanned(int teamAPlanned) {
-        this.teamAPlanned = teamAPlanned;
+    public void setTeamAProgress(int teamAProgress) {
+        this.teamAProgress = teamAProgress;
     }
 
-    public int getTeamAActual() {
-        return teamAActual;
+    public int getTeamBProgress() {
+        return teamBProgress;
     }
 
-    public void setTeamAActual(int teamAActual) {
-        this.teamAActual = teamAActual;
+    public void setTeamBProgress(int teamBProgress) {
+        this.teamBProgress = teamBProgress;
     }
 
-    public int getTeamBPlanned() {
-        return teamBPlanned;
+    public int getTeamCProgress() {
+        return teamCProgress;
     }
 
-    public void setTeamBPlanned(int teamBPlanned) {
-        this.teamBPlanned = teamBPlanned;
-    }
-
-    public int getTeamBActual() {
-        return teamBActual;
-    }
-
-    public void setTeamBActual(int teamBActual) {
-        this.teamBActual = teamBActual;
+    public void setTeamCProgress(int teamCProgress) {
+        this.teamCProgress = teamCProgress;
     }
 } 

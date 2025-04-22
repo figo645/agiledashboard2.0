@@ -3,17 +3,13 @@ package com.example.dashboard.entity;
 import java.util.List;
 
 public class TestingProgressData {
-    private List<TestingTeamData> teams;
+    private List<TestingData> testing;
 
-    public TestingProgressData(List<TestingTeamData> teams) {
-        this.teams = teams;
+    public List<TestingData> getTesting() {
+        return testing;
     }
 
-    public List<TestingTeamData> getTeams() {
-        return teams;
-    }
-
-    public void setTeams(List<TestingTeamData> teams) {
-        this.teams = teams;
+    public void setTesting(List<TestingData> testing) {
+        this.testing = testing;
     }
 } 

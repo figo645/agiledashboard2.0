@@ -1,0 +1,69 @@
+{
+  "teams": [
+    {
+      "teamName": "团队A",
+      "teamSize": 5,
+      "totalPoints": 100,
+      "pointsPerPerson": 20,
+      "storyPercentage": 60,
+      "technicalTaskPercentage": 20,
+      "optimizationPercentage": 10,
+      "testingPercentage": 10,
+      "firstWeekTestingRate": 80,
+      "devDelayCards": 2,
+      "testDelayCards": 1
+    },
+    {
+      "teamName": "团队B",
+      "teamSize": 6,
+      "totalPoints": 120,
+      "pointsPerPerson": 20,
+      "storyPercentage": 70,
+      "technicalTaskPercentage": 15,
+      "optimizationPercentage": 5,
+      "testingPercentage": 10,
+      "firstWeekTestingRate": 85,
+      "devDelayCards": 1,
+      "testDelayCards": 0
+    },
+    {
+      "teamName": "团队C",
+      "teamSize": 4,
+      "totalPoints": 80,
+      "pointsPerPerson": 20,
+      "storyPercentage": 65,
+      "technicalTaskPercentage": 15,
+      "optimizationPercentage": 10,
+      "testingPercentage": 10,
+      "firstWeekTestingRate": 75,
+      "devDelayCards": 3,
+      "testDelayCards": 2
+    },
+    {
+      "teamName": "团队D",
+      "teamSize": 7,
+      "totalPoints": 140,
+      "pointsPerPerson": 20,
+      "storyPercentage": 75,
+      "technicalTaskPercentage": 10,
+      "optimizationPercentage": 5,
+      "testingPercentage": 10,
+      "firstWeekTestingRate": 90,
+      "devDelayCards": 0,
+      "testDelayCards": 1
+    },
+    {
+      "teamName": "团队E",
+      "teamSize": 5,
+      "totalPoints": 100,
+      "pointsPerPerson": 20,
+      "storyPercentage": 70,
+      "technicalTaskPercentage": 15,
+      "optimizationPercentage": 5,
+      "testingPercentage": 10,
+      "firstWeekTestingRate": 85,
+      "devDelayCards": 1,
+      "testDelayCards": 0
+    }
+  ]
+} 

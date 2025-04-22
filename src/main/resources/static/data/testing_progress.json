@@ -1,0 +1,52 @@
+{
+  "testing": [
+    {
+      "week": 1,
+      "plannedTesting": 20,
+      "actualTesting": 15,
+      "teamATesting": 25,
+      "teamBTesting": 20,
+      "teamCTesting": 15,
+      "totalTestCases": 100,
+      "passedTestCases": 80,
+      "failedTestCases": 15,
+      "blockedTestCases": 5
+    },
+    {
+      "week": 2,
+      "plannedTesting": 40,
+      "actualTesting": 35,
+      "teamATesting": 45,
+      "teamBTesting": 40,
+      "teamCTesting": 35,
+      "totalTestCases": 200,
+      "passedTestCases": 170,
+      "failedTestCases": 25,
+      "blockedTestCases": 5
+    },
+    {
+      "week": 3,
+      "plannedTesting": 60,
+      "actualTesting": 55,
+      "teamATesting": 65,
+      "teamBTesting": 60,
+      "teamCTesting": 55,
+      "totalTestCases": 300,
+      "passedTestCases": 260,
+      "failedTestCases": 35,
+      "blockedTestCases": 5
+    },
+    {
+      "week": 4,
+      "plannedTesting": 80,
+      "actualTesting": 75,
+      "teamATesting": 85,
+      "teamBTesting": 80,
+      "teamCTesting": 75,
+      "totalTestCases": 400,
+      "passedTestCases": 350,
+      "failedTestCases": 45,
+      "blockedTestCases": 5
+    }
+  ]
+} 

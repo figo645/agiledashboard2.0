@@ -4,31 +4,14 @@ public class TeamData {
     private String teamName;
     private int teamSize;
     private int totalPoints;
-    private double pointsPerPerson;
+    private int pointsPerPerson;
     private int storyPercentage;
-    private int technicalPercentage;
+    private int technicalTaskPercentage;
     private int optimizationPercentage;
     private int testingPercentage;
     private int firstWeekTestingRate;
     private int devDelayCards;
     private int testDelayCards;
-
-    public TeamData(String teamName, int teamSize, int totalPoints, double pointsPerPerson,
-                   int storyPercentage, int technicalPercentage, int optimizationPercentage,
-                   int testingPercentage, int firstWeekTestingRate, int devDelayCards,
-                   int testDelayCards) {
-        this.teamName = teamName;
-        this.teamSize = teamSize;
-        this.totalPoints = totalPoints;
-        this.pointsPerPerson = pointsPerPerson;
-        this.storyPercentage = storyPercentage;
-        this.technicalPercentage = technicalPercentage;
-        this.optimizationPercentage = optimizationPercentage;
-        this.testingPercentage = testingPercentage;
-        this.firstWeekTestingRate = firstWeekTestingRate;
-        this.devDelayCards = devDelayCards;
-        this.testDelayCards = testDelayCards;
-    }
 
     // Getters and Setters
     public String getTeamName() {
@@ -55,11 +38,11 @@ public class TeamData {
         this.totalPoints = totalPoints;
     }
 
-    public double getPointsPerPerson() {
+    public int getPointsPerPerson() {
         return pointsPerPerson;
     }
 
-    public void setPointsPerPerson(double pointsPerPerson) {
+    public void setPointsPerPerson(int pointsPerPerson) {
         this.pointsPerPerson = pointsPerPerson;
     }
 
@@ -71,12 +54,12 @@ public class TeamData {
         this.storyPercentage = storyPercentage;
     }
 
-    public int getTechnicalPercentage() {
-        return technicalPercentage;
+    public int getTechnicalTaskPercentage() {
+        return technicalTaskPercentage;
     }
 
-    public void setTechnicalPercentage(int technicalPercentage) {
-        this.technicalPercentage = technicalPercentage;
+    public void setTechnicalTaskPercentage(int technicalTaskPercentage) {
+        this.technicalTaskPercentage = technicalTaskPercentage;
     }
 
     public int getOptimizationPercentage() {
