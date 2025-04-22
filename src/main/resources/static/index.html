@@ -120,202 +120,236 @@
     </div>
 
     <script>
-        // 定义10个团队的数据
-        const teams = ['团队A', '团队B', '团队C', '团队D', '团队E', '团队F', '团队G', '团队H', '团队I', '团队J'];
-        const sprintData = [
-            { teamName: '团队A', teamSize: 10, totalPoints: 100, pointsPerPerson: 10, storyPercentage: 60, technicalPercentage: 20, optimizationPercentage: 10, testingPercentage: 10, firstWeekTestingRate: 30, devDelayCards: 5, testDelayCards: 2 },
-            { teamName: '团队B', teamSize: 8, totalPoints: 80, pointsPerPerson: 10, storyPercentage: 50, technicalPercentage: 30, optimizationPercentage: 10, testingPercentage: 10, firstWeekTestingRate: 25, devDelayCards: 3, testDelayCards: 1 },
-            { teamName: '团队C', teamSize: 12, totalPoints: 120, pointsPerPerson: 10, storyPercentage: 70, technicalPercentage: 15, optimizationPercentage: 5, testingPercentage: 10, firstWeekTestingRate: 35, devDelayCards: 4, testDelayCards: 3 },
-            { teamName: '团队D', teamSize: 9, totalPoints: 90, pointsPerPerson: 10, storyPercentage: 55, technicalPercentage: 25, optimizationPercentage: 10, testingPercentage: 10, firstWeekTestingRate: 28, devDelayCards: 4, testDelayCards: 2 },
-            { teamName: '团队E', teamSize: 11, totalPoints: 110, pointsPerPerson: 10, storyPercentage: 65, technicalPercentage: 20, optimizationPercentage: 5, testingPercentage: 10, firstWeekTestingRate: 32, devDelayCards: 3, testDelayCards: 2 },
-            { teamName: '团队F', teamSize: 7, totalPoints: 70, pointsPerPerson: 10, storyPercentage: 45, technicalPercentage: 35, optimizationPercentage: 10, testingPercentage: 10, firstWeekTestingRate: 22, devDelayCards: 2, testDelayCards: 1 },
-            { teamName: '团队G', teamSize: 13, totalPoints: 130, pointsPerPerson: 10, storyPercentage: 75, technicalPercentage: 15, optimizationPercentage: 5, testingPercentage: 5, firstWeekTestingRate: 38, devDelayCards: 5, testDelayCards: 3 },
-            { teamName: '团队H', teamSize: 10, totalPoints: 100, pointsPerPerson: 10, storyPercentage: 60, technicalPercentage: 20, optimizationPercentage: 10, testingPercentage: 10, firstWeekTestingRate: 30, devDelayCards: 4, testDelayCards: 2 },
-            { teamName: '团队I', teamSize: 8, totalPoints: 80, pointsPerPerson: 10, storyPercentage: 50, technicalPercentage: 30, optimizationPercentage: 10, testingPercentage: 10, firstWeekTestingRate: 25, devDelayCards: 3, testDelayCards: 1 },
-            { teamName: '团队J', teamSize: 12, totalPoints: 120, pointsPerPerson: 10, storyPercentage: 70, technicalPercentage: 15, optimizationPercentage: 5, testingPercentage: 10, firstWeekTestingRate: 35, devDelayCards: 4, testDelayCards: 3 }
-        ];
-
         // 更新Sprint计划分析表格
-        function updateSprintTable() {
-            const tbody = document.getElementById('sprintTableBody');
-            tbody.innerHTML = '';
-            sprintData.forEach(team => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${team.teamName}</td>
-                    <td>${team.teamSize}</td>
-                    <td>${team.totalPoints}</td>
-                    <td>${team.pointsPerPerson}</td>
-                    <td>${team.storyPercentage}%</td>
-                    <td>${team.technicalPercentage}%</td>
-                    <td>${team.optimizationPercentage}%</td>
-                    <td>${team.testingPercentage}%</td>
-                    <td>${team.firstWeekTestingRate}%</td>
-                    <td>${team.devDelayCards}</td>
-                    <td>${team.testDelayCards}</td>
-                `;
-                tbody.appendChild(row);
-            });
+        async function updateSprintTable() {
+            try {
+                const response = await fetch('/api/sprintTable');
+                const data = await response.json();
+                const tbody = document.getElementById('sprintTableBody');
+                tbody.innerHTML = '';
+                
+                data.forEach(team => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${team.teamName}</td>
+                        <td>${team.teamSize}</td>
+                        <td>${team.totalPoints}</td>
+                        <td>${team.pointsPerPerson}</td>
+                        <td>${team.storyPercentage}%</td>
+                        <td>${team.technicalPercentage}%</td>
+                        <td>${team.optimizationPercentage}%</td>
+                        <td>${team.testingPercentage}%</td>
+                        <td>${team.firstWeekTestingRate}%</td>
+                        <td>${team.devDelayCards}</td>
+                        <td>${team.testDelayCards}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error fetching sprint table data:', error);
+            }
         }
 
-        // Iteration Completion Progress Chart
-        const completionCtx = document.getElementById('completionChart').getContext('2d');
-        new Chart(completionCtx, {
-            type: 'bar',
-            data: {
-                labels: teams,
-                datasets: [
-                    {
-                        label: '计划任务',
-                        data: [20, 15, 25, 18, 22, 16, 28, 20, 15, 25],
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)'
+        // 更新迭代完成进度图表
+        async function updateCompletionChart() {
+            try {
+                const response = await fetch('/api/completionChart');
+                const data = await response.json();
+                
+                const ctx = document.getElementById('completionChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.teams,
+                        datasets: [
+                            {
+                                label: '计划任务',
+                                data: data.plannedTasks,
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)'
+                            },
+                            {
+                                label: '已完成任务',
+                                data: data.completedTasks,
+                                backgroundColor: 'rgba(0, 128, 0, 0.8)'
+                            }
+                        ]
                     },
-                    {
-                        label: '已完成任务',
-                        data: [15, 12, 20, 15, 18, 12, 22, 16, 12, 20],
-                        backgroundColor: 'rgba(0, 128, 0, 0.8)'
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                beginAtZero: true
+                            }
+                        }
                     }
-                ]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        beginAtZero: true
-                    }
-                }
+                });
+            } catch (error) {
+                console.error('Error fetching completion chart data:', error);
             }
-        });
+        }
 
-        // Change Tracking Chart
-        const changeCtx = document.getElementById('changeChart').getContext('2d');
-        new Chart(changeCtx, {
-            type: 'bar',
-            data: {
-                labels: teams,
-                datasets: [
-                    {
-                        label: '迭代插入',
-                        data: [3, 2, 4, 3, 2, 1, 4, 3, 2, 4],
-                        backgroundColor: 'rgba(0, 0, 139, 0.8)'
+        // 更新变更追踪图表
+        async function updateChangeChart() {
+            try {
+                const response = await fetch('/api/changeChart');
+                const data = await response.json();
+                
+                const ctx = document.getElementById('changeChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.teams,
+                        datasets: [
+                            {
+                                label: '迭代插入',
+                                data: data.insertedTasks,
+                                backgroundColor: 'rgba(0, 0, 139, 0.8)'
+                            },
+                            {
+                                label: '原计划',
+                                data: data.originalTasks,
+                                backgroundColor: 'rgba(0, 0, 255, 0.8)'
+                            },
+                            {
+                                label: '迭代移出',
+                                data: data.removedTasks,
+                                backgroundColor: 'rgba(128, 128, 128, 0.8)'
+                            }
+                        ]
                     },
-                    {
-                        label: '原计划',
-                        data: [15, 12, 20, 15, 18, 12, 22, 16, 12, 20],
-                        backgroundColor: 'rgba(0, 0, 255, 0.8)'
-                    },
-                    {
-                        label: '迭代移出',
-                        data: [2, 1, 1, 2, 1, 1, 2, 1, 1, 2],
-                        backgroundColor: 'rgba(128, 128, 128, 0.8)'
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                stacked: true
+                            },
+                            y: {
+                                stacked: true
+                            }
+                        }
                     }
-                ]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        stacked: true
-                    },
-                    y: {
-                        stacked: true
-                    }
-                }
+                });
+            } catch (error) {
+                console.error('Error fetching change chart data:', error);
             }
-        });
+        }
 
-        // Testing Progress Chart
-        const testingCtx = document.getElementById('testingChart').getContext('2d');
-        new Chart(testingCtx, {
-            type: 'bar',
-            data: {
-                labels: teams,
-                datasets: [
-                    {
-                        label: '实际测试',
-                        data: [70, 60, 80, 65, 75, 55, 85, 70, 60, 80],
-                        backgroundColor: 'rgba(0, 128, 0, 0.8)'
+        // 更新测试进度图表
+        async function updateTestingChart() {
+            try {
+                const response = await fetch('/api/testingChart');
+                const data = await response.json();
+                
+                const ctx = document.getElementById('testingChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.teams,
+                        datasets: [
+                            {
+                                label: '实际测试',
+                                data: data.actualTesting,
+                                backgroundColor: 'rgba(0, 128, 0, 0.8)'
+                            },
+                            {
+                                label: '计划测试',
+                                data: data.plannedTesting,
+                                backgroundColor: 'rgba(128, 128, 128, 0.8)'
+                            }
+                        ]
                     },
-                    {
-                        label: '计划测试',
-                        data: [30, 40, 20, 35, 25, 45, 15, 30, 40, 20],
-                        backgroundColor: 'rgba(128, 128, 128, 0.8)'
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                stacked: true,
+                                max: 100
+                            },
+                            y: {
+                                stacked: true
+                            }
+                        }
                     }
-                ]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        stacked: true,
-                        max: 100
-                    },
-                    y: {
-                        stacked: true
-                    }
-                }
+                });
+            } catch (error) {
+                console.error('Error fetching testing chart data:', error);
             }
-        });
+        }
 
-        // Bug Handling Progress Chart
-        const bugCtx = document.getElementById('bugChart').getContext('2d');
-        new Chart(bugCtx, {
-            type: 'bar',
-            data: {
-                labels: teams,
-                datasets: [
-                    {
-                        label: 'PRE-待修复',
-                        data: [5, 3, 4, 4, 3, 2, 5, 4, 3, 4],
-                        backgroundColor: 'rgba(255, 0, 0, 0.8)',
-                        stack: 'PRE'
+        // 更新 Bug 处理进度图表
+        async function updateBugChart() {
+            try {
+                const response = await fetch('/api/bugChart');
+                const data = await response.json();
+                
+                const ctx = document.getElementById('bugChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.teams,
+                        datasets: [
+                            {
+                                label: 'PRE-待修复',
+                                data: data.prePending,
+                                backgroundColor: 'rgba(255, 0, 0, 0.8)',
+                                stack: 'PRE'
+                            },
+                            {
+                                label: 'PRE-已修复',
+                                data: data.preFixed,
+                                backgroundColor: 'rgba(0, 128, 0, 0.8)',
+                                stack: 'PRE'
+                            },
+                            {
+                                label: 'UAT-待修复',
+                                data: data.uatPending,
+                                backgroundColor: 'rgba(255, 165, 0, 0.8)',
+                                stack: 'UAT'
+                            },
+                            {
+                                label: 'UAT-已修复',
+                                data: data.uatFixed,
+                                backgroundColor: 'rgba(144, 238, 144, 0.8)',
+                                stack: 'UAT'
+                            }
+                        ]
                     },
-                    {
-                        label: 'PRE-已修复',
-                        data: [10, 8, 12, 11, 9, 7, 13, 10, 8, 12],
-                        backgroundColor: 'rgba(0, 128, 0, 0.8)',
-                        stack: 'PRE'
-                    },
-                    {
-                        label: 'UAT-待修复',
-                        data: [3, 2, 3, 2, 2, 1, 3, 2, 2, 3],
-                        backgroundColor: 'rgba(255, 165, 0, 0.8)',
-                        stack: 'UAT'
-                    },
-                    {
-                        label: 'UAT-已修复',
-                        data: [7, 5, 8, 6, 6, 4, 9, 7, 5, 8],
-                        backgroundColor: 'rgba(144, 238, 144, 0.8)',
-                        stack: 'UAT'
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                stacked: true
+                            },
+                            y: {
+                                stacked: true
+                            }
+                        }
                     }
-                ]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        stacked: true
-                    },
-                    y: {
-                        stacked: true
-                    }
-                }
+                });
+            } catch (error) {
+                console.error('Error fetching bug chart data:', error);
             }
-        });
+        }
 
-        // 页面加载时更新表格
-        document.addEventListener('DOMContentLoaded', updateSprintTable);
+        // 页面加载时更新所有数据
+        document.addEventListener('DOMContentLoaded', () => {
+            updateSprintTable();
+            updateCompletionChart();
+            updateChangeChart();
+            updateTestingChart();
+            updateBugChart();
+        });
     </script>
 </body>
 </html> 
