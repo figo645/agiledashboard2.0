@@ -14,6 +14,5 @@ id="bugChart"
 /api/bugChart
 
 改为这个形态好，我需要确保画面layout和内容和之前一样，但是数据从后端获取
-其对应的json文件也请一并生成，并放在src/main/resources/static/data目录下
-
-这些api后台函数，仅作为本次测试用，之后我会用真实的api地址来替换
+请从后台代码提供测试数据，并确保数据格式正确
+index.html的5个chart在改动后应该与静态的保持一致，数据从后端获取
