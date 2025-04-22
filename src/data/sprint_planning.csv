@@ -1,0 +1,6 @@
+team_name,team_size,total_points,points_per_person,story_percentage,technical_task_percentage,optimization_percentage,testing_percentage,first_week_testing_rate,dev_delay_cards,test_delay_cards
+团队A,10,100,10,60,20,10,10,30,5,2
+团队B,8,80,10,50,30,10,10,25,3,1
+团队C,12,120,10,70,15,5,10,35,4,3
+团队D,9,90,10,55,25,10,10,28,4,2
+团队E,11,110,10,65,20,5,10,32,3,2 

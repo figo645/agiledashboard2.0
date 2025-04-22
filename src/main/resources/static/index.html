@@ -1,335 +1,328 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>敏捷迭代看板</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Sprint Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f5f5f5;
-        }
-        .dashboard {
-            max-width: 1400px;
+        /* 保持原有样式不变 */
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            padding: 20px;
+            max-width: 1200px;
             margin: 0 auto;
         }
-        .panel {
+        .chart-container {
             background: white;
             border-radius: 8px;
             padding: 20px;
-            margin-bottom: 20px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .panel-title {
+        .chart-title {
             font-size: 18px;
             font-weight: bold;
             margin-bottom: 15px;
             color: #333;
         }
-        .table-container {
-            overflow-x: auto;
-        }
-        table {
+        .chart {
             width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #f8f9fa;
-            font-weight: bold;
-        }
-        .chart-container {
-            position: relative;
-            height: 400px;
-            margin-bottom: 20px;
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
+            height: 300px;
         }
     </style>
 </head>
 <body>
-    <div class="dashboard">
-        <!-- Sprint Planning Analysis Table -->
-        <div class="panel">
-            <div class="panel-title">Sprint计划分析</div>
-            <div class="table-container">
-                <table id="sprintTable">
-                    <thead>
-                        <tr>
-                            <th>团队</th>
-                            <th>团队人数</th>
-                            <th>Sprint总点数</th>
-                            <th>人均点数</th>
-                            <th>Story占比%</th>
-                            <th>技术任务占比%</th>
-                            <th>优化任务占比%</th>
-                            <th>测试投入占比%</th>
-                            <th>第一周提测速率</th>
-                            <th>开发Delay卡片数</th>
-                            <th>测试Delay卡片数</th>
-                        </tr>
-                    </thead>
-                    <tbody id="sprintTableBody">
-                    </tbody>
-                </table>
-            </div>
+    <div class="dashboard-container">
+        <!-- Sprint计划分析 -->
+        <div class="chart-container">
+            <div class="chart-title">Sprint计划分析</div>
+            <div id="sprintPlanningChart" class="chart"></div>
         </div>
 
-        <div class="grid">
-            <!-- Iteration Completion Progress -->
-            <div class="panel">
-                <div class="panel-title">迭代完成进度</div>
-                <div class="chart-container">
-                    <canvas id="completionChart"></canvas>
-                </div>
-            </div>
+        <!-- 迭代完成进度 -->
+        <div class="chart-container">
+            <div class="chart-title">迭代完成进度</div>
+            <div id="iterationCompletionChart" class="chart"></div>
+        </div>
 
-            <!-- Change Tracking -->
-            <div class="panel">
-                <div class="panel-title">变更情况</div>
-                <div class="chart-container">
-                    <canvas id="changeChart"></canvas>
-                </div>
-            </div>
+        <!-- 变更情况 -->
+        <div class="chart-container">
+            <div class="chart-title">变更情况</div>
+            <div id="changeTrackingChart" class="chart"></div>
+        </div>
 
-            <!-- Testing Progress -->
-            <div class="panel">
-                <div class="panel-title">测试进度</div>
-                <div class="chart-container">
-                    <canvas id="testingChart"></canvas>
-                </div>
-            </div>
+        <!-- 测试进度 -->
+        <div class="chart-container">
+            <div class="chart-title">测试进度</div>
+            <div id="testingProgressChart" class="chart"></div>
+        </div>
 
-            <!-- Bug Handling Progress -->
-            <div class="panel">
-                <div class="panel-title">Bug处理进度</div>
-                <div class="chart-container">
-                    <canvas id="bugChart"></canvas>
-                </div>
-            </div>
+        <!-- Bug处理进度 -->
+        <div class="chart-container">
+            <div class="chart-title">Bug处理进度</div>
+            <div id="bugProgressChart" class="chart"></div>
         </div>
     </div>
 
     <script>
-        // 从API获取数据
-        async function fetchData() {
-            try {
-                const [sprintData, iterationData, changeData, testingData, bugData] = await Promise.all([
-                    fetch('/api/sprint-planning').then(res => res.json()),
-                    fetch('/api/iteration-completion').then(res => res.json()),
-                    fetch('/api/change-tracking').then(res => res.json()),
-                    fetch('/api/testing-progress').then(res => res.json()),
-                    fetch('/api/bug-progress').then(res => res.json())
-                ]);
+        // 初始化所有图表
+        const sprintPlanningChart = echarts.init(document.getElementById('sprintPlanningChart'));
+        const iterationCompletionChart = echarts.init(document.getElementById('iterationCompletionChart'));
+        const changeTrackingChart = echarts.init(document.getElementById('changeTrackingChart'));
+        const testingProgressChart = echarts.init(document.getElementById('testingProgressChart'));
+        const bugProgressChart = echarts.init(document.getElementById('bugProgressChart'));
 
-                updateSprintTable(sprintData);
-                updateCompletionChart(iterationData);
-                updateChangeChart(changeData);
-                updateTestingChart(testingData);
-                updateBugChart(bugData);
+        // 从后端API获取数据并更新图表
+        async function fetchDataAndUpdateCharts() {
+            try {
+                // 获取Sprint计划数据
+                const sprintPlanningResponse = await axios.get('/api/sprint_planning');
+                updateSprintPlanningChart(sprintPlanningResponse.data);
+
+                // 获取迭代完成数据
+                const iterationCompletionResponse = await axios.get('/api/iteration_completion');
+                updateIterationCompletionChart(iterationCompletionResponse.data);
+
+                // 获取变更跟踪数据
+                const changeTrackingResponse = await axios.get('/api/change_tracking');
+                updateChangeTrackingChart(changeTrackingResponse.data);
+
+                // 获取测试进度数据
+                const testingProgressResponse = await axios.get('/api/testing_progress');
+                updateTestingProgressChart(testingProgressResponse.data);
+
+                // 获取Bug进度数据
+                const bugProgressResponse = await axios.get('/api/bug_progress');
+                updateBugProgressChart(bugProgressResponse.data);
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
         }
 
-        // 更新Sprint计划分析表格
-        function updateSprintTable(data) {
-            const tbody = document.getElementById('sprintTableBody');
-            tbody.innerHTML = '';
-            data.forEach(team => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${team.teamName}</td>
-                    <td>${team.teamSize}</td>
-                    <td>${team.totalPoints}</td>
-                    <td>${team.pointsPerPerson}</td>
-                    <td>${team.storyPercentage}%</td>
-                    <td>${team.technicalPercentage}%</td>
-                    <td>${team.optimizationPercentage}%</td>
-                    <td>${team.testingPercentage}%</td>
-                    <td>${team.firstWeekTestingRate}%</td>
-                    <td>${team.devDelayCards}</td>
-                    <td>${team.testDelayCards}</td>
-                `;
-                tbody.appendChild(row);
-            });
+        // 更新Sprint计划图表
+        function updateSprintPlanningChart(data) {
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                legend: {
+                    data: ['团队规模', '总点数', '人均点数']
+                },
+                xAxis: {
+                    type: 'category',
+                    data: data.teams.map(team => team.teamName)
+                },
+                yAxis: [
+                    {
+                        type: 'value',
+                        name: '数量',
+                        position: 'left'
+                    },
+                    {
+                        type: 'value',
+                        name: '百分比',
+                        position: 'right',
+                        max: 100,
+                        min: 0
+                    }
+                ],
+                series: [
+                    {
+                        name: '团队规模',
+                        type: 'bar',
+                        data: data.teams.map(team => team.teamSize)
+                    },
+                    {
+                        name: '总点数',
+                        type: 'bar',
+                        data: data.teams.map(team => team.totalPoints)
+                    },
+                    {
+                        name: '人均点数',
+                        type: 'bar',
+                        data: data.teams.map(team => team.pointsPerPerson)
+                    }
+                ]
+            };
+            sprintPlanningChart.setOption(option);
         }
 
-        // 更新迭代完成进度图表
-        function updateCompletionChart(data) {
-            const ctx = document.getElementById('completionChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: data.weeks.map(w => `第${w.weekNumber}周`),
-                    datasets: [
-                        {
-                            label: '计划任务',
-                            data: data.weeks.map(w => w.plannedTasks),
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)'
-                        },
-                        {
-                            label: '已完成任务',
-                            data: data.weeks.map(w => w.completedTasks),
-                            backgroundColor: 'rgba(0, 128, 0, 0.8)'
-                        }
-                    ]
+        // 更新迭代完成图表
+        function updateIterationCompletionChart(data) {
+            const option = {
+                tooltip: {
+                    trigger: 'axis'
                 },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
+                legend: {
+                    data: ['计划进度', '实际进度', ...data.teams.map(team => team.teamName)]
+                },
+                xAxis: {
+                    type: 'category',
+                    data: data.labels
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '完成率(%)',
+                    max: 100,
+                    min: 0
+                },
+                series: [
+                    {
+                        name: '计划进度',
+                        type: 'line',
+                        data: data.planned
+                    },
+                    {
+                        name: '实际进度',
+                        type: 'line',
+                        data: data.actual
+                    },
+                    ...data.teams.map(team => ({
+                        name: team.teamName,
+                        type: 'line',
+                        data: team.actual
+                    }))
+                ]
+            };
+            iterationCompletionChart.setOption(option);
         }
 
-        // 更新变更情况图表
-        function updateChangeChart(data) {
-            const ctx = document.getElementById('changeChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: data.weeks.map(w => `第${w.weekNumber}周`),
-                    datasets: [
-                        {
-                            label: '迭代插入',
-                            data: data.weeks.map(w => w.insertedTasks),
-                            backgroundColor: 'rgba(0, 0, 139, 0.8)'
-                        },
-                        {
-                            label: '原计划',
-                            data: data.weeks.map(w => w.originalTasks),
-                            backgroundColor: 'rgba(0, 0, 255, 0.8)'
-                        },
-                        {
-                            label: '迭代移出',
-                            data: data.weeks.map(w => w.removedTasks),
-                            backgroundColor: 'rgba(128, 128, 128, 0.8)'
-                        }
-                    ]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            stacked: true
-                        },
-                        y: {
-                            stacked: true
-                        }
+        // 更新变更跟踪图表
+        function updateChangeTrackingChart(data) {
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
                     }
-                }
-            });
+                },
+                legend: {
+                    data: ['新增任务', '修改任务', '删除任务']
+                },
+                xAxis: {
+                    type: 'category',
+                    data: data.labels
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '任务数'
+                },
+                series: [
+                    {
+                        name: '新增任务',
+                        type: 'bar',
+                        data: data.newTasks
+                    },
+                    {
+                        name: '修改任务',
+                        type: 'bar',
+                        data: data.modifiedTasks
+                    },
+                    {
+                        name: '删除任务',
+                        type: 'bar',
+                        data: data.removedTasks
+                    }
+                ]
+            };
+            changeTrackingChart.setOption(option);
         }
 
         // 更新测试进度图表
-        function updateTestingChart(data) {
-            const ctx = document.getElementById('testingChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: data.map(d => d.teamName),
-                    datasets: [
-                        {
-                            label: '实际测试',
-                            data: data.map(d => d.actualTesting),
-                            backgroundColor: 'rgba(0, 128, 0, 0.8)'
-                        },
-                        {
-                            label: '计划测试',
-                            data: data.map(d => d.plannedTesting),
-                            backgroundColor: 'rgba(128, 128, 128, 0.8)'
-                        }
-                    ]
+        function updateTestingProgressChart(data) {
+            const option = {
+                tooltip: {
+                    trigger: 'axis'
                 },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            stacked: true,
-                            max: 100
-                        },
-                        y: {
-                            stacked: true
-                        }
-                    }
-                }
-            });
+                legend: {
+                    data: ['计划测试', '实际测试', ...data.teams.map(team => team.teamName)]
+                },
+                xAxis: {
+                    type: 'category',
+                    data: data.labels
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '完成率(%)',
+                    max: 100,
+                    min: 0
+                },
+                series: [
+                    {
+                        name: '计划测试',
+                        type: 'line',
+                        data: data.plannedTesting
+                    },
+                    {
+                        name: '实际测试',
+                        type: 'line',
+                        data: data.actualTesting
+                    },
+                    ...data.teams.map(team => ({
+                        name: team.teamName,
+                        type: 'line',
+                        data: team.actualTesting
+                    }))
+                ]
+            };
+            testingProgressChart.setOption(option);
         }
 
-        // 更新Bug处理进度图表
-        function updateBugChart(data) {
-            const ctx = document.getElementById('bugChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: data.map(d => d.teamName),
-                    datasets: [
-                        {
-                            label: 'PRE-待修复',
-                            data: data.map(d => d.prePending),
-                            backgroundColor: 'rgba(255, 0, 0, 0.8)',
-                            stack: 'PRE'
-                        },
-                        {
-                            label: 'PRE-已修复',
-                            data: data.map(d => d.preFixed),
-                            backgroundColor: 'rgba(0, 128, 0, 0.8)',
-                            stack: 'PRE'
-                        },
-                        {
-                            label: 'UAT-待修复',
-                            data: data.map(d => d.uatPending),
-                            backgroundColor: 'rgba(255, 165, 0, 0.8)',
-                            stack: 'UAT'
-                        },
-                        {
-                            label: 'UAT-已修复',
-                            data: data.map(d => d.uatFixed),
-                            backgroundColor: 'rgba(144, 238, 144, 0.8)',
-                            stack: 'UAT'
-                        }
-                    ]
+        // 更新Bug进度图表
+        function updateBugProgressChart(data) {
+            const option = {
+                tooltip: {
+                    trigger: 'axis'
                 },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            stacked: true
-                        },
-                        y: {
-                            stacked: true
-                        }
+                legend: {
+                    data: ['新增Bug', '修复Bug', '剩余Bug']
+                },
+                xAxis: {
+                    type: 'category',
+                    data: data.labels
+                },
+                yAxis: {
+                    type: 'value',
+                    name: 'Bug数量'
+                },
+                series: [
+                    {
+                        name: '新增Bug',
+                        type: 'line',
+                        data: data.newBugs
+                    },
+                    {
+                        name: '修复Bug',
+                        type: 'line',
+                        data: data.fixedBugs
+                    },
+                    {
+                        name: '剩余Bug',
+                        type: 'line',
+                        data: data.remainingBugs
                     }
-                }
-            });
+                ]
+            };
+            bugProgressChart.setOption(option);
         }
 
-        // 页面加载时获取数据
-        document.addEventListener('DOMContentLoaded', fetchData);
+        // 页面加载完成后获取数据
+        window.addEventListener('load', fetchDataAndUpdateCharts);
+
+        // 窗口大小改变时重新调整图表大小
+        window.addEventListener('resize', function() {
+            sprintPlanningChart.resize();
+            iterationCompletionChart.resize();
+            changeTrackingChart.resize();
+            testingProgressChart.resize();
+            bugProgressChart.resize();
+        });
     </script>
 </body>
 </html> 
