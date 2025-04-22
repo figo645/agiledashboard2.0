@@ -5,38 +5,15 @@ id="changeChart"
 id="testingChart"
 id="bugChart"
 
-我需要改写id="sprintTable"的取值方式，呈现的表格形式不变
-但是需要用如下的js方式来获取数据并呈现在画面上，本次改动仅仅修改index.html的内容，任然保留静态页面
+将这5个id对应的函数内的静态数据，变成从后端api获取数据
+后端API对应的也成为五个，分别是
+/api/sprintTable
+/api/completionChart
+/api/changeChart
+/api/testingChart
+/api/bugChart
 
-// Iteration Completion Progress Chart
-        const completionCtx = document.getElementById('completionChart').getContext('2d');
-        new Chart(completionCtx, {
-            type: 'bar',
-            data: {
-                labels: teams,
-                datasets: [
-                    {
-                        label: '计划任务',
-                        data: [20, 15, 25, 18, 22, 16, 28, 20, 15, 25],
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)'
-                    },
-                    {
-                        label: '已完成任务',
-                        data: [15, 12, 20, 15, 18, 12, 22, 16, 12, 20],
-                        backgroundColor: 'rgba(0, 128, 0, 0.8)'
-                    }
-                ]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
+改为这个形态好，我需要确保画面layout和内容和之前一样，但是数据从后端获取
+其对应的json文件也请一并生成，并放在src/main/resources/static/data目录下
 
-
+这些api后台函数，仅作为本次测试用，之后我会用真实的api地址来替换
