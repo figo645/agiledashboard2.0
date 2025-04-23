@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>敏捷迭代看板</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         body {
@@ -49,11 +51,100 @@
             position: relative;
             height: 400px;
             margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .chart-wrapper {
+            height: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            padding-right: 8px;
+        }
+        .chart-wrapper::-webkit-scrollbar {
+            width: 8px;
+        }
+        .chart-wrapper::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .chart-wrapper::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        .chart-wrapper::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+        .chart-wrapper canvas {
+            width: 100% !important;
+            height: auto !important;
+            min-height: 400px;
+        }
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 300px;
+            }
+            .chart-wrapper canvas {
+                min-height: 300px;
+            }
         }
         .grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 20px;
+        }
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .maximize-btn {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            padding: 5px;
+            font-size: 16px;
+            transition: color 0.2s;
+        }
+        .maximize-btn:hover {
+            color: #333;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+        .modal-content {
+            position: relative;
+            background-color: white;
+            margin: 5% auto;
+            padding: 20px;
+            width: 90%;
+            height: 80%;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .close-btn {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+        .close-btn:hover {
+            color: #333;
+        }
+        .modal-chart-container {
+            height: calc(100% - 40px);
+            width: 100%;
         }
     </style>
 </head>
@@ -85,15 +176,23 @@
         <div class="grid">
             <!-- Iteration Completion Progress -->
             <div class="panel">
-                <div class="panel-title">迭代完成进度</div>
+                <div class="chart-header">
+                    <div class="panel-title">迭代完成进度</div>
+                    <button class="maximize-btn" onclick="maximizeChart('completionChart')">⛶</button>
+                </div>
                 <div class="chart-container">
-                    <canvas id="completionChart"></canvas>
+                    <div class="chart-wrapper">
+                        <canvas id="completionChart"></canvas>
+                    </div>
                 </div>
             </div>
 
             <!-- Change Tracking -->
             <div class="panel">
-                <div class="panel-title">变更情况</div>
+                <div class="chart-header">
+                    <div class="panel-title">变更情况</div>
+                    <button class="maximize-btn" onclick="maximizeChart('changeChart')">⛶</button>
+                </div>
                 <div class="chart-container">
                     <canvas id="changeChart"></canvas>
                 </div>
@@ -101,7 +200,10 @@
 
             <!-- Testing Progress -->
             <div class="panel">
-                <div class="panel-title">测试进度</div>
+                <div class="chart-header">
+                    <div class="panel-title">测试进度</div>
+                    <button class="maximize-btn" onclick="maximizeChart('testingChart')">⛶</button>
+                </div>
                 <div class="chart-container">
                     <canvas id="testingChart"></canvas>
                 </div>
@@ -109,7 +211,10 @@
 
             <!-- Bug Handling Progress -->
             <div class="panel">
-                <div class="panel-title">Bug处理进度</div>
+                <div class="chart-header">
+                    <div class="panel-title">Bug处理进度</div>
+                    <button class="maximize-btn" onclick="maximizeChart('bugChart')">⛶</button>
+                </div>
                 <div class="chart-container">
                     <canvas id="bugChart"></canvas>
                 </div>
@@ -117,7 +222,20 @@
         </div>
     </div>
 
+    <!-- Modal for maximized charts -->
+    <div id="chartModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <div class="modal-chart-container">
+                <canvas id="modalChart"></canvas>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // 注册缩放插件
+        Chart.register(ChartZoom);
+        
         // 从后端API加载数据
         async function loadData() {
             try {
@@ -177,22 +295,28 @@
             });
         }
 
+        // 存储图表实例
+        const chartInstances = {};
+
         // 更新Iteration Completion图表
         function updateCompletionChart(data) {
+            // 按照计划进度降序排序
+            const sortedData = [...data].sort((a, b) => b.plannedProgress - a.plannedProgress);
+            
             const ctx = document.getElementById('completionChart').getContext('2d');
-            new Chart(ctx, {
+            chartInstances.completionChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: data.map(d => d.teamName),
+                    labels: sortedData.map(d => d.teamName),
                     datasets: [
                         {
                             label: '计划进度',
-                            data: data.map(d => d.plannedProgress),
+                            data: sortedData.map(d => d.plannedProgress),
                             backgroundColor: 'rgba(75, 192, 192, 0.5)'
                         },
                         {
                             label: '实际进度',
-                            data: data.map(d => d.actualProgress),
+                            data: sortedData.map(d => d.actualProgress),
                             backgroundColor: 'rgba(255, 99, 132, 0.5)'
                         }
                     ]
@@ -208,6 +332,32 @@
                                 display: true,
                                 text: '进度 (%)'
                             }
+                        },
+                        y: {
+                            min: 0,
+                            max: 7,
+                            ticks: {
+                                maxRotation: 0,
+                                autoSkip: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        zoom: {
+                            pan: {
+                                enabled: true,
+                                mode: 'y'
+                            },
+                            zoom: {
+                                wheel: {
+                                    enabled: true,
+                                    speed: 0.1
+                                },
+                                pinch: {
+                                    enabled: true
+                                },
+                                mode: 'y'
+                            }
                         }
                     }
                 }
@@ -217,7 +367,7 @@
         // 更新Change Tracking图表
         function updateChangeChart(data) {
             const ctx = document.getElementById('changeChart').getContext('2d');
-            new Chart(ctx, {
+            chartInstances.changeChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: data.map(d => d.teamName),
@@ -245,6 +395,32 @@
                                 display: true,
                                 text: '任务数量'
                             }
+                        },
+                        y: {
+                            min: 0,
+                            max: 7,
+                            ticks: {
+                                maxRotation: 0,
+                                autoSkip: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        zoom: {
+                            pan: {
+                                enabled: true,
+                                mode: 'y'
+                            },
+                            zoom: {
+                                wheel: {
+                                    enabled: true,
+                                    speed: 0.1
+                                },
+                                pinch: {
+                                    enabled: true
+                                },
+                                mode: 'y'
+                            }
                         }
                     }
                 }
@@ -254,7 +430,7 @@
         // 更新Testing Progress图表
         function updateTestingChart(data) {
             const ctx = document.getElementById('testingChart').getContext('2d');
-            new Chart(ctx, {
+            chartInstances.testingChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: data.map(d => d.teamName),
@@ -282,6 +458,32 @@
                                 display: true,
                                 text: '测试用例数量'
                             }
+                        },
+                        y: {
+                            min: 0,
+                            max: 7,
+                            ticks: {
+                                maxRotation: 0,
+                                autoSkip: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        zoom: {
+                            pan: {
+                                enabled: true,
+                                mode: 'y'
+                            },
+                            zoom: {
+                                wheel: {
+                                    enabled: true,
+                                    speed: 0.1
+                                },
+                                pinch: {
+                                    enabled: true
+                                },
+                                mode: 'y'
+                            }
                         }
                     }
                 }
@@ -291,7 +493,7 @@
         // 更新Bug Progress图表
         function updateBugChart(data) {
             const ctx = document.getElementById('bugChart').getContext('2d');
-            new Chart(ctx, {
+            chartInstances.bugChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: data.map(d => d.teamName),
@@ -329,10 +531,102 @@
                                 display: true,
                                 text: 'Bug数量'
                             }
+                        },
+                        y: {
+                            min: 0,
+                            max: 7,
+                            ticks: {
+                                maxRotation: 0,
+                                autoSkip: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        zoom: {
+                            pan: {
+                                enabled: true,
+                                mode: 'y'
+                            },
+                            zoom: {
+                                wheel: {
+                                    enabled: true,
+                                    speed: 0.1
+                                },
+                                pinch: {
+                                    enabled: true
+                                },
+                                mode: 'y'
+                            }
                         }
                     }
                 }
             });
+        }
+
+        // 最大化图表
+        function maximizeChart(chartId) {
+            const modal = document.getElementById('chartModal');
+            const modalCanvas = document.getElementById('modalChart');
+            const originalChart = chartInstances[chartId];
+            
+            // 创建新的图表实例
+            const modalCtx = modalCanvas.getContext('2d');
+            
+            // 确保复制完整的图表配置
+            const modalChart = new Chart(modalCtx, {
+                type: originalChart.config.type,
+                data: {
+                    labels: originalChart.data.labels,
+                    datasets: originalChart.data.datasets.map(dataset => ({
+                        ...dataset,
+                        data: [...dataset.data]
+                    }))
+                },
+                options: {
+                    ...originalChart.config.options,
+                    maintainAspectRatio: true,
+                    responsive: true,
+                    scales: {
+                        ...originalChart.config.options.scales,
+                        y: {
+                            ...originalChart.config.options.scales.y,
+                            min: undefined,
+                            max: undefined
+                        }
+                    }
+                }
+            });
+
+            // 显示模态框
+            modal.style.display = 'block';
+
+            // 监听窗口大小变化，重新调整图表
+            window.addEventListener('resize', function modalResize() {
+                modalChart.resize();
+            });
+
+            // 存储模态框图表实例
+            chartInstances.modalChart = modalChart;
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            const modal = document.getElementById('chartModal');
+            modal.style.display = 'none';
+            
+            // 销毁模态框中的图表实例
+            if (chartInstances.modalChart) {
+                chartInstances.modalChart.destroy();
+                delete chartInstances.modalChart;
+            }
+        }
+
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            const modal = document.getElementById('chartModal');
+            if (event.target == modal) {
+                closeModal();
+            }
         }
 
         // 页面加载时加载数据
