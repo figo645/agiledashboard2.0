@@ -124,26 +124,31 @@
                 // 加载Sprint Planning数据
                 const sprintResponse = await fetch('/dashboard/api/sprint-planning');
                 const sprintData = await sprintResponse.json();
+                console.log('Sprint Planning Data:', sprintData);
                 updateSprintTable(sprintData.teams);
 
                 // 加载Iteration Completion数据
                 const completionResponse = await fetch('/dashboard/api/iteration-completion');
                 const completionData = await completionResponse.json();
-                updateCompletionChart(completionData.weeks);
+                console.log('Iteration Completion Data:', completionData);
+                updateCompletionChart(completionData.teams);
 
                 // 加载Change Tracking数据
                 const changeResponse = await fetch('/dashboard/api/change-tracking');
                 const changeData = await changeResponse.json();
+                console.log('Change Tracking Data:', changeData);
                 updateChangeChart(changeData.weeks);
 
                 // 加载Testing Progress数据
                 const testingResponse = await fetch('/dashboard/api/testing-progress');
                 const testingData = await testingResponse.json();
+                console.log('Testing Progress Data:', testingData);
                 updateTestingChart(testingData.teams);
 
                 // 加载Bug Progress数据
                 const bugResponse = await fetch('/dashboard/api/bug-progress');
                 const bugData = await bugResponse.json();
+                console.log('Bug Progress Data:', bugData);
                 updateBugChart(bugData.teams);
             } catch (error) {
                 console.error('Error loading data:', error);
@@ -176,21 +181,19 @@
         function updateCompletionChart(data) {
             const ctx = document.getElementById('completionChart').getContext('2d');
             new Chart(ctx, {
-                type: 'line',
+                type: 'bar',
                 data: {
-                    labels: data.map(d => `第${d.week}周`),
+                    labels: data.map(d => d.teamName),
                     datasets: [
                         {
                             label: '计划进度',
                             data: data.map(d => d.plannedProgress),
-                            borderColor: 'rgb(75, 192, 192)',
-                            tension: 0.1
+                            backgroundColor: 'rgba(75, 192, 192, 0.5)'
                         },
                         {
                             label: '实际进度',
                             data: data.map(d => d.actualProgress),
-                            borderColor: 'rgb(255, 99, 132)',
-                            tension: 0.1
+                            backgroundColor: 'rgba(255, 99, 132, 0.5)'
                         }
                     ]
                 },
