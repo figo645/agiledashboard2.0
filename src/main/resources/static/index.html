@@ -146,13 +146,33 @@
             height: calc(100% - 40px);
             width: 100%;
         }
+        .table-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .modal-table-container {
+            height: calc(100% - 40px);
+            overflow-y: auto;
+        }
+        .modal-table-container table {
+            width: 100%;
+        }
+        .modal-table-container th {
+            position: sticky;
+            top: 0;
+            background-color: #f8f9fa;
+            z-index: 1;
+        }
     </style>
 </head>
 <body>
     <div class="dashboard">
         <!-- Sprint Planning Analysis Table -->
         <div class="panel">
-            <div class="panel-title">Sprint计划分析</div>
+            <div class="chart-header">
+                <div class="panel-title">Sprint计划分析</div>
+                <button class="maximize-btn" onclick="maximizeTable('sprintTable')">⛶</button>
+            </div>
             <div class="table-container">
                 <table id="sprintTable">
                     <thead>
@@ -170,6 +190,31 @@
                     </thead>
                     <tbody></tbody>
                 </table>
+            </div>
+        </div>
+
+        <!-- Modal for maximized tables -->
+        <div id="tableModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeTableModal()">&times;</span>
+                <div class="modal-table-container">
+                    <table id="modalSprintTable">
+                        <thead>
+                            <tr>
+                                <th>团队</th>
+                                <th>团队人数</th>
+                                <th>Sprint总点数</th>
+                                <th>人均点数</th>
+                                <th>开发占比%</th>
+                                <th>测试占比%</th>
+                                <th>文档占比%</th>
+                                <th>测试率%</th>
+                                <th>延迟卡片数</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -276,9 +321,12 @@
         // 更新Sprint Planning表格
         function updateSprintTable(data) {
             const tbody = document.querySelector('#sprintTable tbody');
+            const modalTbody = document.querySelector('#modalSprintTable tbody');
             tbody.innerHTML = '';
+            modalTbody.innerHTML = '';
             
-            data.forEach(row => {
+            // 显示前8个团队
+            data.slice(0, 8).forEach(row => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${row.teamName}</td>
@@ -292,6 +340,23 @@
                     <td>${row.delayCards}</td>
                 `;
                 tbody.appendChild(tr);
+            });
+
+            // 在模态框中显示所有团队
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.teamName}</td>
+                    <td>${row.teamSize}</td>
+                    <td>${row.totalPoints}</td>
+                    <td>${row.pointsPerPerson}</td>
+                    <td>${row.developmentPercentage}%</td>
+                    <td>${row.testingPercentage}%</td>
+                    <td>${row.documentationPercentage}%</td>
+                    <td>${row.testingRate}%</td>
+                    <td>${row.delayCards}</td>
+                `;
+                modalTbody.appendChild(tr);
             });
         }
 
@@ -626,6 +691,26 @@
             const modal = document.getElementById('chartModal');
             if (event.target == modal) {
                 closeModal();
+            }
+        }
+
+        // 最大化表格
+        function maximizeTable(tableId) {
+            const modal = document.getElementById('tableModal');
+            modal.style.display = 'block';
+        }
+
+        // 关闭表格模态框
+        function closeTableModal() {
+            const modal = document.getElementById('tableModal');
+            modal.style.display = 'none';
+        }
+
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            const modal = document.getElementById('tableModal');
+            if (event.target == modal) {
+                closeTableModal();
             }
         }
 
