@@ -365,10 +365,18 @@
 
         // 更新Iteration Completion图表
         function updateCompletionChart(data) {
+            console.log('Updating completion chart with data:', data);
+            
             // 按照计划进度降序排序
             const sortedData = [...data].sort((a, b) => b.plannedProgress - a.plannedProgress);
             
             const ctx = document.getElementById('completionChart').getContext('2d');
+            
+            // 如果已存在图表实例，先销毁它
+            if (chartInstances.completionChart) {
+                chartInstances.completionChart.destroy();
+            }
+            
             chartInstances.completionChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -400,7 +408,7 @@
                         },
                         y: {
                             min: 0,
-                            max: 7,
+                            max: 7, // 默认显示前8个团队
                             ticks: {
                                 maxRotation: 0,
                                 autoSkip: false
