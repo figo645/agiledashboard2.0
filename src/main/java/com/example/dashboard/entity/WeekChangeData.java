@@ -5,17 +5,12 @@ public class WeekChangeData {
     private int insertedTasks;
     private int removedTasks;
     private int originalTasks;
-    private int teamAChanges;
-    private int teamBChanges;
 
-    public WeekChangeData(int week, int insertedTasks, int removedTasks,
-                         int originalTasks, int teamAChanges, int teamBChanges) {
+    public WeekChangeData(int week, int insertedTasks, int removedTasks, int originalTasks) {
         this.week = week;
         this.insertedTasks = insertedTasks;
         this.removedTasks = removedTasks;
         this.originalTasks = originalTasks;
-        this.teamAChanges = teamAChanges;
-        this.teamBChanges = teamBChanges;
     }
 
     // Getters and Setters
@@ -49,21 +44,5 @@ public class WeekChangeData {
 
     public void setOriginalTasks(int originalTasks) {
         this.originalTasks = originalTasks;
-    }
-
-    public int getTeamAChanges() {
-        return teamAChanges;
-    }
-
-    public void setTeamAChanges(int teamAChanges) {
-        this.teamAChanges = teamAChanges;
-    }
-
-    public int getTeamBChanges() {
-        return teamBChanges;
-    }
-
-    public void setTeamBChanges(int teamBChanges) {
-        this.teamBChanges = teamBChanges;
     }
 } 

@@ -1,22 +1,22 @@
 package com.example.dashboard.entity;
 
 public class WeekData {
-    private int week;
+    private String week;
     private int plannedProgress;
     private int actualProgress;
 
-    public WeekData(int week, int plannedProgress, int actualProgress) {
+    public WeekData(String week, int plannedProgress, int actualProgress) {
         this.week = week;
         this.plannedProgress = plannedProgress;
         this.actualProgress = actualProgress;
     }
 
     // Getters and Setters
-    public int getWeek() {
+    public String getWeek() {
         return week;
     }
 
-    public void setWeek(int week) {
+    public void setWeek(String week) {
         this.week = week;
     }
 

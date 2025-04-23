@@ -1,5 +1,5 @@
-week,insertedTasks,removedTasks,originalTasks,teamAChanges,teamBChanges
-1,5,3,2,4,2
-2,8,5,3,6,3
-3,12,8,4,9,4
-4,15,10,5,12,5 
+week,insertedTasks,removedTasks,originalTasks
+1,5,3,2
+2,8,5,3
+3,12,8,4
+4,15,10,5 

@@ -22,12 +22,10 @@ public class ChangeTrackingService {
         for (int i = 1; i < data.size(); i++) {
             String[] row = data.get(i);
             weeks.add(new WeekChangeData(
-                Integer.parseInt(row[0]), // week
-                Integer.parseInt(row[1]), // insertedTasks
-                Integer.parseInt(row[2]), // removedTasks
-                Integer.parseInt(row[3]), // originalTasks
-                Integer.parseInt(row[4]), // teamAChanges
-                Integer.parseInt(row[5])  // teamBChanges
+                Integer.parseInt(row[0].trim()), // week
+                Integer.parseInt(row[1].trim()), // insertedTasks
+                Integer.parseInt(row[2].trim()), // removedTasks
+                Integer.parseInt(row[3].trim())  // originalTasks
             ));
         }
         return new ChangeTrackingData(weeks);

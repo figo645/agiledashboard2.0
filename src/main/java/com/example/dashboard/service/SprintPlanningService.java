@@ -23,14 +23,14 @@ public class SprintPlanningService {
             String[] row = data.get(i);
             teams.add(new TeamData(
                 row[0], // teamName
-                Integer.parseInt(row[1]), // teamSize
-                Integer.parseInt(row[2]), // totalPoints
-                Integer.parseInt(row[3]), // pointsPerPerson
-                Integer.parseInt(row[4]), // developmentPercentage
-                Integer.parseInt(row[5]), // testingPercentage
-                Integer.parseInt(row[6]), // documentationPercentage
-                Integer.parseInt(row[7]), // testingRate
-                Integer.parseInt(row[8])  // delayCards
+                Integer.parseInt(row[1].trim()), // teamSize
+                Integer.parseInt(row[2].trim()), // totalPoints
+                Integer.parseInt(row[3].trim()), // pointsPerPerson
+                Integer.parseInt(row[4].trim()), // developmentPercentage
+                Integer.parseInt(row[5].trim()), // testingPercentage
+                Integer.parseInt(row[6].trim()), // documentationPercentage
+                Integer.parseInt(row[7].trim()), // testingRate
+                Integer.parseInt(row[8].trim())  // delayCards
             ));
         }
         return new SprintPlanningData(teams);

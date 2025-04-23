@@ -22,9 +22,9 @@ public class IterationCompletionService {
         for (int i = 1; i < data.size(); i++) {
             String[] row = data.get(i);
             weeks.add(new WeekData(
-                Integer.parseInt(row[0]), // week
-                Integer.parseInt(row[1]), // plannedProgress
-                Integer.parseInt(row[2])  // actualProgress
+                row[0], // week
+                Integer.parseInt(row[1].trim()), // plannedProgress
+                Integer.parseInt(row[2].trim())  // actualProgress
             ));
         }
         return new IterationCompletionData(weeks);
