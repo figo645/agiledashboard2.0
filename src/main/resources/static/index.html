@@ -137,7 +137,7 @@
                 const changeResponse = await fetch('/dashboard/api/change-tracking');
                 const changeData = await changeResponse.json();
                 console.log('Change Tracking Data:', changeData);
-                updateChangeChart(changeData.weeks);
+                updateChangeChart(changeData.teams);
 
                 // 加载Testing Progress数据
                 const testingResponse = await fetch('/dashboard/api/testing-progress');
@@ -219,7 +219,7 @@
             new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: data.map(d => `第${d.week}周`),
+                    labels: data.map(d => d.teamName),
                     datasets: [
                         {
                             label: '新增任务',

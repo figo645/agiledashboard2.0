@@ -3,8 +3,15 @@ package com.example.dashboard.entity;
 public class TeamChangeData {
     private String teamName;
     private int insertedTasks;
-    private int originalTasks;
     private int removedTasks;
+    private int originalTasks;
+
+    public TeamChangeData(String teamName, int insertedTasks, int removedTasks, int originalTasks) {
+        this.teamName = teamName;
+        this.insertedTasks = insertedTasks;
+        this.removedTasks = removedTasks;
+        this.originalTasks = originalTasks;
+    }
 
     public String getTeamName() {
         return teamName;
@@ -22,19 +29,19 @@ public class TeamChangeData {
         this.insertedTasks = insertedTasks;
     }
 
-    public int getOriginalTasks() {
-        return originalTasks;
-    }
-
-    public void setOriginalTasks(int originalTasks) {
-        this.originalTasks = originalTasks;
-    }
-
     public int getRemovedTasks() {
         return removedTasks;
     }
 
     public void setRemovedTasks(int removedTasks) {
         this.removedTasks = removedTasks;
+    }
+
+    public int getOriginalTasks() {
+        return originalTasks;
+    }
+
+    public void setOriginalTasks(int originalTasks) {
+        this.originalTasks = originalTasks;
     }
 } 

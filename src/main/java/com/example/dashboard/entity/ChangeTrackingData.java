@@ -3,17 +3,17 @@ package com.example.dashboard.entity;
 import java.util.List;
 
 public class ChangeTrackingData {
-    private List<WeekChangeData> weeks;
+    private List<TeamChangeData> teams;
 
-    public ChangeTrackingData(List<WeekChangeData> weeks) {
-        this.weeks = weeks;
+    public ChangeTrackingData(List<TeamChangeData> teams) {
+        this.teams = teams;
     }
 
-    public List<WeekChangeData> getWeeks() {
-        return weeks;
+    public List<TeamChangeData> getTeams() {
+        return teams;
     }
 
-    public void setWeeks(List<WeekChangeData> weeks) {
-        this.weeks = weeks;
+    public void setTeams(List<TeamChangeData> teams) {
+        this.teams = teams;
     }
 } 
