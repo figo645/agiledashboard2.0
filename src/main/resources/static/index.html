@@ -118,28 +118,33 @@
     </div>
 
     <script>
-        // 从CSV文件加载数据
+        // 从后端API加载数据
         async function loadData() {
             try {
                 // 加载Sprint Planning数据
-                const sprintData = await d3.csv("data/sprint_planning.csv");
-                updateSprintTable(sprintData);
+                const sprintResponse = await fetch('/dashboard/api/sprint-planning');
+                const sprintData = await sprintResponse.json();
+                updateSprintTable(sprintData.teams);
 
                 // 加载Iteration Completion数据
-                const completionData = await d3.csv("data/iteration_completion.csv");
-                updateCompletionChart(completionData);
+                const completionResponse = await fetch('/dashboard/api/iteration-completion');
+                const completionData = await completionResponse.json();
+                updateCompletionChart(completionData.weeks);
 
                 // 加载Change Tracking数据
-                const changeData = await d3.csv("data/change_tracking.csv");
-                updateChangeChart(changeData);
+                const changeResponse = await fetch('/dashboard/api/change-tracking');
+                const changeData = await changeResponse.json();
+                updateChangeChart(changeData.weeks);
 
                 // 加载Testing Progress数据
-                const testingData = await d3.csv("data/testing_progress.csv");
-                updateTestingChart(testingData);
+                const testingResponse = await fetch('/dashboard/api/testing-progress');
+                const testingData = await testingResponse.json();
+                updateTestingChart(testingData.teams);
 
                 // 加载Bug Progress数据
-                const bugData = await d3.csv("data/bug_progress.csv");
-                updateBugChart(bugData);
+                const bugResponse = await fetch('/dashboard/api/bug-progress');
+                const bugData = await bugResponse.json();
+                updateBugChart(bugData.teams);
             } catch (error) {
                 console.error('Error loading data:', error);
             }

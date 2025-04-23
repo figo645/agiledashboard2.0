@@ -15,7 +15,7 @@ public class TestingProgressController {
     private TestingProgressService testingProgressService;
 
     @GetMapping("/testing-progress")
-    public TestingProgressData getTestingProgress() {
+    public TestingProgressData getTestingProgressData() {
         return testingProgressService.getTestingProgressData();
     }
 } 
