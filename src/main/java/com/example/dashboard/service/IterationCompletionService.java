@@ -24,12 +24,12 @@ public class IterationCompletionService {
                     String[] values = line.split(",");
                     String programName = values[0].trim();
                     String teamName = values[1].trim();
-                    int plannedProgress = Integer.parseInt(values[2].trim());
-                    int actualProgress = Integer.parseInt(values[3].trim());
-                    int storypointPlanned = Integer.parseInt(values[4].trim());
-                    int storypointCompleted = Integer.parseInt(values[5].trim());
+                    double plannedCount = Double.parseDouble(values[2].trim());
+                    double completedCount = Double.parseDouble(values[3].trim());
+                    double storypointPlanned = Double.parseDouble(values[4].trim());
+                    double storypointCompleted = Double.parseDouble(values[5].trim());
                     
-                    teams.add(new TeamProgressData(programName, teamName, plannedProgress, actualProgress,
+                    teams.add(new TeamProgressData(programName, teamName, plannedCount, completedCount,
                                                  storypointPlanned, storypointCompleted));
                 }
             }

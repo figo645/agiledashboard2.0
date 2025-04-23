@@ -3,23 +3,23 @@ package com.example.dashboard.entity;
 public class TeamProgressData {
     private String programName;
     private String teamName;
-    private int plannedProgress;
-    private int actualProgress;
-    private int storypointPlanned;
-    private int storypointCompleted;
-    private int testPoints;
-    private int userStoryPoints;
-    private int userStoryRatio;
-    private int enablerPoints;
-    private int enablerRatio;
-    private int storyThroughput;
+    private double plannedCount;
+    private double completedCount;
+    private double storypointPlanned;
+    private double storypointCompleted;
+    private double testPoints;
+    private double userStoryPoints;
+    private double userStoryRatio;
+    private double enablerPoints;
+    private double enablerRatio;
+    private double storyThroughput;
 
-    public TeamProgressData(String programName, String teamName, int plannedProgress, int actualProgress,
-                          int storypointPlanned, int storypointCompleted) {
+    public TeamProgressData(String programName, String teamName, double plannedCount, double completedCount,
+                          double storypointPlanned, double storypointCompleted) {
         this.programName = programName;
         this.teamName = teamName;
-        this.plannedProgress = plannedProgress;
-        this.actualProgress = actualProgress;
+        this.plannedCount = plannedCount;
+        this.completedCount = completedCount;
         this.storypointPlanned = storypointPlanned;
         this.storypointCompleted = storypointCompleted;
     }
@@ -41,83 +41,83 @@ public class TeamProgressData {
         this.teamName = teamName;
     }
 
-    public int getPlannedProgress() {
-        return plannedProgress;
+    public double getPlannedCount() {
+        return plannedCount;
     }
 
-    public void setPlannedProgress(int plannedProgress) {
-        this.plannedProgress = plannedProgress;
+    public void setPlannedCount(double plannedCount) {
+        this.plannedCount = plannedCount;
     }
 
-    public int getActualProgress() {
-        return actualProgress;
+    public double getCompletedCount() {
+        return completedCount;
     }
 
-    public void setActualProgress(int actualProgress) {
-        this.actualProgress = actualProgress;
+    public void setCompletedCount(double completedCount) {
+        this.completedCount = completedCount;
     }
 
-    public int getStorypointPlanned() {
+    public double getStorypointPlanned() {
         return storypointPlanned;
     }
 
-    public void setStorypointPlanned(int storypointPlanned) {
+    public void setStorypointPlanned(double storypointPlanned) {
         this.storypointPlanned = storypointPlanned;
     }
 
-    public int getStorypointCompleted() {
+    public double getStorypointCompleted() {
         return storypointCompleted;
     }
 
-    public void setStorypointCompleted(int storypointCompleted) {
+    public void setStorypointCompleted(double storypointCompleted) {
         this.storypointCompleted = storypointCompleted;
     }
 
-    public int getTestPoints() {
+    public double getTestPoints() {
         return testPoints;
     }
 
-    public void setTestPoints(int testPoints) {
+    public void setTestPoints(double testPoints) {
         this.testPoints = testPoints;
     }
 
-    public int getUserStoryPoints() {
+    public double getUserStoryPoints() {
         return userStoryPoints;
     }
 
-    public void setUserStoryPoints(int userStoryPoints) {
+    public void setUserStoryPoints(double userStoryPoints) {
         this.userStoryPoints = userStoryPoints;
     }
 
-    public int getUserStoryRatio() {
+    public double getUserStoryRatio() {
         return userStoryRatio;
     }
 
-    public void setUserStoryRatio(int userStoryRatio) {
+    public void setUserStoryRatio(double userStoryRatio) {
         this.userStoryRatio = userStoryRatio;
     }
 
-    public int getEnablerPoints() {
+    public double getEnablerPoints() {
         return enablerPoints;
     }
 
-    public void setEnablerPoints(int enablerPoints) {
+    public void setEnablerPoints(double enablerPoints) {
         this.enablerPoints = enablerPoints;
     }
 
-    public int getEnablerRatio() {
+    public double getEnablerRatio() {
         return enablerRatio;
     }
 
-    public void setEnablerRatio(int enablerRatio) {
+    public void setEnablerRatio(double enablerRatio) {
         this.enablerRatio = enablerRatio;
     }
 
-    public int getStoryThroughput() {
+    public double getStoryThroughput() {
         return storyThroughput;
     }
 
-    public void setStoryThroughput(int storyThroughput) {
+    public void setStoryThroughput(double storyThroughput) {
         this.storyThroughput = storyThroughput;
     }
 } 

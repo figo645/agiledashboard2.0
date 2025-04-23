@@ -177,15 +177,18 @@
                 <table id="sprintTable">
                     <thead>
                         <tr>
+                            <th>项目组</th>
                             <th>团队</th>
-                            <th>团队人数</th>
-                            <th>Sprint总点数</th>
-                            <th>人均点数</th>
-                            <th>开发占比%</th>
-                            <th>测试占比%</th>
-                            <th>文档占比%</th>
-                            <th>测试率%</th>
-                            <th>延迟卡片数</th>
+                            <th>计划迭代数</th>
+                            <th>实际完成数</th>
+                            <th>计划故事点</th>
+                            <th>完成故事点</th>
+                            <th>测试点</th>
+                            <th>用户故事点</th>
+                            <th>用户故事占比</th>
+                            <th>使能点</th>
+                            <th>使能占比</th>
+                            <th>故事吞吐量</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -201,15 +204,18 @@
                     <table id="modalSprintTable">
                         <thead>
                             <tr>
+                                <th>项目组</th>
                                 <th>团队</th>
-                                <th>团队人数</th>
-                                <th>Sprint总点数</th>
-                                <th>人均点数</th>
-                                <th>开发占比%</th>
-                                <th>测试占比%</th>
-                                <th>文档占比%</th>
-                                <th>测试率%</th>
-                                <th>延迟卡片数</th>
+                                <th>计划迭代数</th>
+                                <th>实际完成数</th>
+                                <th>计划故事点</th>
+                                <th>完成故事点</th>
+                                <th>测试点</th>
+                                <th>用户故事点</th>
+                                <th>用户故事占比</th>
+                                <th>使能点</th>
+                                <th>使能占比</th>
+                                <th>故事吞吐量</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -329,15 +335,18 @@
             data.slice(0, 8).forEach(row => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
+                    <td>${row.programName}</td>
                     <td>${row.teamName}</td>
-                    <td>${row.teamSize}</td>
-                    <td>${row.totalPoints}</td>
-                    <td>${row.pointsPerPerson}</td>
-                    <td>${row.developmentPercentage}%</td>
-                    <td>${row.testingPercentage}%</td>
-                    <td>${row.documentationPercentage}%</td>
-                    <td>${row.testingRate}%</td>
-                    <td>${row.delayCards}</td>
+                    <td>${row.plannedCount}</td>
+                    <td>${row.completedCount}</td>
+                    <td>${row.storypointPlanned}</td>
+                    <td>${row.storypointCompleted}</td>
+                    <td>${row.testPoints}</td>
+                    <td>${row.userStoryPoints}</td>
+                    <td>${row.userStoryRatio}%</td>
+                    <td>${row.enablerPoints}</td>
+                    <td>${row.enablerRatio}%</td>
+                    <td>${row.storyThroughput}</td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -346,15 +355,18 @@
             data.forEach(row => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
+                    <td>${row.programName}</td>
                     <td>${row.teamName}</td>
-                    <td>${row.teamSize}</td>
-                    <td>${row.totalPoints}</td>
-                    <td>${row.pointsPerPerson}</td>
-                    <td>${row.developmentPercentage}%</td>
-                    <td>${row.testingPercentage}%</td>
-                    <td>${row.documentationPercentage}%</td>
-                    <td>${row.testingRate}%</td>
-                    <td>${row.delayCards}</td>
+                    <td>${row.plannedCount}</td>
+                    <td>${row.completedCount}</td>
+                    <td>${row.storypointPlanned}</td>
+                    <td>${row.storypointCompleted}</td>
+                    <td>${row.testPoints}</td>
+                    <td>${row.userStoryPoints}</td>
+                    <td>${row.userStoryRatio}%</td>
+                    <td>${row.enablerPoints}</td>
+                    <td>${row.enablerRatio}%</td>
+                    <td>${row.storyThroughput}</td>
                 `;
                 modalTbody.appendChild(tr);
             });
@@ -367,8 +379,8 @@
         function updateCompletionChart(data) {
             console.log('Updating completion chart with data:', data);
             
-            // 按照计划进度降序排序
-            const sortedData = [...data].sort((a, b) => b.plannedProgress - a.plannedProgress);
+            // 按照计划迭代数降序排序
+            const sortedData = [...data].sort((a, b) => b.plannedCount - a.plannedCount);
             
             const ctx = document.getElementById('completionChart').getContext('2d');
             
@@ -383,13 +395,13 @@
                     labels: sortedData.map(d => d.teamName),
                     datasets: [
                         {
-                            label: '计划进度',
-                            data: sortedData.map(d => d.plannedProgress),
+                            label: '计划迭代数',
+                            data: sortedData.map(d => d.plannedCount),
                             backgroundColor: 'rgba(75, 192, 192, 0.5)'
                         },
                         {
-                            label: '实际进度',
-                            data: sortedData.map(d => d.actualProgress),
+                            label: '实际完成数',
+                            data: sortedData.map(d => d.completedCount),
                             backgroundColor: 'rgba(255, 99, 132, 0.5)'
                         }
                     ]
@@ -403,7 +415,7 @@
                             beginAtZero: true,
                             title: {
                                 display: true,
-                                text: '进度 (%)'
+                                text: '迭代数量'
                             }
                         },
                         y: {

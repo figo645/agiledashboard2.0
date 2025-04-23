@@ -1,31 +1,46 @@
 package com.example.dashboard.entity;
 
 public class TeamData {
+    private String programName;
     private String teamName;
-    private int teamSize;
-    private int totalPoints;
-    private int pointsPerPerson;
-    private int developmentPercentage;
-    private int testingPercentage;
-    private int documentationPercentage;
-    private int testingRate;
-    private int delayCards;
+    private double plannedCount;
+    private double completedCount;
+    private double storypointPlanned;
+    private double storypointCompleted;
+    private double testPoints;
+    private double userStoryPoints;
+    private double userStoryRatio;
+    private double enablerPoints;
+    private double enablerRatio;
+    private double storyThroughput;
 
-    public TeamData(String teamName, int teamSize, int totalPoints, int pointsPerPerson,
-                   int developmentPercentage, int testingPercentage, int documentationPercentage,
-                   int testingRate, int delayCards) {
+    public TeamData(String programName, String teamName, double plannedCount, double completedCount,
+                   double storypointPlanned, double storypointCompleted, double testPoints,
+                   double userStoryPoints, double userStoryRatio, double enablerPoints,
+                   double enablerRatio, double storyThroughput) {
+        this.programName = programName;
         this.teamName = teamName;
-        this.teamSize = teamSize;
-        this.totalPoints = totalPoints;
-        this.pointsPerPerson = pointsPerPerson;
-        this.developmentPercentage = developmentPercentage;
-        this.testingPercentage = testingPercentage;
-        this.documentationPercentage = documentationPercentage;
-        this.testingRate = testingRate;
-        this.delayCards = delayCards;
+        this.plannedCount = plannedCount;
+        this.completedCount = completedCount;
+        this.storypointPlanned = storypointPlanned;
+        this.storypointCompleted = storypointCompleted;
+        this.testPoints = testPoints;
+        this.userStoryPoints = userStoryPoints;
+        this.userStoryRatio = userStoryRatio;
+        this.enablerPoints = enablerPoints;
+        this.enablerRatio = enablerRatio;
+        this.storyThroughput = storyThroughput;
     }
 
-    // Getters and Setters
+    // Getters and setters
+    public String getProgramName() {
+        return programName;
+    }
+
+    public void setProgramName(String programName) {
+        this.programName = programName;
+    }
+
     public String getTeamName() {
         return teamName;
     }
@@ -34,67 +49,83 @@ public class TeamData {
         this.teamName = teamName;
     }
 
-    public int getTeamSize() {
-        return teamSize;
+    public double getPlannedCount() {
+        return plannedCount;
     }
 
-    public void setTeamSize(int teamSize) {
-        this.teamSize = teamSize;
+    public void setPlannedCount(double plannedCount) {
+        this.plannedCount = plannedCount;
     }
 
-    public int getTotalPoints() {
-        return totalPoints;
+    public double getCompletedCount() {
+        return completedCount;
     }
 
-    public void setTotalPoints(int totalPoints) {
-        this.totalPoints = totalPoints;
+    public void setCompletedCount(double completedCount) {
+        this.completedCount = completedCount;
     }
 
-    public int getPointsPerPerson() {
-        return pointsPerPerson;
+    public double getStorypointPlanned() {
+        return storypointPlanned;
     }
 
-    public void setPointsPerPerson(int pointsPerPerson) {
-        this.pointsPerPerson = pointsPerPerson;
+    public void setStorypointPlanned(double storypointPlanned) {
+        this.storypointPlanned = storypointPlanned;
     }
 
-    public int getDevelopmentPercentage() {
-        return developmentPercentage;
+    public double getStorypointCompleted() {
+        return storypointCompleted;
     }
 
-    public void setDevelopmentPercentage(int developmentPercentage) {
-        this.developmentPercentage = developmentPercentage;
+    public void setStorypointCompleted(double storypointCompleted) {
+        this.storypointCompleted = storypointCompleted;
     }
 
-    public int getTestingPercentage() {
-        return testingPercentage;
+    public double getTestPoints() {
+        return testPoints;
     }
 
-    public void setTestingPercentage(int testingPercentage) {
-        this.testingPercentage = testingPercentage;
+    public void setTestPoints(double testPoints) {
+        this.testPoints = testPoints;
     }
 
-    public int getDocumentationPercentage() {
-        return documentationPercentage;
+    public double getUserStoryPoints() {
+        return userStoryPoints;
     }
 
-    public void setDocumentationPercentage(int documentationPercentage) {
-        this.documentationPercentage = documentationPercentage;
+    public void setUserStoryPoints(double userStoryPoints) {
+        this.userStoryPoints = userStoryPoints;
     }
 
-    public int getTestingRate() {
-        return testingRate;
+    public double getUserStoryRatio() {
+        return userStoryRatio;
     }
 
-    public void setTestingRate(int testingRate) {
-        this.testingRate = testingRate;
+    public void setUserStoryRatio(double userStoryRatio) {
+        this.userStoryRatio = userStoryRatio;
     }
 
-    public int getDelayCards() {
-        return delayCards;
+    public double getEnablerPoints() {
+        return enablerPoints;
     }
 
-    public void setDelayCards(int delayCards) {
-        this.delayCards = delayCards;
+    public void setEnablerPoints(double enablerPoints) {
+        this.enablerPoints = enablerPoints;
+    }
+
+    public double getEnablerRatio() {
+        return enablerRatio;
+    }
+
+    public void setEnablerRatio(double enablerRatio) {
+        this.enablerRatio = enablerRatio;
+    }
+
+    public double getStoryThroughput() {
+        return storyThroughput;
+    }
+
+    public void setStoryThroughput(double storyThroughput) {
+        this.storyThroughput = storyThroughput;
     }
 } 
