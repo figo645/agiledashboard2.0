@@ -23,11 +23,11 @@ public class TestingProgressService {
             String[] row = data.get(i);
             teams.add(new TeamTestingData(
                 row[0], // teamName
-                Integer.parseInt(row[1]), // totalTestCases
-                Integer.parseInt(row[2]), // completedTestCases
-                Integer.parseInt(row[3]), // passedTestCases
-                Integer.parseInt(row[4]), // failedTestCases
-                Integer.parseInt(row[5])  // blockedTestCases
+                Integer.parseInt(row[1].trim()), // totalTestCases
+                Integer.parseInt(row[2].trim()), // completedTestCases
+                Integer.parseInt(row[3].trim()), // passedTestCases
+                Integer.parseInt(row[4].trim()), // failedTestCases
+                Integer.parseInt(row[5].trim())  // blockedTestCases
             ));
         }
         return new TestingProgressData(teams);

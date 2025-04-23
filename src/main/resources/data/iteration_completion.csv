@@ -1,6 +1,6 @@
-week,plannedProgress,actualProgress
-1,20,15
-2,25,20
-3,30,25
-4,35,30
-5,40,35 
+teamName,plannedProgress,actualProgress
+团队A,100,80
+团队B,120,90
+团队C,150,120
+团队D,130,100
+团队E,140,110 

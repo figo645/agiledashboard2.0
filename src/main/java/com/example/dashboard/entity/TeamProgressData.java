@@ -1,23 +1,23 @@
 package com.example.dashboard.entity;
 
-public class WeekData {
-    private String week;
+public class TeamProgressData {
+    private String teamName;
     private int plannedProgress;
     private int actualProgress;
 
-    public WeekData(String week, int plannedProgress, int actualProgress) {
-        this.week = week;
+    public TeamProgressData(String teamName, int plannedProgress, int actualProgress) {
+        this.teamName = teamName;
         this.plannedProgress = plannedProgress;
         this.actualProgress = actualProgress;
     }
 
     // Getters and Setters
-    public String getWeek() {
-        return week;
+    public String getTeamName() {
+        return teamName;
     }
 
-    public void setWeek(String week) {
-        this.week = week;
+    public void setTeamName(String teamName) {
+        this.teamName = teamName;
     }
 
     public int getPlannedProgress() {
