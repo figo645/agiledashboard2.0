@@ -2,18 +2,24 @@ package com.example.dashboard.entity;
 
 public class TeamBugData {
     private String teamName;
-    private int prePending;
+    private int totalBugs;
     private int preFixed;
-    private int uatPending;
     private int uatFixed;
+    private int prePending;
+    private int uatPending;
+    private double preFixedRatio;
+    private double uatFixedRatio;
 
-    public TeamBugData(String teamName, int prePending, int preFixed,
-                      int uatPending, int uatFixed) {
+    public TeamBugData(String teamName, int totalBugs, int preFixed, int uatFixed, 
+                      int prePending, int uatPending, double preFixedRatio, double uatFixedRatio) {
         this.teamName = teamName;
-        this.prePending = prePending;
+        this.totalBugs = totalBugs;
         this.preFixed = preFixed;
-        this.uatPending = uatPending;
         this.uatFixed = uatFixed;
+        this.prePending = prePending;
+        this.uatPending = uatPending;
+        this.preFixedRatio = preFixedRatio;
+        this.uatFixedRatio = uatFixedRatio;
     }
 
     public String getTeamName() {
@@ -24,12 +30,12 @@ public class TeamBugData {
         this.teamName = teamName;
     }
 
-    public int getPrePending() {
-        return prePending;
+    public int getTotalBugs() {
+        return totalBugs;
     }
 
-    public void setPrePending(int prePending) {
-        this.prePending = prePending;
+    public void setTotalBugs(int totalBugs) {
+        this.totalBugs = totalBugs;
     }
 
     public int getPreFixed() {
@@ -40,6 +46,22 @@ public class TeamBugData {
         this.preFixed = preFixed;
     }
 
+    public int getUatFixed() {
+        return uatFixed;
+    }
+
+    public void setUatFixed(int uatFixed) {
+        this.uatFixed = uatFixed;
+    }
+
+    public int getPrePending() {
+        return prePending;
+    }
+
+    public void setPrePending(int prePending) {
+        this.prePending = prePending;
+    }
+
     public int getUatPending() {
         return uatPending;
     }
@@ -48,11 +70,31 @@ public class TeamBugData {
         this.uatPending = uatPending;
     }
 
-    public int getUatFixed() {
-        return uatFixed;
+    public double getPreFixedRatio() {
+        return preFixedRatio;
     }
 
-    public void setUatFixed(int uatFixed) {
-        this.uatFixed = uatFixed;
+    public void setPreFixedRatio(double preFixedRatio) {
+        this.preFixedRatio = preFixedRatio;
+    }
+
+    public double getUatFixedRatio() {
+        return uatFixedRatio;
+    }
+
+    public void setUatFixedRatio(double uatFixedRatio) {
+        this.uatFixedRatio = uatFixedRatio;
+    }
+
+    @Override
+    public String toString() {
+        return "TeamBugData{" +
+                "teamName='" + teamName + '\'' +
+                ", totalBugs=" + totalBugs +
+                ", preFixed=" + preFixed +
+                ", uatFixed=" + uatFixed +
+                ", prePending=" + prePending +
+                ", uatPending=" + uatPending +
+                '}';
     }
 } 

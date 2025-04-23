@@ -290,6 +290,8 @@
         // 从后端API加载数据
         async function loadData() {
             try {
+                console.log('Starting to load all data...');
+                
                 // 加载Sprint Planning数据
                 const sprintResponse = await fetch('/dashboard/api/sprint-planning');
                 const sprintData = await sprintResponse.json();
@@ -315,10 +317,15 @@
                 updateTestingChart(testingData.teams);
 
                 // 加载Bug Progress数据
+                console.log('Fetching bug progress data...');
                 const bugResponse = await fetch('/dashboard/api/bug-progress');
                 const bugData = await bugResponse.json();
                 console.log('Bug Progress Data:', bugData);
-                updateBugChart(bugData.teams);
+                console.log('Bug Progress Teams:', bugData.teams);
+                if (bugData.teams && bugData.teams.length > 0) {
+                    console.log('First team data:', bugData.teams[0]);
+                }
+                updateBugChart(bugData);
             } catch (error) {
                 console.error('Error loading data:', error);
             }
@@ -576,83 +583,159 @@
         }
 
         // 更新Bug Progress图表
-        function updateBugChart(data) {
-            const ctx = document.getElementById('bugChart').getContext('2d');
-            chartInstances.bugChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: data.map(d => d.teamName),
-                    datasets: [
-                        {
-                            label: 'PRE待修复',
-                            data: data.map(d => d.prePending),
-                            backgroundColor: 'rgba(255, 99, 132, 0.5)'
-                        },
-                        {
-                            label: 'PRE已修复',
-                            data: data.map(d => d.preFixed),
-                            backgroundColor: 'rgba(75, 192, 192, 0.5)'
-                        },
-                        {
-                            label: 'UAT待修复',
-                            data: data.map(d => d.uatPending),
-                            backgroundColor: 'rgba(255, 159, 64, 0.5)'
-                        },
-                        {
-                            label: 'UAT已修复',
-                            data: data.map(d => d.uatFixed),
-                            backgroundColor: 'rgba(54, 162, 235, 0.5)'
-                        }
-                    ]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Bug数量'
-                            }
-                        },
-                        y: {
-                            min: 0,
-                            max: 7,
-                            ticks: {
-                                maxRotation: 0,
-                                autoSkip: false
-                            }
-                        }
-                    },
-                    plugins: {
-                        zoom: {
-                            pan: {
-                                enabled: true,
-                                mode: 'y'
+        function updateBugChart(bugData) {
+            console.log('Updating bug chart with data:', bugData);
+            if (!bugData || !bugData.teams || bugData.teams.length === 0) {
+                console.error('No bug data available');
+                return;
+            }
+
+            const ctx = document.getElementById('bugChart');
+            if (!ctx) {
+                console.error('Canvas element not found');
+                return;
+            }
+
+            // 确保使用正确的上下文
+            const chartCtx = ctx.getContext('2d');
+            if (!chartCtx) {
+                console.error('Could not get 2D context');
+                return;
+            }
+
+            // 安全地销毁现有图表
+            if (window.bugChart && typeof window.bugChart.destroy === 'function') {
+                window.bugChart.destroy();
+            }
+            
+            // 按照总Bug数从大到小排序，并只取前8个团队
+            const sortedTeams = [...bugData.teams].sort((a, b) => b.totalBugs - a.totalBugs).slice(0, 8);
+            
+            const teams = sortedTeams.map(team => team.teamName);
+            const preFixed = sortedTeams.map(team => team.preFixed);
+            const uatFixed = sortedTeams.map(team => team.uatFixed);
+            const prePending = sortedTeams.map(team => team.prePending);
+            const uatPending = sortedTeams.map(team => team.uatPending);
+            const totalBugs = sortedTeams.map(team => team.totalBugs);
+            
+            console.log('Sorted chart data (first 8 teams):', {
+                teams,
+                preFixed,
+                uatFixed,
+                prePending,
+                uatPending,
+                totalBugs
+            });
+            
+            try {
+                window.bugChart = new Chart(chartCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: teams,
+                        datasets: [
+                            {
+                                label: '总Bug数',
+                                data: totalBugs,
+                                backgroundColor: 'rgba(153, 102, 255, 0.6)',
+                                borderColor: 'rgba(153, 102, 255, 1)',
+                                borderWidth: 1
                             },
+                            {
+                                label: 'Pre环境已修复',
+                                data: preFixed,
+                                backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'UAT环境已修复',
+                                data: uatFixed,
+                                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Pre环境待修复',
+                                data: prePending,
+                                backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'UAT环境待修复',
+                                data: uatPending,
+                                backgroundColor: 'rgba(255, 159, 64, 0.6)',
+                                borderColor: 'rgba(255, 159, 64, 1)',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Bug数量'
+                                }
+                            },
+                            y: {
+                                min: 0,
+                                max: 7,
+                                ticks: {
+                                    maxRotation: 0,
+                                    autoSkip: false
+                                }
+                            }
+                        },
+                        plugins: {
                             zoom: {
-                                wheel: {
+                                pan: {
                                     enabled: true,
-                                    speed: 0.1
+                                    mode: 'y'
                                 },
-                                pinch: {
-                                    enabled: true
-                                },
-                                mode: 'y'
+                                zoom: {
+                                    wheel: {
+                                        enabled: true,
+                                        speed: 0.1
+                                    },
+                                    pinch: {
+                                        enabled: true
+                                    },
+                                    mode: 'y'
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    afterBody: function(context) {
+                                        const index = context[0].dataIndex;
+                                        return `总Bug数: ${totalBugs[index]}`;
+                                    }
+                                }
                             }
                         }
                     }
-                }
-            });
+                });
+                console.log('Chart created successfully with first 8 teams');
+            } catch (error) {
+                console.error('Error creating chart:', error);
+            }
         }
 
         // 最大化图表
         function maximizeChart(chartId) {
+            console.log('Maximizing chart:', chartId);
             const modal = document.getElementById('chartModal');
             const modalCanvas = document.getElementById('modalChart');
-            const originalChart = chartInstances[chartId];
+            const originalChart = window.bugChart;
+            
+            if (!originalChart) {
+                console.error('Original chart not found');
+                return;
+            }
             
             // 创建新的图表实例
             const modalCtx = modalCanvas.getContext('2d');
@@ -691,7 +774,7 @@
             });
 
             // 存储模态框图表实例
-            chartInstances.modalChart = modalChart;
+            window.modalChart = modalChart;
         }
 
         // 关闭模态框
@@ -700,9 +783,9 @@
             modal.style.display = 'none';
             
             // 销毁模态框中的图表实例
-            if (chartInstances.modalChart) {
-                chartInstances.modalChart.destroy();
-                delete chartInstances.modalChart;
+            if (window.modalChart) {
+                window.modalChart.destroy();
+                delete window.modalChart;
             }
         }
 
@@ -735,7 +818,10 @@
         }
 
         // 页面加载时加载数据
-        document.addEventListener('DOMContentLoaded', loadData);
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM content loaded');
+            loadData();
+        });
     </script>
 </body>
 </html> 

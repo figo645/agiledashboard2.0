@@ -2,33 +2,67 @@ package com.example.dashboard.service;
 
 import com.example.dashboard.entity.BugProgressData;
 import com.example.dashboard.entity.TeamBugData;
-import com.example.dashboard.util.CsvReader;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class BugProgressService {
-    @Autowired
-    private CsvReader csvReader;
+    private static final Logger logger = LoggerFactory.getLogger(BugProgressService.class);
 
     public BugProgressData getBugProgressData() {
         List<TeamBugData> teams = new ArrayList<>();
-        List<String[]> data = csvReader.readCsv("data/bug_progress.csv");
-        
-        // 跳过标题行
-        for (int i = 1; i < data.size(); i++) {
-            String[] row = data.get(i);
-            teams.add(new TeamBugData(
-                row[0], // teamName
-                Integer.parseInt(row[1].trim()), // prePending
-                Integer.parseInt(row[2].trim()), // preFixed
-                Integer.parseInt(row[3].trim()), // uatPending
-                Integer.parseInt(row[4].trim())  // uatFixed
-            ));
+        try {
+            logger.info("Starting to read bug progress data");
+            ClassPathResource resource = new ClassPathResource("data/bug_progress.csv");
+            logger.info("CSV file path: {}", resource.getPath());
+            
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
+                String line;
+                // Skip header
+                reader.readLine();
+                int lineCount = 0;
+                
+                while ((line = reader.readLine()) != null) {
+                    lineCount++;
+                    logger.debug("Reading line {}: {}", lineCount, line);
+                    
+                    String[] values = line.split(",");
+                    if (values.length < 7) {
+                        logger.error("Invalid line format at line {}: {}", lineCount, line);
+                        continue;
+                    }
+                    
+                    try {
+                        String teamName = values[1].trim();
+                        int totalBugs = Integer.parseInt(values[2].trim());
+                        int preFixed = Integer.parseInt(values[3].trim());
+                        int uatFixed = Integer.parseInt(values[4].trim());
+                        int prePending = Integer.parseInt(values[5].trim());
+                        int uatPending = Integer.parseInt(values[6].trim());
+                        
+                        TeamBugData teamData = new TeamBugData(teamName, totalBugs, preFixed, uatFixed, 
+                                                             prePending, uatPending, 0.0, 0.0);
+                        teams.add(teamData);
+                        logger.debug("Added team data: {}", teamData);
+                    } catch (NumberFormatException e) {
+                        logger.error("Error parsing numbers at line {}: {}", lineCount, line, e);
+                    }
+                }
+                logger.info("Successfully read {} teams from CSV", teams.size());
+            }
+        } catch (Exception e) {
+            logger.error("Error reading bug progress data", e);
         }
-        return new BugProgressData(teams);
+        
+        BugProgressData result = new BugProgressData(teams);
+        logger.info("Returning bug progress data with {} teams", result.getTeams().size());
+        return result;
     }
 } 

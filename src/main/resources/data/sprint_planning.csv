@@ -1,6 +1,5 @@
 ﻿programName,teamName,plannedCount,completedCount,storypointPlanned,storypointCompleted,testPoints,userStoryPoints,userStoryRatio,enablerPoints,enablerRatio,storyThroughput
 其他项目,思享驾,35,0,91.50,0.00,5.50,66.00,72.13,2.00,2.19,33.33
-Unassigned Program,Unassigned Team,420,223,1767.22,298.70,2.00,1430.22,80.93,0.00,0.00,19.79
 B端中后台,企业微信,33,4,65.50,6.00,15.50,28.00,42.75,17.50,26.72,39.29
 平台支持类,质效平台,19,0,81.00,0.00,1.50,81.00,100.00,0.00,0.00,23.46
 C端中台,销售中台,31,0,55.00,0.00,18.50,36.00,65.45,1.00,1.82,41.67
