@@ -465,14 +465,14 @@
                     labels: data.map(d => d.teamName),
                     datasets: [
                         {
-                            label: '新增任务',
-                            data: data.map(d => d.insertedTasks),
+                            label: '变更任务数',
+                            data: data.map(d => d.changeTasks),
                             backgroundColor: 'rgba(75, 192, 192, 0.5)'
                         },
                         {
-                            label: '移除任务',
-                            data: data.map(d => d.removedTasks),
-                            backgroundColor: 'rgba(255, 99, 132, 0.5)'
+                            label: '变更点数',
+                            data: data.map(d => d.changePoints),
+                            backgroundColor: 'rgba(54, 162, 235, 0.5)'
                         }
                     ]
                 },
@@ -485,7 +485,7 @@
                             beginAtZero: true,
                             title: {
                                 display: true,
-                                text: '任务数量'
+                                text: '数量'
                             }
                         },
                         y: {
@@ -522,19 +522,23 @@
         // 更新Testing Progress图表
         function updateTestingChart(data) {
             const ctx = document.getElementById('testingChart').getContext('2d');
+            
+            // 按照总测试用例数从大到小排序，并只取前8个团队
+            const sortedData = [...data].sort((a, b) => b.totalTestCases - a.totalTestCases).slice(0, 8);
+            
             chartInstances.testingChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: data.map(d => d.teamName),
+                    labels: sortedData.map(d => d.teamName),
                     datasets: [
                         {
                             label: '总测试用例',
-                            data: data.map(d => d.totalTestCases),
+                            data: sortedData.map(d => d.totalTestCases),
                             backgroundColor: 'rgba(75, 192, 192, 0.5)'
                         },
                         {
                             label: '已完成测试用例',
-                            data: data.map(d => d.completedTestCases),
+                            data: sortedData.map(d => d.completedTestCases),
                             backgroundColor: 'rgba(54, 162, 235, 0.5)'
                         }
                     ]
@@ -604,8 +608,8 @@
             }
 
             // 安全地销毁现有图表
-            if (window.bugChart && typeof window.bugChart.destroy === 'function') {
-                window.bugChart.destroy();
+            if (chartInstances.bugChart && typeof chartInstances.bugChart.destroy === 'function') {
+                chartInstances.bugChart.destroy();
             }
             
             // 按照总Bug数从大到小排序，并只取前8个团队
@@ -628,7 +632,7 @@
             });
             
             try {
-                window.bugChart = new Chart(chartCtx, {
+                chartInstances.bugChart = new Chart(chartCtx, {
                     type: 'bar',
                     data: {
                         labels: teams,
@@ -645,28 +649,32 @@
                                 data: preFixed,
                                 backgroundColor: 'rgba(75, 192, 192, 0.6)',
                                 borderColor: 'rgba(75, 192, 192, 1)',
-                                borderWidth: 1
-                            },
-                            {
-                                label: 'UAT环境已修复',
-                                data: uatFixed,
-                                backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                                borderColor: 'rgba(54, 162, 235, 1)',
-                                borderWidth: 1
+                                borderWidth: 1,
+                                stack: 'pre'
                             },
                             {
                                 label: 'Pre环境待修复',
                                 data: prePending,
                                 backgroundColor: 'rgba(255, 99, 132, 0.6)',
                                 borderColor: 'rgba(255, 99, 132, 1)',
-                                borderWidth: 1
+                                borderWidth: 1,
+                                stack: 'pre'
+                            },
+                            {
+                                label: 'UAT环境已修复',
+                                data: uatFixed,
+                                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 1,
+                                stack: 'uat'
                             },
                             {
                                 label: 'UAT环境待修复',
                                 data: uatPending,
                                 backgroundColor: 'rgba(255, 159, 64, 0.6)',
                                 borderColor: 'rgba(255, 159, 64, 1)',
-                                borderWidth: 1
+                                borderWidth: 1,
+                                stack: 'uat'
                             }
                         ]
                     },
@@ -680,7 +688,8 @@
                                 title: {
                                     display: true,
                                     text: 'Bug数量'
-                                }
+                                },
+                                stacked: true
                             },
                             y: {
                                 min: 0,
@@ -688,7 +697,8 @@
                                 ticks: {
                                     maxRotation: 0,
                                     autoSkip: false
-                                }
+                                },
+                                stacked: true
                             }
                         },
                         plugins: {
@@ -712,7 +722,11 @@
                                 callbacks: {
                                     afterBody: function(context) {
                                         const index = context[0].dataIndex;
-                                        return `总Bug数: ${totalBugs[index]}`;
+                                        return [
+                                            `总Bug数: ${totalBugs[index]}`,
+                                            `Pre环境: ${preFixed[index]}已修复, ${prePending[index]}待修复`,
+                                            `UAT环境: ${uatFixed[index]}已修复, ${uatPending[index]}待修复`
+                                        ];
                                     }
                                 }
                             }
@@ -730,10 +744,11 @@
             console.log('Maximizing chart:', chartId);
             const modal = document.getElementById('chartModal');
             const modalCanvas = document.getElementById('modalChart');
-            const originalChart = window.bugChart;
             
+            // 获取当前图表实例
+            const originalChart = chartInstances[chartId];
             if (!originalChart) {
-                console.error('Original chart not found');
+                console.error('Original chart not found:', chartId);
                 return;
             }
             
