@@ -1,5 +1,8 @@
 package com.example.dashboard.entity;
 
+import java.util.List;
+import java.util.ArrayList;
+
 public class TeamData {
     private String programName;
     private String teamName;
@@ -13,6 +16,19 @@ public class TeamData {
     private double enablerPoints;
     private double enablerRatio;
     private double storyThroughput;
+    private List<IssueData> plannedIssues;
+    private List<IssueData> completedIssues;
+    private List<IssueData> testIssues;
+    private List<IssueData> userStoryIssues;
+    private List<IssueData> enablerIssues;
+
+    public TeamData() {
+        this.plannedIssues = new ArrayList<>();
+        this.completedIssues = new ArrayList<>();
+        this.testIssues = new ArrayList<>();
+        this.userStoryIssues = new ArrayList<>();
+        this.enablerIssues = new ArrayList<>();
+    }
 
     public TeamData(String programName, String teamName, double plannedCount, double completedCount,
                    double storypointPlanned, double storypointCompleted, double testPoints,
@@ -127,5 +143,45 @@ public class TeamData {
 
     public void setStoryThroughput(double storyThroughput) {
         this.storyThroughput = storyThroughput;
+    }
+
+    public List<IssueData> getPlannedIssues() {
+        return plannedIssues;
+    }
+
+    public void setPlannedIssues(List<IssueData> plannedIssues) {
+        this.plannedIssues = plannedIssues;
+    }
+
+    public List<IssueData> getCompletedIssues() {
+        return completedIssues;
+    }
+
+    public void setCompletedIssues(List<IssueData> completedIssues) {
+        this.completedIssues = completedIssues;
+    }
+
+    public List<IssueData> getTestIssues() {
+        return testIssues;
+    }
+
+    public void setTestIssues(List<IssueData> testIssues) {
+        this.testIssues = testIssues;
+    }
+
+    public List<IssueData> getUserStoryIssues() {
+        return userStoryIssues;
+    }
+
+    public void setUserStoryIssues(List<IssueData> userStoryIssues) {
+        this.userStoryIssues = userStoryIssues;
+    }
+
+    public List<IssueData> getEnablerIssues() {
+        return enablerIssues;
+    }
+
+    public void setEnablerIssues(List<IssueData> enablerIssues) {
+        this.enablerIssues = enablerIssues;
     }
 } 
