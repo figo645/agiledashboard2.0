@@ -37,16 +37,33 @@
         table {
             width: 100%;
             border-collapse: collapse;
+            table-layout: fixed;
         }
         th, td {
             padding: 10px;
             text-align: left;
             border-bottom: 1px solid #ddd;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         th {
             background-color: #f8f9fa;
             font-weight: bold;
+            min-width: 100px;
         }
+        th:nth-child(1), td:nth-child(1) { width: 10%; } /* 项目组 */
+        th:nth-child(2), td:nth-child(2) { width: 10%; } /* 团队 */
+        th:nth-child(3), td:nth-child(3) { width: 8%; }  /* 计划需求数 */
+        th:nth-child(4), td:nth-child(4) { width: 8%; }  /* 实际完成数 */
+        th:nth-child(5), td:nth-child(5) { width: 8%; }  /* 计划故事点 */
+        th:nth-child(6), td:nth-child(6) { width: 8%; }  /* 完成故事点 */
+        th:nth-child(7), td:nth-child(7) { width: 8%; }  /* 测试故事点 */
+        th:nth-child(8), td:nth-child(8) { width: 8%; }  /* 用户故事点 */
+        th:nth-child(9), td:nth-child(9) { width: 8%; }  /* 用户故事占比 */
+        th:nth-child(10), td:nth-child(10) { width: 8%; } /* 技术需求数 */
+        th:nth-child(11), td:nth-child(11) { width: 8%; } /* 技术需求占比 */
+        th:nth-child(12), td:nth-child(12) { width: 8%; } /* 百人天故事吞吐量 */
         .chart-container {
             position: relative;
             height: 400px;
@@ -179,16 +196,16 @@
                         <tr>
                             <th>项目组</th>
                             <th>团队</th>
-                            <th>计划迭代数</th>
+                            <th>计划需求数</th>
                             <th>实际完成数</th>
                             <th>计划故事点</th>
                             <th>完成故事点</th>
-                            <th>测试点</th>
+                            <th>测试故事点</th>
                             <th>用户故事点</th>
                             <th>用户故事占比</th>
-                            <th>使能点</th>
-                            <th>使能占比</th>
-                            <th>故事吞吐量</th>
+                            <th>技术需求数</th>
+                            <th>技术需求占比</th>
+                            <th>百人天故事吞吐量</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -206,16 +223,16 @@
                             <tr>
                                 <th>项目组</th>
                                 <th>团队</th>
-                                <th>计划迭代数</th>
+                                <th>计划需求数</th>
                                 <th>实际完成数</th>
                                 <th>计划故事点</th>
                                 <th>完成故事点</th>
-                                <th>测试点</th>
+                                <th>测试故事点</th>
                                 <th>用户故事点</th>
                                 <th>用户故事占比</th>
-                                <th>使能点</th>
-                                <th>使能占比</th>
-                                <th>故事吞吐量</th>
+                                <th>技术需求数</th>
+                                <th>技术需求占比</th>
+                                <th>百人天故事吞吐量</th>
                             </tr>
                         </thead>
                         <tbody></tbody>

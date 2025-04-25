@@ -2,20 +2,25 @@ package com.example.dashboard.entity;
 
 import java.util.List;
 import java.util.ArrayList;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class TeamData {
     private String programName;
     private String teamName;
-    private double plannedCount;
+    private double plannedCount;  // 计划需求数
     private double completedCount;
     private double storypointPlanned;
     private double storypointCompleted;
-    private double testPoints;
+    private double testPoints;  // 测试故事点
     private double userStoryPoints;
     private double userStoryRatio;
-    private double enablerPoints;
-    private double enablerRatio;
-    private double storyThroughput;
+    private double enablerPoints;  // 技术需求数
+    private double enablerRatio;  // 技术需求占比
+    private double storyThroughput;  // 百人天故事吞吐量
+
     private List<IssueData> plannedIssues;
     private List<IssueData> completedIssues;
     private List<IssueData> testIssues;
