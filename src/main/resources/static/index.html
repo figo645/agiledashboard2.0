@@ -1060,4 +1060,26 @@
                         const panel = panels.find(p => p.dataset.panelId === panelId);
                         if (panel) {
                             dashboard.appendChild(panel);
-         
+                        }
+                    });
+                }
+            }
+
+            // 页面加载时恢复面板顺序
+            loadPanelOrder();
+            
+            // 初始调整面板宽度
+            adjustPanelWidths();
+            
+            // 监听窗口大小变化
+            window.addEventListener('resize', adjustPanelWidths);
+        });
+
+        // 页面加载时加载数据
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM content loaded');
+            loadData();
+        });
+    </script>
+</body>
+</html> 

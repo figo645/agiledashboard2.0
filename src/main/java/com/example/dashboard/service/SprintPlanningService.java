@@ -107,4 +107,10 @@ public class SprintPlanningService {
                 team.setCompletedIssues(completedIssues.getOrDefault(team.getTeamName(), new ArrayList<>()));
                 team.setTestIssues(testIssues.getOrDefault(team.getTeamName(), new ArrayList<>()));
                 team.setUserStoryIssues(userStoryIssues.getOrDefault(team.getTeamName(), new ArrayList<>()));
-                team.setEnablerIssues(enablerIss
+                team.setEnablerIssues(enablerIssues.getOrDefault(team.getTeamName(), new ArrayList<>()));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+} 

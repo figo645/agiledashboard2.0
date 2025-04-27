@@ -185,3 +185,28 @@ public class TeamData {
     public void setCompletedIssues(List<IssueData> completedIssues) {
         this.completedIssues = completedIssues;
     }
+
+    public List<IssueData> getTestIssues() {
+        return testIssues;
+    }
+
+    public void setTestIssues(List<IssueData> testIssues) {
+        this.testIssues = testIssues;
+    }
+
+    public List<IssueData> getUserStoryIssues() {
+        return userStoryIssues;
+    }
+
+    public void setUserStoryIssues(List<IssueData> userStoryIssues) {
+        this.userStoryIssues = userStoryIssues;
+    }
+
+    public List<IssueData> getEnablerIssues() {
+        return enablerIssues;
+    }
+
+    public void setEnablerIssues(List<IssueData> enablerIssues) {
+        this.enablerIssues = enablerIssues;
+    }
+} 
