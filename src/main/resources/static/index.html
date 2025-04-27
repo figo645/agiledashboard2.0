@@ -98,6 +98,8 @@
         th:nth-child(10), td:nth-child(10) { width: 8%; } /* 技术需求数 */
         th:nth-child(11), td:nth-child(11) { width: 8%; } /* 技术需求占比 */
         th:nth-child(12), td:nth-child(12) { width: 8%; } /* 百人天故事吞吐量 */
+        th:nth-child(13), td:nth-child(13) { width: 8%; }  /* CV值 */
+        th:nth-child(14), td:nth-child(14) { width: 8%; }  /* 故事颗粒度 */
         .chart-container {
             position: relative;
             height: 400px;
@@ -240,6 +242,8 @@
                             <th>技术需求数</th>
                             <th>技术需求占比</th>
                             <th>百人天故事吞吐量</th>
+                            <th>CV值</th>
+                            <th>故事颗粒度</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -267,6 +271,8 @@
                                 <th>技术需求数</th>
                                 <th>技术需求占比</th>
                                 <th>百人天故事吞吐量</th>
+                                <th>CV值</th>
+                                <th>故事颗粒度</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -405,6 +411,8 @@
                     <td>${row.enablerPoints}</td>
                     <td>${row.enablerRatio}%</td>
                     <td>${row.storyThroughput}</td>
+                    <td>${row.cvValue.toFixed(2)}</td>
+                    <td>${row.storyGranularity.toFixed(2)}</td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -425,6 +433,8 @@
                     <td>${row.enablerPoints}</td>
                     <td>${row.enablerRatio}%</td>
                     <td>${row.storyThroughput}</td>
+                    <td>${row.cvValue.toFixed(2)}</td>
+                    <td>${row.storyGranularity.toFixed(2)}</td>
                 `;
                 modalTbody.appendChild(tr);
             });
@@ -1050,26 +1060,4 @@
                         const panel = panels.find(p => p.dataset.panelId === panelId);
                         if (panel) {
                             dashboard.appendChild(panel);
-                        }
-                    });
-                }
-            }
-
-            // 页面加载时恢复面板顺序
-            loadPanelOrder();
-            
-            // 初始调整面板宽度
-            adjustPanelWidths();
-            
-            // 监听窗口大小变化
-            window.addEventListener('resize', adjustPanelWidths);
-        });
-
-        // 页面加载时加载数据
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM content loaded');
-            loadData();
-        });
-    </script>
-</body>
-</html> 
+         

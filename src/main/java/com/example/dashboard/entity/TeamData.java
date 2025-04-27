@@ -20,6 +20,8 @@ public class TeamData {
     private double enablerPoints;  // 技术需求数
     private double enablerRatio;  // 技术需求占比
     private double storyThroughput;  // 百人天故事吞吐量
+    private double cvValue;  // CV值（标准差/平均数）
+    private double storyGranularity;  // 故事颗粒度平均值
 
     private List<IssueData> plannedIssues;
     private List<IssueData> completedIssues;
@@ -38,7 +40,7 @@ public class TeamData {
     public TeamData(String programName, String teamName, double plannedCount, double completedCount,
                    double storypointPlanned, double storypointCompleted, double testPoints,
                    double userStoryPoints, double userStoryRatio, double enablerPoints,
-                   double enablerRatio, double storyThroughput) {
+                   double enablerRatio, double storyThroughput, double cvValue, double storyGranularity) {
         this.programName = programName;
         this.teamName = teamName;
         this.plannedCount = plannedCount;
@@ -51,6 +53,8 @@ public class TeamData {
         this.enablerPoints = enablerPoints;
         this.enablerRatio = enablerRatio;
         this.storyThroughput = storyThroughput;
+        this.cvValue = cvValue;
+        this.storyGranularity = storyGranularity;
     }
 
     // Getters and setters
@@ -150,6 +154,22 @@ public class TeamData {
         this.storyThroughput = storyThroughput;
     }
 
+    public double getCvValue() {
+        return cvValue;
+    }
+
+    public void setCvValue(double cvValue) {
+        this.cvValue = cvValue;
+    }
+
+    public double getStoryGranularity() {
+        return storyGranularity;
+    }
+
+    public void setStoryGranularity(double storyGranularity) {
+        this.storyGranularity = storyGranularity;
+    }
+
     public List<IssueData> getPlannedIssues() {
         return plannedIssues;
     }
@@ -165,28 +185,3 @@ public class TeamData {
     public void setCompletedIssues(List<IssueData> completedIssues) {
         this.completedIssues = completedIssues;
     }
-
-    public List<IssueData> getTestIssues() {
-        return testIssues;
-    }
-
-    public void setTestIssues(List<IssueData> testIssues) {
-        this.testIssues = testIssues;
-    }
-
-    public List<IssueData> getUserStoryIssues() {
-        return userStoryIssues;
-    }
-
-    public void setUserStoryIssues(List<IssueData> userStoryIssues) {
-        this.userStoryIssues = userStoryIssues;
-    }
-
-    public List<IssueData> getEnablerIssues() {
-        return enablerIssues;
-    }
-
-    public void setEnablerIssues(List<IssueData> enablerIssues) {
-        this.enablerIssues = enablerIssues;
-    }
-} 

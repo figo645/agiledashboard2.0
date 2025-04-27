@@ -33,7 +33,7 @@ public class SprintPlanningService {
                 
                 while ((line = br.readLine()) != null) {
                     String[] values = line.split(",");
-                    if (values.length >= 12) {
+                    if (values.length >= 14) {
                         TeamData team = new TeamData();
                         team.setProgramName(values[0]);
                         team.setTeamName(values[1]);
@@ -47,6 +47,8 @@ public class SprintPlanningService {
                         team.setEnablerPoints(Double.parseDouble(values[9]));
                         team.setEnablerRatio(Double.parseDouble(values[10]));
                         team.setStoryThroughput(Double.parseDouble(values[11]));
+                        team.setCvValue(Double.parseDouble(values[12]));
+                        team.setStoryGranularity(Double.parseDouble(values[13]));
                         teams.add(team);
                     }
                 }
@@ -105,10 +107,4 @@ public class SprintPlanningService {
                 team.setCompletedIssues(completedIssues.getOrDefault(team.getTeamName(), new ArrayList<>()));
                 team.setTestIssues(testIssues.getOrDefault(team.getTeamName(), new ArrayList<>()));
                 team.setUserStoryIssues(userStoryIssues.getOrDefault(team.getTeamName(), new ArrayList<>()));
-                team.setEnablerIssues(enablerIssues.getOrDefault(team.getTeamName(), new ArrayList<>()));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-} 
+                team.setEnablerIssues(enablerIss
