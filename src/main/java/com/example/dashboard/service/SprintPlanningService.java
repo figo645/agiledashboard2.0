@@ -1,116 +1,94 @@
 package com.example.dashboard.service;
 
-import com.example.dashboard.config.CsvConfig;
-import com.example.dashboard.entity.SprintPlanningData;
 import com.example.dashboard.entity.TeamData;
-import com.example.dashboard.entity.IssueData;
+import com.example.dashboard.entity.IterationCompletion;
+import com.example.dashboard.entity.Bug;
+import com.example.dashboard.entity.Change;
+import com.example.dashboard.entity.Testing;
+import com.example.dashboard.repository.DataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ResourceUtils;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.io.FileReader;
+import com.opencsv.CSVReader;
 
 @Service
 public class SprintPlanningService {
-    private final CsvConfig csvConfig;
+
+    private final DataRepository dataRepository;
+    private final String sprintPlanningCsvPath;
 
     @Autowired
-    public SprintPlanningService(CsvConfig csvConfig) {
-        this.csvConfig = csvConfig;
+    public SprintPlanningService(@Value("${use.postgresql}") boolean usePostgresql,
+                               @Qualifier("csvDataRepository") DataRepository csvDataRepository,
+                               @Qualifier("postgresDataRepository") DataRepository postgresDataRepository,
+                               @Value("${csv.sprint-planning}") String sprintPlanningCsvPath) {
+        this.dataRepository = usePostgresql ? postgresDataRepository : csvDataRepository;
+        this.sprintPlanningCsvPath = sprintPlanningCsvPath;
     }
 
-    public SprintPlanningData getSprintPlanningData() {
-        SprintPlanningData data = new SprintPlanningData();
-        List<TeamData> teams = new ArrayList<>();
-        
+    public List<TeamData> getSprintPlanningData() {
+        if (dataRepository != null) {
+            return dataRepository.getSprintPlanningData();
+        }
+        return readSprintPlanningFromCsv();
+    }
+
+    public List<IterationCompletion> getIterationCompletionData() {
+        return dataRepository.getIterationCompletionData();
+    }
+
+    public List<Bug> getBugData() {
+        return dataRepository.getBugData();
+    }
+
+    public List<Change> getChangeData() {
+        return dataRepository.getChangeData();
+    }
+
+    public List<Testing> getTestingData() {
+        return dataRepository.getTestingData();
+    }
+
+    private List<TeamData> readSprintPlanningFromCsv() {
+        List<TeamData> data = new ArrayList<>();
         try {
-            ClassPathResource resource = new ClassPathResource("data/" + csvConfig.getSprintFilePath());
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
-                String line;
-                br.readLine(); // Skip header
-                
-                while ((line = br.readLine()) != null) {
-                    String[] values = line.split(",");
-                    if (values.length >= 14) {
-                        TeamData team = new TeamData();
-                        team.setProgramName(values[0]);
-                        team.setTeamName(values[1]);
-                        team.setPlannedCount(Double.parseDouble(values[2]));
-                        team.setCompletedCount(Double.parseDouble(values[3]));
-                        team.setStorypointPlanned(Double.parseDouble(values[4]));
-                        team.setStorypointCompleted(Double.parseDouble(values[5]));
-                        team.setTestPoints(Double.parseDouble(values[6]));
-                        team.setUserStoryPoints(Double.parseDouble(values[7]));
-                        team.setUserStoryRatio(Double.parseDouble(values[8]));
-                        team.setEnablerPoints(Double.parseDouble(values[9]));
-                        team.setEnablerRatio(Double.parseDouble(values[10]));
-                        team.setStoryThroughput(Double.parseDouble(values[11]));
-                        team.setCvValue(Double.parseDouble(values[12]));
-                        team.setStoryGranularity(Double.parseDouble(values[13]));
-                        teams.add(team);
-                    }
+            ClassPathResource resource = new ClassPathResource(sprintPlanningCsvPath.replace("classpath:", ""));
+            try (CSVReader reader = new CSVReader(new InputStreamReader(resource.getInputStream()))) {
+                String[] headers = reader.readNext();
+                String[] values;
+                while ((values = reader.readNext()) != null) {
+                    TeamData teamData = new TeamData();
+                    teamData.setId(values[0] + "_" + values[1]);
+                    teamData.setProgramName(values[0]);
+                    teamData.setTeamName(values[1]);
+                    teamData.setPlannedCount(Double.parseDouble(values[2]));
+                    teamData.setCompletedCount(Double.parseDouble(values[3]));
+                    teamData.setStorypointPlanned(Double.parseDouble(values[4]));
+                    teamData.setStorypointCompleted(Double.parseDouble(values[5]));
+                    teamData.setTestPoints(Double.parseDouble(values[6]));
+                    teamData.setUserStoryPoints(Double.parseDouble(values[7]));
+                    teamData.setUserStoryRatio(Double.parseDouble(values[8]));
+                    teamData.setEnablerPoints(Double.parseDouble(values[9]));
+                    teamData.setEnablerRatio(Double.parseDouble(values[10]));
+                    teamData.setStoryThroughput(Double.parseDouble(values[11]));
+                    teamData.setCvValue(Double.parseDouble(values[12]));
+                    teamData.setStoryGranularity(Double.parseDouble(values[13]));
+                    data.add(teamData);
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
+            System.err.println("Error reading CSV file: " + e.getMessage());
         }
-        
-        data.setTeams(teams);
         return data;
-    }
-
-    private void loadIssueData(TeamData team) {
-        try {
-            ClassPathResource resource = new ClassPathResource("data/" + csvConfig.getIterationFilePath());
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
-                String line;
-                br.readLine(); // Skip header
-                
-                Map<String, List<IssueData>> plannedIssues = new HashMap<>();
-                Map<String, List<IssueData>> completedIssues = new HashMap<>();
-                Map<String, List<IssueData>> testIssues = new HashMap<>();
-                Map<String, List<IssueData>> userStoryIssues = new HashMap<>();
-                Map<String, List<IssueData>> enablerIssues = new HashMap<>();
-                
-                while ((line = br.readLine()) != null) {
-                    String[] values = line.split(",");
-                    if (values.length >= 6 && values[1].equals(team.getTeamName())) {
-                        IssueData issue = new IssueData();
-                        issue.setIssueKey(values[2]);
-                        issue.setSummary(values[3]);
-                        issue.setStatus(values[4]);
-                        issue.setPoints((int) Double.parseDouble(values[5]));
-                        
-                        switch(values[0]) {
-                            case "planned":
-                                plannedIssues.computeIfAbsent(team.getTeamName(), k -> new ArrayList<>()).add(issue);
-                                break;
-                            case "completed":
-                                completedIssues.computeIfAbsent(team.getTeamName(), k -> new ArrayList<>()).add(issue);
-                                break;
-                            case "test":
-                                testIssues.computeIfAbsent(team.getTeamName(), k -> new ArrayList<>()).add(issue);
-                                break;
-                            case "userStory":
-                                userStoryIssues.computeIfAbsent(team.getTeamName(), k -> new ArrayList<>()).add(issue);
-                                break;
-                            case "enabler":
-                                enablerIssues.computeIfAbsent(team.getTeamName(), k -> new ArrayList<>()).add(issue);
-                                break;
-                        }
-                    }
-                }
-                
-                team.setPlannedIssues(plannedIssues.getOrDefault(team.getTeamName(), new ArrayList<>()));
-                team.setCompletedIssues(completedIssues.getOrDefault(team.getTeamName(), new ArrayList<>()));
-                team.setTestIssues(testIssues.getOrDefault(team.getTeamName(), new ArrayList<>()));
-                team.setUserStoryIssues(userStoryIssues.getOrDefault(team.getTeamName(), new ArrayList<>()));
-                team.setEnablerIssues(enablerIssues.getOrDefault(team.getTeamName(), new ArrayList<>()));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 } 
