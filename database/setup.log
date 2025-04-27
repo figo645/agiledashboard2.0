@@ -1,0 +1,184 @@
+2025-04-27 23:36:58 - [0;34m开始安装 PostgreSQL...[0m
+2025-04-27 23:36:58 - [0;34m检查 Docker 安装...[0m
+2025-04-27 23:36:58 - [0;31m错误: Docker 未安装[0m
+2025-04-27 23:37:03 - [0;34m开始安装 Docker...[0m
+2025-04-27 23:37:03 - 正在下载 Docker Desktop...
+2025-04-27 23:38:11 - 正在挂载 Docker Desktop 安装包...
+2025-04-27 23:38:42 - 正在安装 Docker Desktop...
+2025-04-27 23:39:18 - 正在卸载安装包...
+2025-04-27 23:39:19 - [0;32mDocker Desktop 安装完成[0m
+2025-04-27 23:39:19 - 请启动 Docker Desktop 应用程序，然后重新运行此脚本
+2025-04-27 23:39:46 - [0;34m开始安装 PostgreSQL...[0m
+2025-04-27 23:39:47 - [0;34m检查 Docker 安装...[0m
+2025-04-27 23:39:47 - [0;31m错误: Docker 未安装[0m
+2025-04-27 23:39:54 - 请访问 https://www.docker.com/products/docker-desktop 下载并安装 Docker Desktop
+2025-04-27 23:39:55 - 安装完成后，请重新运行此脚本
+2025-04-27 23:44:03 - [0;34m开始安装 PostgreSQL...[0m
+2025-04-27 23:44:03 - [0;34m检查 Docker 安装...[0m
+2025-04-27 23:44:03 - [0;31m错误: Docker 未安装[0m
+2025-04-27 23:44:06 - 请访问 https://www.docker.com/products/docker-desktop 下载并安装 Docker Desktop
+2025-04-27 23:44:06 - 安装完成后，请重新运行此脚本
+2025-04-27 23:44:16 - [0;34m开始安装 PostgreSQL...[0m
+2025-04-27 23:44:16 - [0;34m检查 Docker 安装...[0m
+2025-04-27 23:44:16 - [0;31m错误: Docker 未安装[0m
+2025-04-27 23:47:54 - [0;34m开始安装 PostgreSQL...[0m
+2025-04-27 23:47:54 - [0;34m检查 Docker 安装...[0m
+2025-04-27 23:47:54 - [0;32mDocker 已安装并正在运行[0m
+2025-04-27 23:47:54 - [0;34m检查 Python 依赖...[0m
+2025-04-27 23:47:54 - 安装必要的 Python 包...
+Collecting psycopg2-binary
+  Downloading psycopg2_binary-2.9.10-cp310-cp310-macosx_14_0_arm64.whl (3.3 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.3/3.3 MB 2.8 MB/s eta 0:00:00
+Collecting pandas
+  Using cached pandas-2.2.3-cp310-cp310-macosx_11_0_arm64.whl (11.3 MB)
+Collecting pytz>=2020.1
+  Using cached pytz-2025.2-py2.py3-none-any.whl (509 kB)
+Collecting numpy>=1.22.4
+  Using cached numpy-2.2.5-cp310-cp310-macosx_14_0_arm64.whl (5.4 MB)
+Collecting python-dateutil>=2.8.2
+  Using cached python_dateutil-2.9.0.post0-py2.py3-none-any.whl (229 kB)
+Collecting tzdata>=2022.7
+  Using cached tzdata-2025.2-py2.py3-none-any.whl (347 kB)
+Collecting six>=1.5
+  Using cached six-1.17.0-py2.py3-none-any.whl (11 kB)
+Installing collected packages: pytz, tzdata, six, psycopg2-binary, numpy, python-dateutil, pandas
+Successfully installed numpy-2.2.5 pandas-2.2.3 psycopg2-binary-2.9.10 python-dateutil-2.9.0.post0 pytz-2025.2 six-1.17.0 tzdata-2025.2
+WARNING: You are using pip version 22.0.4; however, version 25.1 is available.
+You should consider upgrading via the '/Library/Frameworks/Python.framework/Versions/3.10/bin/python3.10 -m pip install --upgrade pip' command.
+2025-04-27 23:48:07 - [0;32mPython 依赖已安装[0m
+2025-04-27 23:48:07 - [0;34m创建目录结构...[0m
+2025-04-27 23:48:07 - [0;32m目录结构已创建[0m
+2025-04-27 23:48:07 - [0;34m启动 PostgreSQL...[0m
+2025-04-27 23:48:07 - 创建数据卷...
+sprint-db-data
+2025-04-27 23:48:08 - 启动 PostgreSQL 容器...
+Unable to find image 'postgres:14' locally
+14: Pulling from library/postgres
+16c9c4a8e9ee: Pulling fs layer
+9da6d707817b: Pulling fs layer
+55b6ca7917a9: Pulling fs layer
+a72fc08ac26e: Pulling fs layer
+f6bfa870fec3: Pulling fs layer
+c65be87db509: Pulling fs layer
+b85f778b98a8: Pulling fs layer
+b9a9cbd0b736: Pulling fs layer
+529c24c29150: Pulling fs layer
+c4074706b572: Pulling fs layer
+19e80501c5bd: Pulling fs layer
+10aa6aab022d: Pulling fs layer
+890d271a5d0e: Pulling fs layer
+8b3569ff38b8: Pulling fs layer
+a72fc08ac26e: Waiting
+f6bfa870fec3: Waiting
+c65be87db509: Waiting
+b9a9cbd0b736: Waiting
+10aa6aab022d: Waiting
+529c24c29150: Waiting
+890d271a5d0e: Waiting
+8b3569ff38b8: Waiting
+b85f778b98a8: Waiting
+c4074706b572: Waiting
+19e80501c5bd: Waiting
+9da6d707817b: Verifying Checksum
+9da6d707817b: Download complete
+55b6ca7917a9: Verifying Checksum
+55b6ca7917a9: Download complete
+16c9c4a8e9ee: Verifying Checksum
+16c9c4a8e9ee: Download complete
+a72fc08ac26e: Download complete
+16c9c4a8e9ee: Pull complete
+9da6d707817b: Pull complete
+55b6ca7917a9: Pull complete
+a72fc08ac26e: Pull complete
+b85f778b98a8: Verifying Checksum
+b85f778b98a8: Download complete
+c65be87db509: Verifying Checksum
+c65be87db509: Download complete
+f6bfa870fec3: Verifying Checksum
+f6bfa870fec3: Download complete
+f6bfa870fec3: Pull complete
+c65be87db509: Pull complete
+b85f778b98a8: Pull complete
+b9a9cbd0b736: Verifying Checksum
+b9a9cbd0b736: Download complete
+b9a9cbd0b736: Pull complete
+c4074706b572: Download complete
+19e80501c5bd: Verifying Checksum
+10aa6aab022d: Verifying Checksum
+10aa6aab022d: Download complete
+890d271a5d0e: Verifying Checksum
+890d271a5d0e: Download complete
+8b3569ff38b8: Verifying Checksum
+8b3569ff38b8: Download complete
+529c24c29150: Verifying Checksum
+529c24c29150: Download complete
+529c24c29150: Pull complete
+c4074706b572: Pull complete
+19e80501c5bd: Pull complete
+10aa6aab022d: Pull complete
+890d271a5d0e: Pull complete
+8b3569ff38b8: Pull complete
+Digest: sha256:1e6c52c366e39e869184256c45757e1c85ba15b3d244b0a2cea640da6df1c4e3
+Status: Downloaded newer image for postgres:14
+2dc375c3ece963e0b9f9e4f074128480e1bf95dfe82942b0340944283748a28e
+2025-04-27 23:48:41 - 等待容器启动...
+2025-04-27 23:48:51 - [0;32mPostgreSQL 已成功启动[0m
+2025-04-27 23:48:51 - [0;34m创建数据库表...[0m
+2025-04-27 23:48:56 - 执行 database/migrations/*.sql...
+2025-04-27 23:48:56 - [0;32m数据库表已创建[0m
+2025-04-27 23:48:56 - [0;34m导入数据...[0m
+2025-04-27 23:48:56 - 执行数据导入...
+2025-04-27 23:48:58 - [0;32m数据导入完成[0m
+2025-04-27 23:48:58 - [0;34m创建初始备份...[0m
+docker: invalid reference format: repository name (DevFolder/sprintdashboard1.0/dashboard/database/./backups) must be lowercase
+
+Run 'docker run --help' for more information
+2025-04-27 23:48:58 - [0;32m初始备份已创建: ./backups/initial_backup_20250427_234858.tar.gz[0m
+2025-04-27 23:48:58 - [0;32m安装完成！[0m
+2025-04-27 23:48:58 - [0;32m安装完成！[0m
+2025-04-27 23:49:59 - [0;34m开始安装 PostgreSQL...[0m
+2025-04-27 23:49:59 - [0;34m检查 Docker 安装...[0m
+2025-04-27 23:50:00 - [0;32mDocker 已安装并正在运行[0m
+2025-04-27 23:50:00 - [0;34m检查 Python 依赖...[0m
+2025-04-27 23:50:00 - 安装必要的 Python 包...
+Requirement already satisfied: psycopg2-binary in /Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/site-packages (2.9.10)
+Requirement already satisfied: pandas in /Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/site-packages (2.2.3)
+Requirement already satisfied: tzdata>=2022.7 in /Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/site-packages (from pandas) (2025.2)
+Requirement already satisfied: python-dateutil>=2.8.2 in /Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/site-packages (from pandas) (2.9.0.post0)
+Requirement already satisfied: numpy>=1.22.4 in /Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/site-packages (from pandas) (2.2.5)
+Requirement already satisfied: pytz>=2020.1 in /Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/site-packages (from pandas) (2025.2)
+Requirement already satisfied: six>=1.5 in /Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/site-packages (from python-dateutil>=2.8.2->pandas) (1.17.0)
+WARNING: You are using pip version 22.0.4; however, version 25.1 is available.
+You should consider upgrading via the '/Library/Frameworks/Python.framework/Versions/3.10/bin/python3.10 -m pip install --upgrade pip' command.
+2025-04-27 23:50:00 - [0;32mPython 依赖已安装[0m
+2025-04-27 23:50:00 - [0;34m创建目录结构...[0m
+2025-04-27 23:50:00 - [0;32m目录结构已创建[0m
+2025-04-27 23:50:00 - [0;34m启动 PostgreSQL...[0m
+2025-04-27 23:50:00 - [1;33m容器已存在，正在停止并删除...[0m
+sprint-db
+sprint-db
+2025-04-27 23:50:01 - [1;33m数据卷已存在，正在删除...[0m
+sprint-db-data
+2025-04-27 23:50:01 - 创建数据卷...
+sprint-db-data
+2025-04-27 23:50:01 - 启动 PostgreSQL 容器...
+3fed2130eb1bb1f223445738ddb63004d36528184746157eda34aad822d94324
+2025-04-27 23:50:01 - 等待容器启动...
+2025-04-27 23:50:11 - [0;32mPostgreSQL 已成功启动[0m
+2025-04-27 23:50:11 - [0;34m创建数据库表...[0m
+2025-04-27 23:50:16 - 执行 database/migrations/*.sql...
+2025-04-27 23:50:16 - [0;32m数据库表已创建[0m
+2025-04-27 23:50:16 - [0;34m导入数据...[0m
+2025-04-27 23:50:16 - 执行数据导入...
+2025-04-27 23:50:17 - [0;32m数据导入完成[0m
+2025-04-27 23:50:17 - [0;34m验证数据库...[0m
+2025-04-27 23:50:17 - 执行数据库验证...
+2025-04-27 23:50:17 - 验证结果已记录到 verify.log 文件
+2025-04-27 23:50:17 - 请查看 verify.log 文件了解详细信息
+2025-04-27 23:50:17 - [0;34m创建初始备份...[0m
+docker: invalid reference format: repository name (DevFolder/sprintdashboard1.0/dashboard/database/./backups) must be lowercase
+
+Run 'docker run --help' for more information
+2025-04-27 23:50:17 - [0;32m初始备份已创建: ./backups/initial_backup_20250427_235017.tar.gz[0m
+2025-04-27 23:50:17 - [0;32m安装完成！[0m
+2025-04-27 23:50:17 - [0;32m安装完成！[0m
