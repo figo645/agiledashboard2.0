@@ -2,9 +2,9 @@ package com.example.dashboard.service;
 
 import com.example.dashboard.entity.TeamData;
 import com.example.dashboard.entity.IterationCompletion;
-import com.example.dashboard.entity.Bug;
-import com.example.dashboard.entity.Change;
-import com.example.dashboard.entity.Testing;
+import com.example.dashboard.entity.BugProgress;
+import com.example.dashboard.entity.ChangeTracking;
+import com.example.dashboard.entity.TestingProgress;
 import com.example.dashboard.repository.DataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -46,16 +46,16 @@ public class SprintPlanningService {
         return dataRepository.getIterationCompletionData();
     }
 
-    public List<Bug> getBugData() {
-        return dataRepository.getBugData();
+    public List<BugProgress> getBugProgressData() {
+        return dataRepository.getBugProgressData();
     }
 
-    public List<Change> getChangeData() {
-        return dataRepository.getChangeData();
+    public List<ChangeTracking> getChangeTrackingData() {
+        return dataRepository.getChangeTrackingData();
     }
 
-    public List<Testing> getTestingData() {
-        return dataRepository.getTestingData();
+    public List<TestingProgress> getTestingProgressData() {
+        return dataRepository.getTestingProgressData();
     }
 
     private List<TeamData> readSprintPlanningFromCsv() {

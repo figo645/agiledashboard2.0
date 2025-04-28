@@ -2,9 +2,9 @@ package com.example.dashboard.repository;
 
 import com.example.dashboard.entity.TeamData;
 import com.example.dashboard.entity.IterationCompletion;
-import com.example.dashboard.entity.Bug;
-import com.example.dashboard.entity.Change;
-import com.example.dashboard.entity.Testing;
+import com.example.dashboard.entity.BugProgress;
+import com.example.dashboard.entity.ChangeTracking;
+import com.example.dashboard.entity.TestingProgress;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
@@ -15,7 +15,7 @@ import java.util.List;
 public interface DataRepository {
     List<TeamData> getSprintPlanningData();
     List<IterationCompletion> getIterationCompletionData();
-    List<Bug> getBugData();
-    List<Change> getChangeData();
-    List<Testing> getTestingData();
+    List<BugProgress> getBugProgressData();
+    List<ChangeTracking> getChangeTrackingData();
+    List<TestingProgress> getTestingProgressData();
 } 

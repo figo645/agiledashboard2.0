@@ -2,9 +2,9 @@ package com.example.dashboard.controller;
 
 import com.example.dashboard.entity.TeamData;
 import com.example.dashboard.entity.IterationCompletion;
-import com.example.dashboard.entity.Bug;
-import com.example.dashboard.entity.Change;
-import com.example.dashboard.entity.Testing;
+import com.example.dashboard.entity.BugProgress;
+import com.example.dashboard.entity.ChangeTracking;
+import com.example.dashboard.entity.TestingProgress;
 import com.example.dashboard.service.SprintPlanningService;
 import com.example.dashboard.service.IterationCompletionService;
 import com.example.dashboard.service.BugService;
@@ -46,18 +46,18 @@ public class DashboardController {
         return iterationCompletionService.getIterationCompletionData();
     }
 
-    @GetMapping("/bug")
-    public List<Bug> getBugData() {
-        return bugService.getBugData();
+    @GetMapping("/bug-progress")
+    public List<BugProgress> getBugProgressData() {
+        return bugService.getBugProgressData();
     }
 
-    @GetMapping("/change")
-    public List<Change> getChangeData() {
-        return changeService.getChangeData();
+    @GetMapping("/change-tracking")
+    public List<ChangeTracking> getChangeTrackingData() {
+        return changeService.getChangeTrackingData();
     }
 
-    @GetMapping("/testing")
-    public List<Testing> getTestingData() {
-        return testingService.getTestingData();
+    @GetMapping("/testing-progress")
+    public List<TestingProgress> getTestingProgressData() {
+        return testingService.getTestingProgressData();
     }
 } 

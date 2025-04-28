@@ -2,9 +2,9 @@ package com.example.dashboard.repository;
 
 import com.example.dashboard.entity.TeamData;
 import com.example.dashboard.entity.IterationCompletion;
-import com.example.dashboard.entity.Bug;
-import com.example.dashboard.entity.Change;
-import com.example.dashboard.entity.Testing;
+import com.example.dashboard.entity.BugProgress;
+import com.example.dashboard.entity.ChangeTracking;
+import com.example.dashboard.entity.TestingProgress;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -34,21 +34,21 @@ public class PostgresDataRepository implements DataRepository {
     }
 
     @Override
-    public List<Bug> getBugData() {
-        String sql = "SELECT * FROM bug";
-        return jdbcTemplate.query(sql, new BugRowMapper());
+    public List<BugProgress> getBugProgressData() {
+        String sql = "SELECT * FROM bug_progress";
+        return jdbcTemplate.query(sql, new BugProgressRowMapper());
     }
 
     @Override
-    public List<Change> getChangeData() {
-        String sql = "SELECT * FROM change";
-        return jdbcTemplate.query(sql, new ChangeRowMapper());
+    public List<ChangeTracking> getChangeTrackingData() {
+        String sql = "SELECT * FROM change_tracking";
+        return jdbcTemplate.query(sql, new ChangeTrackingRowMapper());
     }
 
     @Override
-    public List<Testing> getTestingData() {
-        String sql = "SELECT * FROM testing";
-        return jdbcTemplate.query(sql, new TestingRowMapper());
+    public List<TestingProgress> getTestingProgressData() {
+        String sql = "SELECT * FROM testing_progress";
+        return jdbcTemplate.query(sql, new TestingProgressRowMapper());
     }
 
     private static class TeamDataRowMapper implements RowMapper<TeamData> {
@@ -89,55 +89,56 @@ public class PostgresDataRepository implements DataRepository {
         }
     }
 
-    private static class BugRowMapper implements RowMapper<Bug> {
+    private static class BugProgressRowMapper implements RowMapper<BugProgress> {
         @Override
-        public Bug mapRow(ResultSet rs, int rowNum) throws SQLException {
-            Bug bug = new Bug();
-            bug.setId(rs.getString("id"));
-            bug.setProgramName(rs.getString("program_name"));
-            bug.setTeamName(rs.getString("team_name"));
-            bug.setTotalBugs(rs.getInt("total_bugs"));
-            bug.setPreFixed(rs.getInt("pre_fixed"));
-            bug.setUatFixed(rs.getInt("uat_fixed"));
-            bug.setPrePending(rs.getInt("pre_pending"));
-            bug.setUatPending(rs.getInt("uat_pending"));
-            bug.setPreFixedRatio(rs.getDouble("pre_fixed_ratio"));
-            bug.setUatFixedRatio(rs.getDouble("uat_fixed_ratio"));
-            return bug;
+        public BugProgress mapRow(ResultSet rs, int rowNum) throws SQLException {
+            BugProgress bugProgress = new BugProgress();
+            bugProgress.setId(rs.getString("id"));
+            bugProgress.setProgramName(rs.getString("program_name"));
+            bugProgress.setTeamName(rs.getString("team_name"));
+            bugProgress.setTotalBugs(rs.getInt("total_bugs"));
+            bugProgress.setPreFixed(rs.getInt("pre_fixed"));
+            bugProgress.setUatFixed(rs.getInt("uat_fixed"));
+            bugProgress.setPrePending(rs.getInt("pre_pending"));
+            bugProgress.setUatPending(rs.getInt("uat_pending"));
+            bugProgress.setPreFixedRatio(rs.getDouble("pre_fixed_ratio"));
+            bugProgress.setUatFixedRatio(rs.getDouble("uat_fixed_ratio"));
+            bugProgress.setDataDate(rs.getDate("data_date").toLocalDate());
+            bugProgress.setDataMonth(rs.getString("data_month"));
+            bugProgress.setDataQuarter(rs.getString("data_quarter"));
+            return bugProgress;
         }
     }
 
-    private static class ChangeRowMapper implements RowMapper<Change> {
+    private static class ChangeTrackingRowMapper implements RowMapper<ChangeTracking> {
         @Override
-        public Change mapRow(ResultSet rs, int rowNum) throws SQLException {
-            Change change = new Change();
-            change.setId(rs.getString("id"));
-            change.setTeamName(rs.getString("team_name"));
-            change.setIssueKey(rs.getString("issue_key"));
-            change.setSummary(rs.getString("summary"));
-            change.setStatus(rs.getString("status"));
-            change.setChangeType(rs.getString("change_type"));
-            change.setAssignee(rs.getString("assignee"));
-            change.setCreatedDate(rs.getString("created_date"));
-            change.setResolvedDate(rs.getString("resolved_date"));
-            change.setStoryPoints(rs.getDouble("story_points"));
-            change.setChangeTasks(rs.getInt("change_tasks"));
-            change.setChangePoints(rs.getInt("change_points"));
-            return change;
+        public ChangeTracking mapRow(ResultSet rs, int rowNum) throws SQLException {
+            ChangeTracking changeTracking = new ChangeTracking();
+            changeTracking.setId(rs.getString("id"));
+            changeTracking.setTeamName(rs.getString("team_name"));
+            changeTracking.setChangeTasks(rs.getInt("change_tasks"));
+            changeTracking.setChangePoints(rs.getInt("change_points"));
+            changeTracking.setDataDate(rs.getDate("data_date").toLocalDate());
+            changeTracking.setDataMonth(rs.getString("data_month"));
+            changeTracking.setDataQuarter(rs.getString("data_quarter"));
+            return changeTracking;
         }
     }
 
-    private static class TestingRowMapper implements RowMapper<Testing> {
+    private static class TestingProgressRowMapper implements RowMapper<TestingProgress> {
         @Override
-        public Testing mapRow(ResultSet rs, int rowNum) throws SQLException {
-            Testing testing = new Testing();
-            testing.setId(rs.getString("id"));
-            testing.setTeamName(rs.getString("team_name"));
-            testing.setTotalTestCases(rs.getInt("total_test_cases"));
-            testing.setCompletedTestCases(rs.getInt("completed_test_cases"));
-            testing.setFailedTestCases(rs.getInt("failed_test_cases"));
-            testing.setBlockedTestCases(rs.getInt("blocked_test_cases"));
-            return testing;
+        public TestingProgress mapRow(ResultSet rs, int rowNum) throws SQLException {
+            TestingProgress testingProgress = new TestingProgress();
+            testingProgress.setId(rs.getString("id"));
+            testingProgress.setTeamName(rs.getString("team_name"));
+            testingProgress.setTotalTestCases(rs.getInt("total_test_cases"));
+            testingProgress.setCompletedTestCases(rs.getInt("completed_test_cases"));
+            testingProgress.setFailedTestCases(rs.getInt("failed_test_cases"));
+            testingProgress.setBlockedTestCases(rs.getInt("blocked_test_cases"));
+            testingProgress.setDataDate(rs.getDate("data_date").toLocalDate());
+            testingProgress.setDataMonth(rs.getString("data_month"));
+            testingProgress.setDataQuarter(rs.getString("data_quarter"));
+            return testingProgress;
         }
     }
 } 

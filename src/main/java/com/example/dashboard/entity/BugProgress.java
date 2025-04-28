@@ -1,8 +1,9 @@
 package com.example.dashboard.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Column;
 import lombok.Data;
 import java.time.LocalDate;
 
@@ -12,16 +13,40 @@ import java.time.LocalDate;
 public class BugProgress {
     @Id
     private String id;
+    
+    @Column(name = "program_name")
     private String programName;
+    
+    @Column(name = "team_name")
     private String teamName;
-    private int totalBugs;
-    private int preFixed;
-    private int uatFixed;
-    private int prePending;
-    private int uatPending;
-    private double preFixedRatio;
-    private double uatFixedRatio;
+    
+    @Column(name = "total_bugs")
+    private Integer totalBugs;
+    
+    @Column(name = "pre_fixed")
+    private Integer preFixed;
+    
+    @Column(name = "uat_fixed")
+    private Integer uatFixed;
+    
+    @Column(name = "pre_pending")
+    private Integer prePending;
+    
+    @Column(name = "uat_pending")
+    private Integer uatPending;
+    
+    @Column(name = "pre_fixed_ratio")
+    private Double preFixedRatio;
+    
+    @Column(name = "uat_fixed_ratio")
+    private Double uatFixedRatio;
+    
+    @Column(name = "data_date")
     private LocalDate dataDate;
+    
+    @Column(name = "data_month")
     private String dataMonth;
+    
+    @Column(name = "data_quarter")
     private String dataQuarter;
 } 

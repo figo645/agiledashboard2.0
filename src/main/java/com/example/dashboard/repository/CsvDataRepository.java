@@ -2,9 +2,9 @@ package com.example.dashboard.repository;
 
 import com.example.dashboard.entity.TeamData;
 import com.example.dashboard.entity.IterationCompletion;
-import com.example.dashboard.entity.Bug;
-import com.example.dashboard.entity.Change;
-import com.example.dashboard.entity.Testing;
+import com.example.dashboard.entity.BugProgress;
+import com.example.dashboard.entity.ChangeTracking;
+import com.example.dashboard.entity.TestingProgress;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,14 +26,14 @@ public class CsvDataRepository implements DataRepository {
     @Value("${csv.iteration-completion}")
     private String iterationCompletionFile;
 
-    @Value("${csv.bug}")
-    private String bugFile;
+    @Value("${csv.bug-progress}")
+    private String bugProgressFile;
 
-    @Value("${csv.change}")
-    private String changeFile;
+    @Value("${csv.change-tracking}")
+    private String changeTrackingFile;
 
-    @Value("${csv.testing}")
-    private String testingFile;
+    @Value("${csv.testing-progress}")
+    private String testingProgressFile;
 
     @Override
     public List<TeamData> getSprintPlanningData() {
@@ -46,18 +46,18 @@ public class CsvDataRepository implements DataRepository {
     }
 
     @Override
-    public List<Bug> getBugData() {
-        return readCsvFile(bugFile, this::mapToBug);
+    public List<BugProgress> getBugProgressData() {
+        return readCsvFile(bugProgressFile, this::mapToBugProgress);
     }
 
     @Override
-    public List<Change> getChangeData() {
-        return readCsvFile(changeFile, this::mapToChange);
+    public List<ChangeTracking> getChangeTrackingData() {
+        return readCsvFile(changeTrackingFile, this::mapToChangeTracking);
     }
 
     @Override
-    public List<Testing> getTestingData() {
-        return readCsvFile(testingFile, this::mapToTesting);
+    public List<TestingProgress> getTestingProgressData() {
+        return readCsvFile(testingProgressFile, this::mapToTestingProgress);
     }
 
     private <T> List<T> readCsvFile(String filePath, CsvMapper<T> mapper) {
@@ -114,46 +114,38 @@ public class CsvDataRepository implements DataRepository {
         return completion;
     }
 
-    private Bug mapToBug(String[] values) {
-        Bug bug = new Bug();
-        bug.setId(values[0] + "_" + values[1]);  // programName_teamName as ID
-        bug.setProgramName(values[0]);
-        bug.setTeamName(values[1]);
-        bug.setTotalBugs(Integer.parseInt(values[2]));
-        bug.setPreFixed(Integer.parseInt(values[3]));
-        bug.setUatFixed(Integer.parseInt(values[4]));
-        bug.setPrePending(Integer.parseInt(values[5]));
-        bug.setUatPending(Integer.parseInt(values[6]));
-        bug.setPreFixedRatio(Double.parseDouble(values[7]));
-        bug.setUatFixedRatio(Double.parseDouble(values[8]));
-        return bug;
+    private BugProgress mapToBugProgress(String[] values) {
+        BugProgress bugProgress = new BugProgress();
+        bugProgress.setId(values[0] + "_" + values[1]);  // programName_teamName as ID
+        bugProgress.setProgramName(values[0]);
+        bugProgress.setTeamName(values[1]);
+        bugProgress.setTotalBugs(Integer.parseInt(values[2]));
+        bugProgress.setPreFixed(Integer.parseInt(values[3]));
+        bugProgress.setUatFixed(Integer.parseInt(values[4]));
+        bugProgress.setPrePending(Integer.parseInt(values[5]));
+        bugProgress.setUatPending(Integer.parseInt(values[6]));
+        bugProgress.setPreFixedRatio(Double.parseDouble(values[7]));
+        bugProgress.setUatFixedRatio(Double.parseDouble(values[8]));
+        return bugProgress;
     }
 
-    private Change mapToChange(String[] values) {
-        Change change = new Change();
-        change.setId(values[0] + "_" + values[1]);  // teamName_issueKey as ID
-        change.setTeamName(values[0]);
-        change.setIssueKey(values[1]);
-        change.setSummary(values[2]);
-        change.setStatus(values[3]);
-        change.setChangeType(values[4]);
-        change.setAssignee(values[5]);
-        change.setCreatedDate(values[6]);
-        change.setResolvedDate(values[7]);
-        change.setStoryPoints(Double.parseDouble(values[8]));
-        change.setChangeTasks(Integer.parseInt(values[9]));
-        change.setChangePoints(Integer.parseInt(values[10]));
-        return change;
+    private ChangeTracking mapToChangeTracking(String[] values) {
+        ChangeTracking changeTracking = new ChangeTracking();
+        changeTracking.setId(values[0] + "_" + values[1]);  // teamName as ID
+        changeTracking.setTeamName(values[0]);
+        changeTracking.setChangeTasks(Integer.parseInt(values[1]));
+        changeTracking.setChangePoints(Integer.parseInt(values[2]));
+        return changeTracking;
     }
 
-    private Testing mapToTesting(String[] values) {
-        Testing testing = new Testing();
-        testing.setId(values[0] + "_" + values[1]);  // teamName_issueKey as ID
-        testing.setTeamName(values[0]);
-        testing.setTotalTestCases(Integer.parseInt(values[1]));
-        testing.setCompletedTestCases(Integer.parseInt(values[2]));
-        testing.setFailedTestCases(Integer.parseInt(values[3]));
-        testing.setBlockedTestCases(Integer.parseInt(values[4]));
-        return testing;
+    private TestingProgress mapToTestingProgress(String[] values) {
+        TestingProgress testingProgress = new TestingProgress();
+        testingProgress.setId(values[0] + "_" + values[1]);  // teamName as ID
+        testingProgress.setTeamName(values[0]);
+        testingProgress.setTotalTestCases(Integer.parseInt(values[1]));
+        testingProgress.setCompletedTestCases(Integer.parseInt(values[2]));
+        testingProgress.setFailedTestCases(Integer.parseInt(values[3]));
+        testingProgress.setBlockedTestCases(Integer.parseInt(values[4]));
+        return testingProgress;
     }
 } 
