@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -23,31 +24,31 @@ public class PostgresDataRepository implements DataRepository {
 
     @Override
     public List<TeamData> getSprintPlanningData() {
-        String sql = "SELECT * FROM sprint_planning";
+        String sql = "SELECT * FROM team_data ORDER BY data_date DESC";
         return jdbcTemplate.query(sql, new TeamDataRowMapper());
     }
 
     @Override
     public List<IterationCompletion> getIterationCompletionData() {
-        String sql = "SELECT * FROM iteration_completion";
+        String sql = "SELECT * FROM iteration_completion ORDER BY data_date DESC";
         return jdbcTemplate.query(sql, new IterationCompletionRowMapper());
     }
 
     @Override
     public List<BugProgress> getBugProgressData() {
-        String sql = "SELECT * FROM bug_progress";
+        String sql = "SELECT * FROM bug_progress ORDER BY data_date DESC";
         return jdbcTemplate.query(sql, new BugProgressRowMapper());
     }
 
     @Override
     public List<ChangeTracking> getChangeTrackingData() {
-        String sql = "SELECT * FROM change_tracking";
+        String sql = "SELECT * FROM change_tracking ORDER BY data_date DESC";
         return jdbcTemplate.query(sql, new ChangeTrackingRowMapper());
     }
 
     @Override
     public List<TestingProgress> getTestingProgressData() {
-        String sql = "SELECT * FROM testing_progress";
+        String sql = "SELECT * FROM testing_progress ORDER BY data_date DESC";
         return jdbcTemplate.query(sql, new TestingProgressRowMapper());
     }
 
@@ -70,6 +71,9 @@ public class PostgresDataRepository implements DataRepository {
             team.setStoryThroughput(rs.getDouble("story_throughput"));
             team.setCvValue(rs.getDouble("cv_value"));
             team.setStoryGranularity(rs.getDouble("story_granularity"));
+            team.setDataDate(rs.getDate("data_date").toLocalDate());
+            team.setDataMonth(rs.getString("data_month"));
+            team.setDataQuarter(rs.getString("data_quarter"));
             return team;
         }
     }
@@ -85,6 +89,9 @@ public class PostgresDataRepository implements DataRepository {
             completion.setActualProgress(rs.getDouble("actual_progress"));
             completion.setStorypointPlanned(rs.getDouble("storypoint_planned"));
             completion.setStorypointCompleted(rs.getDouble("storypoint_completed"));
+            completion.setDataDate(rs.getDate("data_date").toLocalDate());
+            completion.setDataMonth(rs.getString("data_month"));
+            completion.setDataQuarter(rs.getString("data_quarter"));
             return completion;
         }
     }
