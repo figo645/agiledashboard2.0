@@ -4,6 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import lombok.Data;
+import java.time.LocalDate;
 
 @Data
 @Entity
@@ -13,18 +14,23 @@ public class TeamData {
     private String id;
     private String programName;
     private String teamName;
-    private double plannedCount;  // 计划需求数
-    private double completedCount;
+    private double plannedProgress;  // 计划进度
+    private double actualProgress;   // 实际进度
+    private double plannedCount;     // 计划需求数
+    private double completedCount;   // 完成需求数
     private double storypointPlanned;
     private double storypointCompleted;
-    private double testPoints;  // 测试故事点
-    private double userStoryPoints;
-    private double userStoryRatio;
-    private double enablerPoints;  // 技术需求数
-    private double enablerRatio;  // 技术需求占比
+    private double testPoints;       // 测试故事点
+    private double userStoryPoints;  // 用户故事点
+    private double userStoryRatio;   // 用户故事占比
+    private double enablerPoints;    // 技术需求数
+    private double enablerRatio;     // 技术需求占比
     private double storyThroughput;  // 百人天故事吞吐量
-    private double cvValue;  // CV值（标准差/平均数）
-    private double storyGranularity;  // 故事颗粒度平均值
+    private double cvValue;          // CV值（标准差/平均数）
+    private double storyGranularity; // 故事颗粒度平均值
+    private LocalDate dataDate;      // 数据日期
+    private String dataMonth;        // 数据月份
+    private String dataQuarter;      // 数据季度
 
     // Getters and setters
     public String getTeamName() {

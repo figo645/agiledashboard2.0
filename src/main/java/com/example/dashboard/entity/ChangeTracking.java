@@ -8,16 +8,13 @@ import java.time.LocalDate;
 
 @Data
 @Entity
-@Table(name = "iteration_completion")
-public class IterationCompletion {
+@Table(name = "change_tracking")
+public class ChangeTracking {
     @Id
     private String id;
-    private String programName;
     private String teamName;
-    private double plannedProgress;
-    private double actualProgress;
-    private double storypointPlanned;
-    private double storypointCompleted;
+    private int changeTasks;
+    private int changePoints;
     private LocalDate dataDate;
     private String dataMonth;
     private String dataQuarter;

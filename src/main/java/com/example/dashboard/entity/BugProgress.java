@@ -8,16 +8,19 @@ import java.time.LocalDate;
 
 @Data
 @Entity
-@Table(name = "iteration_completion")
-public class IterationCompletion {
+@Table(name = "bug_progress")
+public class BugProgress {
     @Id
     private String id;
     private String programName;
     private String teamName;
-    private double plannedProgress;
-    private double actualProgress;
-    private double storypointPlanned;
-    private double storypointCompleted;
+    private int totalBugs;
+    private int preFixed;
+    private int uatFixed;
+    private int prePending;
+    private int uatPending;
+    private double preFixedRatio;
+    private double uatFixedRatio;
     private LocalDate dataDate;
     private String dataMonth;
     private String dataQuarter;
