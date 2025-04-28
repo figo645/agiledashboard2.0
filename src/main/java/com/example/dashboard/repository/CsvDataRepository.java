@@ -14,12 +14,16 @@ import org.springframework.core.io.ClassPathResource;
 
 import java.io.InputStreamReader;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 @Repository
 @Qualifier("csvDataRepository")
 public class CsvDataRepository implements DataRepository {
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
     @Value("${csv.sprint-planning}")
     private String sprintPlanningFile;
 
@@ -131,7 +135,7 @@ public class CsvDataRepository implements DataRepository {
 
     private ChangeTracking mapToChangeTracking(String[] values) {
         ChangeTracking changeTracking = new ChangeTracking();
-        changeTracking.setId(values[0] + "_" + values[1]);  // teamName as ID
+        changeTracking.setId(values[0]);  // teamName as ID
         changeTracking.setTeamName(values[0]);
         changeTracking.setChangeTasks(Integer.parseInt(values[1]));
         changeTracking.setChangePoints(Integer.parseInt(values[2]));
@@ -140,12 +144,16 @@ public class CsvDataRepository implements DataRepository {
 
     private TestingProgress mapToTestingProgress(String[] values) {
         TestingProgress testingProgress = new TestingProgress();
-        testingProgress.setId(values[0] + "_" + values[1]);  // teamName as ID
+        testingProgress.setId(values[0]);  // teamName as ID
         testingProgress.setTeamName(values[0]);
         testingProgress.setTotalTestCases(Integer.parseInt(values[1]));
         testingProgress.setCompletedTestCases(Integer.parseInt(values[2]));
         testingProgress.setFailedTestCases(Integer.parseInt(values[3]));
         testingProgress.setBlockedTestCases(Integer.parseInt(values[4]));
         return testingProgress;
+    }
+
+    private LocalDate parseDate(String dateStr) {
+        return LocalDate.parse(dateStr, DATE_FORMATTER);
     }
 } 

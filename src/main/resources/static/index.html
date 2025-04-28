@@ -362,20 +362,20 @@
                 updateCompletionChart(completionData);
 
                 // 加载Change Tracking数据
-                const changeResponse = await fetch('/dashboard/api/change');
+                const changeResponse = await fetch('/dashboard/api/change-tracking');
                 const changeData = await changeResponse.json();
                 console.log('Change Tracking Data:', changeData);
                 updateChangeChart(changeData);
 
                 // 加载Testing Progress数据
-                const testingResponse = await fetch('/dashboard/api/testing');
+                const testingResponse = await fetch('/dashboard/api/testing-progress');
                 const testingData = await testingResponse.json();
                 console.log('Testing Progress Data:', testingData);
                 updateTestingChart(testingData);
 
                 // 加载Bug Progress数据
                 console.log('Fetching bug progress data...');
-                const bugResponse = await fetch('/dashboard/api/bug');
+                const bugResponse = await fetch('/dashboard/api/bug-progress');
                 const bugData = await bugResponse.json();
                 console.log('Bug Progress Data:', bugData);
                 updateBugChart(bugData);
