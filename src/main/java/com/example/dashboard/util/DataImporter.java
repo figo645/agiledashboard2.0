@@ -37,6 +37,8 @@ public class DataImporter {
     private static final String TESTING_PROGRESS_CSV = BASE_PATH + "testing_progress.csv";
 
     private final EntityManager entityManager;
+    private LocalDate importDate = LocalDate.now(); // 默认使用当前日期
+    private String defaultDateStr = "2025-04-28"; // 默认日期字符串
 
     public DataImporter() {
         Properties props = new Properties();
@@ -55,6 +57,9 @@ public class DataImporter {
     public static void main(String[] args) {
         try {
             DataImporter importer = new DataImporter();
+            
+            // 设置导入日期
+            importer.setImportDate(importer.defaultDateStr);
             
             // 清理现有数据
             importer.cleanupData();
@@ -180,10 +185,9 @@ public class DataImporter {
         teamData.setStoryGranularity(Double.parseDouble(data[13]));
         
         // 设置日期相关字段
-        LocalDate currentDate = LocalDate.now();
-        teamData.setDataDate(currentDate);
-        teamData.setDataMonth(currentDate.format(DateTimeFormatter.ofPattern("yyyy-MM")));
-        teamData.setDataQuarter(getQuarter(currentDate));
+        teamData.setDataDate(importDate);
+        teamData.setDataMonth(importDate.format(DateTimeFormatter.ofPattern("yyyy-MM")));
+        teamData.setDataQuarter(getQuarter(importDate));
         
         entityManager.persist(teamData);
     }
@@ -203,10 +207,9 @@ public class DataImporter {
         completion.setStorypointCompleted(Double.parseDouble(data[5]));
         
         // 设置日期相关字段
-        LocalDate currentDate = LocalDate.now();
-        completion.setDataDate(currentDate);
-        completion.setDataMonth(currentDate.format(DateTimeFormatter.ofPattern("yyyy-MM")));
-        completion.setDataQuarter(getQuarter(currentDate));
+        completion.setDataDate(importDate);
+        completion.setDataMonth(importDate.format(DateTimeFormatter.ofPattern("yyyy-MM")));
+        completion.setDataQuarter(getQuarter(importDate));
         
         entityManager.persist(completion);
     }
@@ -229,10 +232,9 @@ public class DataImporter {
         bugProgress.setUatFixedRatio(Double.parseDouble(data[8]));
         
         // 设置日期相关字段
-        LocalDate currentDate = LocalDate.now();
-        bugProgress.setDataDate(currentDate);
-        bugProgress.setDataMonth(currentDate.format(DateTimeFormatter.ofPattern("yyyy-MM")));
-        bugProgress.setDataQuarter(getQuarter(currentDate));
+        bugProgress.setDataDate(importDate);
+        bugProgress.setDataMonth(importDate.format(DateTimeFormatter.ofPattern("yyyy-MM")));
+        bugProgress.setDataQuarter(getQuarter(importDate));
         
         entityManager.persist(bugProgress);
     }
@@ -249,10 +251,9 @@ public class DataImporter {
         changeTracking.setChangePoints(Integer.parseInt(data[2]));
         
         // 设置日期相关字段
-        LocalDate currentDate = LocalDate.now();
-        changeTracking.setDataDate(currentDate);
-        changeTracking.setDataMonth(currentDate.format(DateTimeFormatter.ofPattern("yyyy-MM")));
-        changeTracking.setDataQuarter(getQuarter(currentDate));
+        changeTracking.setDataDate(importDate);
+        changeTracking.setDataMonth(importDate.format(DateTimeFormatter.ofPattern("yyyy-MM")));
+        changeTracking.setDataQuarter(getQuarter(importDate));
         
         entityManager.persist(changeTracking);
     }
@@ -271,10 +272,9 @@ public class DataImporter {
         testingProgress.setBlockedTestCases(Integer.parseInt(data[4]));
         
         // 设置日期相关字段
-        LocalDate currentDate = LocalDate.now();
-        testingProgress.setDataDate(currentDate);
-        testingProgress.setDataMonth(currentDate.format(DateTimeFormatter.ofPattern("yyyy-MM")));
-        testingProgress.setDataQuarter(getQuarter(currentDate));
+        testingProgress.setDataDate(importDate);
+        testingProgress.setDataMonth(importDate.format(DateTimeFormatter.ofPattern("yyyy-MM")));
+        testingProgress.setDataQuarter(getQuarter(importDate));
         
         entityManager.persist(testingProgress);
     }
@@ -284,5 +284,39 @@ public class DataImporter {
         int year = date.getYear();
         int quarter = (month - 1) / 3 + 1;
         return year + "Q" + quarter;
+    }
+
+    // 设置默认日期字符串
+    public void setDefaultDateStr(String dateStr) {
+        this.defaultDateStr = dateStr;
+        if (dateStr != null && !dateStr.trim().isEmpty()) {
+            this.importDate = LocalDate.parse(dateStr);
+        } else {
+            this.importDate = LocalDate.now();
+        }
+    }
+    
+    // 获取默认日期字符串
+    public String getDefaultDateStr() {
+        return this.defaultDateStr;
+    }
+    
+    // 设置导入日期
+    public void setImportDate(LocalDate date) {
+        this.importDate = date;
+    }
+    
+    // 获取导入日期
+    public LocalDate getImportDate() {
+        return this.importDate;
+    }
+    
+    // 设置导入日期（字符串格式）
+    public void setImportDate(String dateStr) {
+        if (dateStr != null && !dateStr.trim().isEmpty()) {
+            this.importDate = LocalDate.parse(dateStr);
+        } else {
+            this.importDate = LocalDate.now();
+        }
     }
 } 

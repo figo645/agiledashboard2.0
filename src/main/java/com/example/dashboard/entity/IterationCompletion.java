@@ -1,9 +1,6 @@
 package com.example.dashboard.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.Column;
+import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDate;
 
@@ -12,6 +9,7 @@ import java.time.LocalDate;
 @Table(name = "iteration_completion")
 public class IterationCompletion {
     @Id
+    @Column(name = "id")
     private String id;
     
     @Column(name = "program_name")
@@ -21,16 +19,16 @@ public class IterationCompletion {
     private String teamName;
     
     @Column(name = "planned_progress")
-    private double plannedProgress;
+    private Double plannedProgress;
     
     @Column(name = "actual_progress")
-    private double actualProgress;
+    private Double actualProgress;
     
     @Column(name = "storypoint_planned")
-    private double storypointPlanned;
+    private Double storypointPlanned;
     
     @Column(name = "storypoint_completed")
-    private double storypointCompleted;
+    private Double storypointCompleted;
     
     @Column(name = "data_date")
     private LocalDate dataDate;

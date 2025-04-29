@@ -25,8 +25,8 @@ public class PostgresDataRepository implements DataRepository {
     @Override
     public List<TeamData> getSprintPlanningData(LocalDate date) {
         String sql = date != null 
-            ? "SELECT * FROM team_data WHERE data_date = ? ORDER BY data_date DESC"
-            : "SELECT * FROM team_data ORDER BY data_date DESC";
+            ? "SELECT * FROM sprint_planning WHERE data_date = ? ORDER BY data_date DESC"
+            : "SELECT * FROM sprint_planning ORDER BY data_date DESC";
         return date != null
             ? jdbcTemplate.query(sql, new TeamDataRowMapper(), date)
             : jdbcTemplate.query(sql, new TeamDataRowMapper());

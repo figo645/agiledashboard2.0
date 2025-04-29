@@ -1,9 +1,6 @@
 package com.example.dashboard.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.Column;
+import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDate;
 
@@ -12,22 +9,23 @@ import java.time.LocalDate;
 @Table(name = "testing_progress")
 public class TestingProgress {
     @Id
+    @Column(name = "id")
     private String id;
     
     @Column(name = "team_name")
     private String teamName;
     
     @Column(name = "total_test_cases")
-    private int totalTestCases;
+    private Integer totalTestCases;
     
     @Column(name = "completed_test_cases")
-    private int completedTestCases;
+    private Integer completedTestCases;
     
     @Column(name = "failed_test_cases")
-    private int failedTestCases;
+    private Integer failedTestCases;
     
     @Column(name = "blocked_test_cases")
-    private int blockedTestCases;
+    private Integer blockedTestCases;
     
     @Column(name = "data_date")
     private LocalDate dataDate;

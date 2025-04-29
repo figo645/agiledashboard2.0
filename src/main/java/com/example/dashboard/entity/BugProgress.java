@@ -1,9 +1,6 @@
 package com.example.dashboard.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.Column;
+import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDate;
 
@@ -12,6 +9,7 @@ import java.time.LocalDate;
 @Table(name = "bug_progress")
 public class BugProgress {
     @Id
+    @Column(name = "id")
     private String id;
     
     @Column(name = "program_name")

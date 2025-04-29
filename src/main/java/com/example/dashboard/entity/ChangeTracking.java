@@ -1,9 +1,6 @@
 package com.example.dashboard.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.Column;
+import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDate;
 
@@ -12,16 +9,17 @@ import java.time.LocalDate;
 @Table(name = "change_tracking")
 public class ChangeTracking {
     @Id
+    @Column(name = "id")
     private String id;
     
     @Column(name = "team_name")
     private String teamName;
     
     @Column(name = "change_tasks")
-    private int changeTasks;
+    private Integer changeTasks;
     
     @Column(name = "change_points")
-    private int changePoints;
+    private Integer changePoints;
     
     @Column(name = "data_date")
     private LocalDate dataDate;
