@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,9 +31,9 @@ public class IterationCompletionService {
         return usePostgresql ? postgresDataRepository : csvDataRepository;
     }
 
-    public List<IterationCompletion> getIterationCompletionData() {
+    public List<IterationCompletion> getIterationCompletionData(LocalDate date) {
         if (usePostgresql) {
-            return getDataRepository().getIterationCompletionData();
+            return getDataRepository().getIterationCompletionData(date);
         } else {
             return readIterationCompletionFromCsv();
         }

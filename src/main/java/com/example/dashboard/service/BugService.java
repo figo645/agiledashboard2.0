@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -26,7 +27,7 @@ public class BugService {
         return usePostgresql ? postgresDataRepository : csvDataRepository;
     }
 
-    public List<BugProgress> getBugProgressData() {
-        return getDataRepository().getBugProgressData();
+    public List<BugProgress> getBugProgressData(LocalDate date) {
+        return getDataRepository().getBugProgressData(date);
     }
 } 

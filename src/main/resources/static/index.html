@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>敏捷迭代看板</title>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
@@ -381,38 +382,65 @@
         // 注册缩放插件
         Chart.register(ChartZoom);
         
+        // 存储所有图表实例
+        const chartInstances = {
+            completionChart: null,
+            changeChart: null,
+            testingChart: null,
+            bugChart: null
+        };
+
+        let iterationChart, bugChart, changeChart, testingChart;
+        let selectedDate = '';
+
+        $(document).ready(function() {
+            // 设置日期选择器的初始值为今天
+            const today = new Date().toISOString().split('T')[0];
+            $('#datePicker').val(today);
+            selectedDate = today;
+
+            // 监听日期变化
+            $('#datePicker').on('change', function() {
+                selectedDate = $(this).val();
+                console.log('Date changed to:', selectedDate);
+                loadData(selectedDate);
+            });
+
+            // 加载初始数据
+            loadData(today);
+        });
+
         // 从后端API加载数据
-        async function loadData() {
+        async function loadData(date) {
             try {
-                console.log('Starting to load all data...');
+                console.log('Loading data for date:', date);
                 
                 // 加载Sprint Planning数据
-                const sprintResponse = await fetch('/dashboard/api/sprint-planning');
+                const sprintResponse = await fetch(`/dashboard/api/sprint-planning?date=${date}`);
                 const sprintData = await sprintResponse.json();
                 console.log('Sprint Planning Data:', sprintData);
                 updateSprintTable(sprintData);
 
                 // 加载Iteration Completion数据
-                const completionResponse = await fetch('/dashboard/api/iteration-completion');
+                const completionResponse = await fetch(`/dashboard/api/iteration-completion?date=${date}`);
                 const completionData = await completionResponse.json();
                 console.log('Iteration Completion Data:', completionData);
                 updateCompletionChart(completionData);
 
                 // 加载Change Tracking数据
-                const changeResponse = await fetch('/dashboard/api/change-tracking');
+                const changeResponse = await fetch(`/dashboard/api/change-tracking?date=${date}`);
                 const changeData = await changeResponse.json();
                 console.log('Change Tracking Data:', changeData);
                 updateChangeChart(changeData);
 
                 // 加载Testing Progress数据
-                const testingResponse = await fetch('/dashboard/api/testing-progress');
+                const testingResponse = await fetch(`/dashboard/api/testing-progress?date=${date}`);
                 const testingData = await testingResponse.json();
                 console.log('Testing Progress Data:', testingData);
                 updateTestingChart(testingData);
 
                 // 加载Bug Progress数据
-                console.log('Fetching bug progress data...');
-                const bugResponse = await fetch('/dashboard/api/bug-progress');
+                const bugResponse = await fetch(`/dashboard/api/bug-progress?date=${date}`);
                 const bugData = await bugResponse.json();
                 console.log('Bug Progress Data:', bugData);
                 updateBugChart(bugData);
@@ -473,16 +501,8 @@
             });
         }
 
-        // 存储图表实例
-        const chartInstances = {};
-
         // 更新Iteration Completion图表
         function updateCompletionChart(data) {
-            console.log('Updating completion chart with data:', data);
-            
-            // 按照计划进度降序排序
-            const sortedData = [...data].sort((a, b) => b.plannedProgress - a.plannedProgress);
-            
             const ctx = document.getElementById('completionChart').getContext('2d');
             
             // 如果已存在图表实例，先销毁它
@@ -493,16 +513,16 @@
             chartInstances.completionChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: sortedData.map(d => d.teamName),
+                    labels: data.map(d => d.teamName),
                     datasets: [
                         {
                             label: '计划进度',
-                            data: sortedData.map(d => d.plannedProgress),
+                            data: data.map(d => d.plannedProgress),
                             backgroundColor: 'rgba(75, 192, 192, 0.5)'
                         },
                         {
                             label: '实际进度',
-                            data: sortedData.map(d => d.actualProgress),
+                            data: data.map(d => d.actualProgress),
                             backgroundColor: 'rgba(255, 99, 132, 0.5)'
                         }
                     ]
@@ -553,6 +573,12 @@
         // 更新Change Tracking图表
         function updateChangeChart(data) {
             const ctx = document.getElementById('changeChart').getContext('2d');
+            
+            // 如果已存在图表实例，先销毁它
+            if (chartInstances.changeChart) {
+                chartInstances.changeChart.destroy();
+            }
+            
             chartInstances.changeChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -617,22 +643,24 @@
         function updateTestingChart(data) {
             const ctx = document.getElementById('testingChart').getContext('2d');
             
-            // 按照总测试用例数从大到小排序，并只取前8个团队
-            const sortedData = [...data].sort((a, b) => b.totalTestCases - a.totalTestCases).slice(0, 8);
+            // 如果已存在图表实例，先销毁它
+            if (chartInstances.testingChart) {
+                chartInstances.testingChart.destroy();
+            }
             
             chartInstances.testingChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: sortedData.map(d => d.teamName),
+                    labels: data.map(d => d.teamName),
                     datasets: [
                         {
                             label: '总测试用例',
-                            data: sortedData.map(d => d.totalTestCases),
+                            data: data.map(d => d.totalTestCases),
                             backgroundColor: 'rgba(75, 192, 192, 0.5)'
                         },
                         {
                             label: '已完成测试用例',
-                            data: sortedData.map(d => d.completedTestCases),
+                            data: data.map(d => d.completedTestCases),
                             backgroundColor: 'rgba(54, 162, 235, 0.5)'
                         }
                     ]
@@ -681,146 +709,107 @@
         }
 
         // 更新Bug Progress图表
-        function updateBugChart(bugData) {
-            console.log('Updating bug chart with data:', bugData);
-            if (!bugData || bugData.length === 0) {
-                console.error('No bug data available');
-                return;
-            }
-
-            const ctx = document.getElementById('bugChart');
-            if (!ctx) {
-                console.error('Canvas element not found');
-                return;
-            }
-
-            // 确保使用正确的上下文
-            const chartCtx = ctx.getContext('2d');
-            if (!chartCtx) {
-                console.error('Could not get 2D context');
-                return;
-            }
-
-            // 安全地销毁现有图表
-            if (chartInstances.bugChart && typeof chartInstances.bugChart.destroy === 'function') {
+        function updateBugChart(data) {
+            const ctx = document.getElementById('bugChart').getContext('2d');
+            
+            // 如果已存在图表实例，先销毁它
+            if (chartInstances.bugChart) {
                 chartInstances.bugChart.destroy();
             }
             
-            // 按照总Bug数从大到小排序
-            const sortedTeams = [...bugData].sort((a, b) => b.totalBugs - a.totalBugs);
-            
-            const teams = sortedTeams.map(team => team.teamName);
-            const preFixed = sortedTeams.map(team => team.preFixed);
-            const uatFixed = sortedTeams.map(team => team.uatFixed);
-            const prePending = sortedTeams.map(team => team.prePending);
-            const uatPending = sortedTeams.map(team => team.uatPending);
-            
-            console.log('Sorted chart data:', {
-                teams,
-                preFixed,
-                uatFixed,
-                prePending,
-                uatPending
-            });
-            
-            try {
-                chartInstances.bugChart = new Chart(chartCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: teams,
-                        datasets: [
-                            {
-                                label: 'Pre环境已修复',
-                                data: preFixed,
-                                backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                                borderColor: 'rgba(75, 192, 192, 1)',
-                                borderWidth: 1,
-                                stack: 'pre'
+            chartInstances.bugChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(d => d.teamName),
+                    datasets: [
+                        {
+                            label: 'Pre环境已修复',
+                            data: data.map(d => d.preFixed),
+                            backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1,
+                            stack: 'pre'
+                        },
+                        {
+                            label: 'Pre环境待修复',
+                            data: data.map(d => d.prePending),
+                            backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1,
+                            stack: 'pre'
+                        },
+                        {
+                            label: 'UAT环境已修复',
+                            data: data.map(d => d.uatFixed),
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1,
+                            stack: 'uat'
+                        },
+                        {
+                            label: 'UAT环境待修复',
+                            data: data.map(d => d.uatPending),
+                            backgroundColor: 'rgba(255, 159, 64, 0.6)',
+                            borderColor: 'rgba(255, 159, 64, 1)',
+                            borderWidth: 1,
+                            stack: 'uat'
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Bug数量'
                             },
-                            {
-                                label: 'Pre环境待修复',
-                                data: prePending,
-                                backgroundColor: 'rgba(255, 99, 132, 0.6)',
-                                borderColor: 'rgba(255, 99, 132, 1)',
-                                borderWidth: 1,
-                                stack: 'pre'
+                            stacked: true
+                        },
+                        y: {
+                            min: 0,
+                            max: 7, // 初始显示前8个团队
+                            ticks: {
+                                maxRotation: 0,
+                                autoSkip: false
                             },
-                            {
-                                label: 'UAT环境已修复',
-                                data: uatFixed,
-                                backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                                borderColor: 'rgba(54, 162, 235, 1)',
-                                borderWidth: 1,
-                                stack: 'uat'
-                            },
-                            {
-                                label: 'UAT环境待修复',
-                                data: uatPending,
-                                backgroundColor: 'rgba(255, 159, 64, 0.6)',
-                                borderColor: 'rgba(255, 159, 64, 1)',
-                                borderWidth: 1,
-                                stack: 'uat'
-                            }
-                        ]
+                            stacked: true
+                        }
                     },
-                    options: {
-                        indexAxis: 'y',
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            x: {
-                                beginAtZero: true,
-                                title: {
-                                    display: true,
-                                    text: 'Bug数量'
-                                },
-                                stacked: true
+                    plugins: {
+                        zoom: {
+                            pan: {
+                                enabled: true,
+                                mode: 'y'
                             },
-                            y: {
-                                min: 0,
-                                max: 7, // 初始显示前8个团队
-                                ticks: {
-                                    maxRotation: 0,
-                                    autoSkip: false
+                            zoom: {
+                                wheel: {
+                                    enabled: true,
+                                    speed: 0.1
                                 },
-                                stacked: true
+                                pinch: {
+                                    enabled: true
+                                },
+                                mode: 'y'
                             }
                         },
-                        plugins: {
-                            zoom: {
-                                pan: {
-                                    enabled: true,
-                                    mode: 'y'
-                                },
-                                zoom: {
-                                    wheel: {
-                                        enabled: true,
-                                        speed: 0.1
-                                    },
-                                    pinch: {
-                                        enabled: true
-                                    },
-                                    mode: 'y'
-                                }
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    afterBody: function(context) {
-                                        const index = context[0].dataIndex;
-                                        return [
-                                            `Pre环境: ${preFixed[index]}已修复, ${prePending[index]}待修复`,
-                                            `UAT环境: ${uatFixed[index]}已修复, ${uatPending[index]}待修复`
-                                        ];
-                                    }
+                        tooltip: {
+                            callbacks: {
+                                afterBody: function(context) {
+                                    const index = context[0].dataIndex;
+                                    return [
+                                        `Pre环境: ${data[index].preFixed}已修复, ${data[index].prePending}待修复`,
+                                        `UAT环境: ${data[index].uatFixed}已修复, ${data[index].uatPending}待修复`
+                                    ];
                                 }
                             }
                         }
                     }
-                });
-                console.log('Chart created successfully with initial view of top 8 teams');
-            } catch (error) {
-                console.error('Error creating chart:', error);
-            }
+                }
+            });
         }
 
         // 最大化图表
@@ -1106,12 +1095,6 @@
             
             // 监听窗口大小变化
             window.addEventListener('resize', adjustPanelWidths);
-        });
-
-        // 页面加载时加载数据
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM content loaded');
-            loadData();
         });
     </script>
 </body>

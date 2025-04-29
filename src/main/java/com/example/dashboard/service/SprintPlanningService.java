@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.io.FileReader;
 import com.opencsv.CSVReader;
+import java.time.LocalDate;
 
 @Service
 public class SprintPlanningService {
@@ -35,27 +36,27 @@ public class SprintPlanningService {
         this.sprintPlanningCsvPath = sprintPlanningCsvPath;
     }
 
-    public List<TeamData> getSprintPlanningData() {
+    public List<TeamData> getSprintPlanningData(LocalDate date) {
         if (dataRepository != null) {
-            return dataRepository.getSprintPlanningData();
+            return dataRepository.getSprintPlanningData(date);
         }
         return readSprintPlanningFromCsv();
     }
 
-    public List<IterationCompletion> getIterationCompletionData() {
-        return dataRepository.getIterationCompletionData();
+    public List<IterationCompletion> getIterationCompletionData(LocalDate date) {
+        return dataRepository.getIterationCompletionData(date);
     }
 
-    public List<BugProgress> getBugProgressData() {
-        return dataRepository.getBugProgressData();
+    public List<BugProgress> getBugProgressData(LocalDate date) {
+        return dataRepository.getBugProgressData(date);
     }
 
-    public List<ChangeTracking> getChangeTrackingData() {
-        return dataRepository.getChangeTrackingData();
+    public List<ChangeTracking> getChangeTrackingData(LocalDate date) {
+        return dataRepository.getChangeTrackingData(date);
     }
 
-    public List<TestingProgress> getTestingProgressData() {
-        return dataRepository.getTestingProgressData();
+    public List<TestingProgress> getTestingProgressData(LocalDate date) {
+        return dataRepository.getTestingProgressData(date);
     }
 
     private List<TeamData> readSprintPlanningFromCsv() {

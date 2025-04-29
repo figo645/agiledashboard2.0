@@ -23,33 +23,53 @@ public class PostgresDataRepository implements DataRepository {
     private JdbcTemplate jdbcTemplate;
 
     @Override
-    public List<TeamData> getSprintPlanningData() {
-        String sql = "SELECT * FROM team_data ORDER BY data_date DESC";
-        return jdbcTemplate.query(sql, new TeamDataRowMapper());
+    public List<TeamData> getSprintPlanningData(LocalDate date) {
+        String sql = date != null 
+            ? "SELECT * FROM team_data WHERE data_date = ? ORDER BY data_date DESC"
+            : "SELECT * FROM team_data ORDER BY data_date DESC";
+        return date != null
+            ? jdbcTemplate.query(sql, new TeamDataRowMapper(), date)
+            : jdbcTemplate.query(sql, new TeamDataRowMapper());
     }
 
     @Override
-    public List<IterationCompletion> getIterationCompletionData() {
-        String sql = "SELECT * FROM iteration_completion ORDER BY data_date DESC";
-        return jdbcTemplate.query(sql, new IterationCompletionRowMapper());
+    public List<IterationCompletion> getIterationCompletionData(LocalDate date) {
+        String sql = date != null 
+            ? "SELECT * FROM iteration_completion WHERE data_date = ? ORDER BY data_date DESC"
+            : "SELECT * FROM iteration_completion ORDER BY data_date DESC";
+        return date != null
+            ? jdbcTemplate.query(sql, new IterationCompletionRowMapper(), date)
+            : jdbcTemplate.query(sql, new IterationCompletionRowMapper());
     }
 
     @Override
-    public List<BugProgress> getBugProgressData() {
-        String sql = "SELECT * FROM bug_progress ORDER BY data_date DESC";
-        return jdbcTemplate.query(sql, new BugProgressRowMapper());
+    public List<BugProgress> getBugProgressData(LocalDate date) {
+        String sql = date != null 
+            ? "SELECT * FROM bug_progress WHERE data_date = ? ORDER BY data_date DESC"
+            : "SELECT * FROM bug_progress ORDER BY data_date DESC";
+        return date != null
+            ? jdbcTemplate.query(sql, new BugProgressRowMapper(), date)
+            : jdbcTemplate.query(sql, new BugProgressRowMapper());
     }
 
     @Override
-    public List<ChangeTracking> getChangeTrackingData() {
-        String sql = "SELECT * FROM change_tracking ORDER BY data_date DESC";
-        return jdbcTemplate.query(sql, new ChangeTrackingRowMapper());
+    public List<ChangeTracking> getChangeTrackingData(LocalDate date) {
+        String sql = date != null 
+            ? "SELECT * FROM change_tracking WHERE data_date = ? ORDER BY data_date DESC"
+            : "SELECT * FROM change_tracking ORDER BY data_date DESC";
+        return date != null
+            ? jdbcTemplate.query(sql, new ChangeTrackingRowMapper(), date)
+            : jdbcTemplate.query(sql, new ChangeTrackingRowMapper());
     }
 
     @Override
-    public List<TestingProgress> getTestingProgressData() {
-        String sql = "SELECT * FROM testing_progress ORDER BY data_date DESC";
-        return jdbcTemplate.query(sql, new TestingProgressRowMapper());
+    public List<TestingProgress> getTestingProgressData(LocalDate date) {
+        String sql = date != null 
+            ? "SELECT * FROM testing_progress WHERE data_date = ? ORDER BY data_date DESC"
+            : "SELECT * FROM testing_progress ORDER BY data_date DESC";
+        return date != null
+            ? jdbcTemplate.query(sql, new TestingProgressRowMapper(), date)
+            : jdbcTemplate.query(sql, new TestingProgressRowMapper());
     }
 
     private static class TeamDataRowMapper implements RowMapper<TeamData> {

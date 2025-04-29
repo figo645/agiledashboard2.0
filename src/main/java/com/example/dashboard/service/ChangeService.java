@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -26,7 +27,7 @@ public class ChangeService {
         return usePostgresql ? postgresDataRepository : csvDataRepository;
     }
 
-    public List<ChangeTracking> getChangeTrackingData() {
-        return getDataRepository().getChangeTrackingData();
+    public List<ChangeTracking> getChangeTrackingData(LocalDate date) {
+        return getDataRepository().getChangeTrackingData(date);
     }
 } 

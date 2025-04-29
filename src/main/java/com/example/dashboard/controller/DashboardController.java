@@ -11,10 +11,13 @@ import com.example.dashboard.service.BugService;
 import com.example.dashboard.service.ChangeService;
 import com.example.dashboard.service.TestingService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -37,27 +40,27 @@ public class DashboardController {
     private TestingService testingService;
 
     @GetMapping("/sprint-planning")
-    public List<TeamData> getSprintPlanningData() {
-        return sprintPlanningService.getSprintPlanningData();
+    public List<TeamData> getSprintPlanningData(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        return sprintPlanningService.getSprintPlanningData(date);
     }
 
     @GetMapping("/iteration-completion")
-    public List<IterationCompletion> getIterationCompletionData() {
-        return iterationCompletionService.getIterationCompletionData();
+    public List<IterationCompletion> getIterationCompletionData(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        return iterationCompletionService.getIterationCompletionData(date);
     }
 
     @GetMapping("/bug-progress")
-    public List<BugProgress> getBugProgressData() {
-        return bugService.getBugProgressData();
+    public List<BugProgress> getBugProgressData(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        return bugService.getBugProgressData(date);
     }
 
     @GetMapping("/change-tracking")
-    public List<ChangeTracking> getChangeTrackingData() {
-        return changeService.getChangeTrackingData();
+    public List<ChangeTracking> getChangeTrackingData(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        return changeService.getChangeTrackingData(date);
     }
 
     @GetMapping("/testing-progress")
-    public List<TestingProgress> getTestingProgressData() {
-        return testingService.getTestingProgressData();
+    public List<TestingProgress> getTestingProgressData(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        return testingService.getTestingProgressData(date);
     }
 } 
