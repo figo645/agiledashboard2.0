@@ -8,15 +8,42 @@
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: 0;
             background-color: #f5f5f5;
+        }
+        .navbar {
+            background-color: #343a40;
+            padding: 0.5rem 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .navbar-brand {
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .date-picker-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: auto;
+            padding-right: 20px;
+        }
+        .date-picker-container label {
+            color: white;
+            margin: 0;
+        }
+        .date-picker-container input {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            border: 1px solid #ced4da;
         }
         .dashboard {
             max-width: 1400px;
-            margin: 0 auto;
+            margin: 20px auto;
             display: grid;
             grid-template-columns: repeat(12, 1fr);
             gap: 20px;
@@ -219,6 +246,16 @@
     </style>
 </head>
 <body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">敏捷迭代看板</a>
+            <div class="date-picker-container">
+                <label for="datePicker">选择日期：</label>
+                <input type="date" id="datePicker" class="form-control form-control-sm">
+            </div>
+        </div>
+    </nav>
+
     <div class="dashboard">
         <!-- Sprint Planning Analysis Table -->
         <div class="panel full-width" draggable="true" data-panel-id="sprint-planning">
