@@ -32,15 +32,101 @@
             gap: 10px;
             margin-left: auto;
             padding-right: 20px;
+            white-space: nowrap;
         }
         .date-picker-container label {
             color: white;
             margin: 0;
+            white-space: nowrap;
         }
         .date-picker-container input {
             padding: 0.25rem 0.5rem;
             border-radius: 4px;
             border: 1px solid #ced4da;
+            width: auto;
+        }
+        .team-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: 10px;
+            position: relative;
+        }
+        .team-selector .dropdown-toggle {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            border: 1px solid #ced4da;
+            background-color: white;
+            color: #333;
+            min-width: 150px;
+            text-align: left;
+            cursor: pointer;
+            position: relative;
+        }
+        .team-selector .dropdown-toggle::after {
+            content: '';
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid #333;
+        }
+        .team-selector .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: white;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            padding: 5px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            min-width: 200px;
+        }
+        .team-selector .dropdown-menu.show {
+            display: block;
+        }
+        .team-selector .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px;
+            cursor: pointer;
+        }
+        .team-selector .checkbox-item:hover {
+            background-color: #f8f9fa;
+        }
+        .team-selector .checkbox-item input[type="checkbox"] {
+            margin: 0;
+        }
+        .team-selector .checkbox-item label {
+            color: #333;
+            margin: 0;
+            font-size: 14px;
+            cursor: pointer;
+            flex: 1;
+        }
+        .team-selector .dropdown-menu::-webkit-scrollbar {
+            width: 6px;
+        }
+        .team-selector .dropdown-menu::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .team-selector .dropdown-menu::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+        }
+        .team-selector .dropdown-menu::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+        .team-selector label {
+            color: white;
+            margin: 0;
+            white-space: nowrap;
         }
         .dashboard {
             max-width: 1400px;
@@ -390,8 +476,27 @@
             bugChart: null
         };
 
+        // 数据缓存
+        const dataCache = {
+            completionData: [],
+            changeData: [],
+            testingData: [],
+            bugData: []
+        };
+
+        // 团队过滤配置
+        const teamFilterConfig = {
+            // 在这里配置要隐藏的团队名称
+            // 例如：'思享驾': true 表示隐藏思享驾团队
+            // 默认都设置为false，表示显示所有团队
+            '思享驾': true,
+            'Unassigned Team': true
+            // 可以继续添加更多团队...
+        };
+
         let iterationChart, bugChart, changeChart, testingChart;
         let selectedDate = '';
+        let selectedTeams = [];
 
         $(document).ready(function() {
             // 设置日期选择器的初始值为今天
@@ -406,44 +511,126 @@
                 loadData(selectedDate);
             });
 
+            // 监听下拉框点击
+            $('#teamDropdownToggle').on('click', function(e) {
+                e.stopPropagation();
+                $('#teamDropdownMenu').toggleClass('show');
+            });
+
+            // 点击其他地方关闭下拉框
+            $(document).on('click', function() {
+                $('#teamDropdownMenu').removeClass('show');
+            });
+
+            // 监听复选框变化
+            $(document).on('change', '.team-checkbox', function() {
+                selectedTeams = $('.team-checkbox:checked').map(function() {
+                    return $(this).val();
+                }).get();
+                updateSelectedCount();
+                loadData(selectedDate);
+            });
+
             // 加载初始数据
             loadData(today);
         });
+
+        // 更新选中团队数量
+        function updateSelectedCount() {
+            $('#selectedCount').text(selectedTeams.length);
+        }
+
+        // 更新团队选择器
+        function updateTeamSelector() {
+            const container = $('#teamDropdownMenu');
+            container.empty();
+            
+            // 从当前数据中获取团队列表
+            const teams = new Set();
+            $('.panel').each(function() {
+                const table = $(this).find('table');
+                if (table.length) {
+                    table.find('tbody tr').each(function() {
+                        teams.add($(this).find('td:nth-child(2)').text());
+                    });
+                }
+            });
+            
+            // 添加团队复选框
+            Array.from(teams).forEach(team => {
+                const checkboxId = `team-${team.replace(/\s+/g, '-')}`;
+                const isChecked = selectedTeams.length === 0 || selectedTeams.includes(team);
+                if (isChecked && !selectedTeams.includes(team)) {
+                    selectedTeams.push(team);
+                }
+                container.append(`
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="${checkboxId}" class="team-checkbox" value="${team}" ${isChecked ? 'checked' : ''}>
+                        <label for="${checkboxId}">${team}</label>
+                    </div>
+                `);
+            });
+            
+            updateSelectedCount();
+        }
+
+        // 更新图表数据
+        function updateCharts(data) {
+            // 根据配置过滤团队
+            const filteredData = data.filter(row => !teamFilterConfig[row.teamName]);
+            
+            // 更新各个图表
+            if (chartInstances.completionChart) {
+                updateCompletionChart(filteredData);
+            }
+            if (chartInstances.changeChart) {
+                updateChangeChart(filteredData);
+            }
+            if (chartInstances.testingChart) {
+                updateTestingChart(filteredData);
+            }
+            if (chartInstances.bugChart) {
+                updateBugChart(filteredData);
+            }
+        }
 
         // 从后端API加载数据
         async function loadData(date) {
             try {
                 console.log('Loading data for date:', date);
                 
-                // 加载Sprint Planning数据
-                const sprintResponse = await fetch(`/dashboard/api/sprint-planning?date=${date}`);
-                const sprintData = await sprintResponse.json();
-                console.log('Sprint Planning Data:', sprintData);
+                // 加载所有数据
+                const [sprintResponse, completionResponse, changeResponse, testingResponse, bugResponse] = await Promise.all([
+                    fetch(`/dashboard/api/sprint-planning?date=${date}`),
+                    fetch(`/dashboard/api/iteration-completion?date=${date}`),
+                    fetch(`/dashboard/api/change-tracking?date=${date}`),
+                    fetch(`/dashboard/api/testing-progress?date=${date}`),
+                    fetch(`/dashboard/api/bug-progress?date=${date}`)
+                ]);
+
+                const [sprintData, completionData, changeData, testingData, bugData] = await Promise.all([
+                    sprintResponse.json(),
+                    completionResponse.json(),
+                    changeResponse.json(),
+                    testingResponse.json(),
+                    bugResponse.json()
+                ]);
+
+                // 更新数据缓存
+                dataCache.completionData = completionData;
+                dataCache.changeData = changeData;
+                dataCache.testingData = testingData;
+                dataCache.bugData = bugData;
+
+                // 更新各个组件
                 updateSprintTable(sprintData);
-
-                // 加载Iteration Completion数据
-                const completionResponse = await fetch(`/dashboard/api/iteration-completion?date=${date}`);
-                const completionData = await completionResponse.json();
-                console.log('Iteration Completion Data:', completionData);
                 updateCompletionChart(completionData);
-
-                // 加载Change Tracking数据
-                const changeResponse = await fetch(`/dashboard/api/change-tracking?date=${date}`);
-                const changeData = await changeResponse.json();
-                console.log('Change Tracking Data:', changeData);
                 updateChangeChart(changeData);
-
-                // 加载Testing Progress数据
-                const testingResponse = await fetch(`/dashboard/api/testing-progress?date=${date}`);
-                const testingData = await testingResponse.json();
-                console.log('Testing Progress Data:', testingData);
                 updateTestingChart(testingData);
-
-                // 加载Bug Progress数据
-                const bugResponse = await fetch(`/dashboard/api/bug-progress?date=${date}`);
-                const bugData = await bugResponse.json();
-                console.log('Bug Progress Data:', bugData);
                 updateBugChart(bugData);
+
+                // 更新团队选择器
+                updateTeamSelector();
             } catch (error) {
                 console.error('Error loading data:', error);
             }
@@ -456,8 +643,11 @@
             tbody.innerHTML = '';
             modalTbody.innerHTML = '';
             
-            // 显示前8个团队
-            data.slice(0, 8).forEach(row => {
+            // 根据配置过滤团队
+            const filteredData = data.filter(row => !teamFilterConfig[row.teamName]);
+            
+            // 显示过滤后的团队
+            filteredData.forEach(row => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${row.programName}</td>
@@ -478,8 +668,8 @@
                 tbody.appendChild(tr);
             });
 
-            // 在模态框中显示所有团队
-            data.forEach(row => {
+            // 在模态框中显示过滤后的团队
+            filteredData.forEach(row => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${row.programName}</td>
@@ -510,19 +700,38 @@
                 chartInstances.completionChart.destroy();
             }
             
+            // 根据配置过滤团队并去重
+            const uniqueData = data.reduce((acc, current) => {
+                const existing = acc.find(item => item.teamName === current.teamName);
+                if (!existing && !teamFilterConfig[current.teamName]) {
+                    acc.push(current);
+                }
+                return acc;
+            }, []);
+            
+            // 按照实际进度/计划进度的比例从高到低排序
+            const sortedData = [...uniqueData].sort((a, b) => {
+                const ratioA = a.actualProgress / a.plannedProgress;
+                const ratioB = b.actualProgress / b.plannedProgress;
+                return ratioB - ratioA;
+            });
+            
+            // 只取前8个团队
+            const displayData = sortedData.slice(0, 8);
+            
             chartInstances.completionChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: data.map(d => d.teamName),
+                    labels: displayData.map(d => d.teamName),
                     datasets: [
                         {
                             label: '计划进度',
-                            data: data.map(d => d.plannedProgress),
+                            data: displayData.map(d => d.plannedProgress),
                             backgroundColor: 'rgba(75, 192, 192, 0.5)'
                         },
                         {
                             label: '实际进度',
-                            data: data.map(d => d.actualProgress),
+                            data: displayData.map(d => d.actualProgress),
                             backgroundColor: 'rgba(255, 99, 132, 0.5)'
                         }
                     ]
@@ -540,8 +749,6 @@
                             }
                         },
                         y: {
-                            min: 0,
-                            max: 7,
                             ticks: {
                                 maxRotation: 0,
                                 autoSkip: false
@@ -579,19 +786,34 @@
                 chartInstances.changeChart.destroy();
             }
             
+            // 根据配置过滤团队并去重
+            const uniqueData = data.reduce((acc, current) => {
+                const existing = acc.find(item => item.teamName === current.teamName);
+                if (!existing && !teamFilterConfig[current.teamName]) {
+                    acc.push(current);
+                }
+                return acc;
+            }, []);
+            
+            // 按照变更任务数从高到低排序
+            const sortedData = [...uniqueData].sort((a, b) => b.changeTasks - a.changeTasks);
+            
+            // 只取前8个团队
+            const displayData = sortedData.slice(0, 8);
+            
             chartInstances.changeChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: data.map(d => d.teamName),
+                    labels: displayData.map(d => d.teamName),
                     datasets: [
                         {
                             label: '变更任务数',
-                            data: data.map(d => d.changeTasks),
+                            data: displayData.map(d => d.changeTasks),
                             backgroundColor: 'rgba(75, 192, 192, 0.5)'
                         },
                         {
                             label: '变更点数',
-                            data: data.map(d => d.changePoints),
+                            data: displayData.map(d => d.changePoints),
                             backgroundColor: 'rgba(54, 162, 235, 0.5)'
                         }
                     ]
@@ -609,8 +831,6 @@
                             }
                         },
                         y: {
-                            min: 0,
-                            max: 7,
                             ticks: {
                                 maxRotation: 0,
                                 autoSkip: false
@@ -648,19 +868,34 @@
                 chartInstances.testingChart.destroy();
             }
             
+            // 根据配置过滤团队并去重
+            const uniqueData = data.reduce((acc, current) => {
+                const existing = acc.find(item => item.teamName === current.teamName);
+                if (!existing && !teamFilterConfig[current.teamName]) {
+                    acc.push(current);
+                }
+                return acc;
+            }, []);
+            
+            // 按照总测试用例从高到低排序
+            const sortedData = [...uniqueData].sort((a, b) => b.totalTestCases - a.totalTestCases);
+            
+            // 只取前8个团队
+            const displayData = sortedData.slice(0, 8);
+            
             chartInstances.testingChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: data.map(d => d.teamName),
+                    labels: displayData.map(d => d.teamName),
                     datasets: [
                         {
                             label: '总测试用例',
-                            data: data.map(d => d.totalTestCases),
+                            data: displayData.map(d => d.totalTestCases),
                             backgroundColor: 'rgba(75, 192, 192, 0.5)'
                         },
                         {
                             label: '已完成测试用例',
-                            data: data.map(d => d.completedTestCases),
+                            data: displayData.map(d => d.completedTestCases),
                             backgroundColor: 'rgba(54, 162, 235, 0.5)'
                         }
                     ]
@@ -678,8 +913,6 @@
                             }
                         },
                         y: {
-                            min: 0,
-                            max: 7,
                             ticks: {
                                 maxRotation: 0,
                                 autoSkip: false
@@ -717,14 +950,33 @@
                 chartInstances.bugChart.destroy();
             }
             
+            // 根据配置过滤团队并去重
+            const uniqueData = data.reduce((acc, current) => {
+                const existing = acc.find(item => item.teamName === current.teamName);
+                if (!existing && !teamFilterConfig[current.teamName]) {
+                    acc.push(current);
+                }
+                return acc;
+            }, []);
+            
+            // 按照Bug总量（Pre和UAT环境的总和）从高到低排序
+            const sortedData = [...uniqueData].sort((a, b) => {
+                const totalA = a.preFixed + a.prePending + a.uatFixed + a.uatPending;
+                const totalB = b.preFixed + b.prePending + b.uatFixed + b.uatPending;
+                return totalB - totalA;
+            });
+            
+            // 只取前8个团队
+            const displayData = sortedData.slice(0, 8);
+            
             chartInstances.bugChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: data.map(d => d.teamName),
+                    labels: displayData.map(d => d.teamName),
                     datasets: [
                         {
                             label: 'Pre环境已修复',
-                            data: data.map(d => d.preFixed),
+                            data: displayData.map(d => d.preFixed),
                             backgroundColor: 'rgba(75, 192, 192, 0.6)',
                             borderColor: 'rgba(75, 192, 192, 1)',
                             borderWidth: 1,
@@ -732,7 +984,7 @@
                         },
                         {
                             label: 'Pre环境待修复',
-                            data: data.map(d => d.prePending),
+                            data: displayData.map(d => d.prePending),
                             backgroundColor: 'rgba(255, 99, 132, 0.6)',
                             borderColor: 'rgba(255, 99, 132, 1)',
                             borderWidth: 1,
@@ -740,7 +992,7 @@
                         },
                         {
                             label: 'UAT环境已修复',
-                            data: data.map(d => d.uatFixed),
+                            data: displayData.map(d => d.uatFixed),
                             backgroundColor: 'rgba(54, 162, 235, 0.6)',
                             borderColor: 'rgba(54, 162, 235, 1)',
                             borderWidth: 1,
@@ -748,7 +1000,7 @@
                         },
                         {
                             label: 'UAT环境待修复',
-                            data: data.map(d => d.uatPending),
+                            data: displayData.map(d => d.uatPending),
                             backgroundColor: 'rgba(255, 159, 64, 0.6)',
                             borderColor: 'rgba(255, 159, 64, 1)',
                             borderWidth: 1,
@@ -770,8 +1022,6 @@
                             stacked: true
                         },
                         y: {
-                            min: 0,
-                            max: 7, // 初始显示前8个团队
                             ticks: {
                                 maxRotation: 0,
                                 autoSkip: false
@@ -801,8 +1051,8 @@
                                 afterBody: function(context) {
                                     const index = context[0].dataIndex;
                                     return [
-                                        `Pre环境: ${data[index].preFixed}已修复, ${data[index].prePending}待修复`,
-                                        `UAT环境: ${data[index].uatFixed}已修复, ${data[index].uatPending}待修复`
+                                        `Pre环境: ${displayData[index].preFixed}已修复, ${displayData[index].prePending}待修复`,
+                                        `UAT环境: ${displayData[index].uatFixed}已修复, ${displayData[index].uatPending}待修复`
                                     ];
                                 }
                             }
@@ -828,15 +1078,63 @@
             // 创建新的图表实例
             const modalCtx = modalCanvas.getContext('2d');
             
-            // 确保复制完整的图表配置
-            const modalChart = new Chart(modalCtx, {
+            // 获取原始数据
+            let allData;
+            switch(chartId) {
+                case 'completionChart':
+                    allData = dataCache.completionData;
+                    break;
+                case 'changeChart':
+                    allData = dataCache.changeData;
+                    break;
+                case 'testingChart':
+                    allData = dataCache.testingData;
+                    break;
+                case 'bugChart':
+                    allData = dataCache.bugData;
+                    break;
+            }
+            
+            // 根据配置过滤团队并去重
+            const uniqueData = allData.reduce((acc, current) => {
+                const existing = acc.find(item => item.teamName === current.teamName);
+                if (!existing && !teamFilterConfig[current.teamName]) {
+                    acc.push(current);
+                }
+                return acc;
+            }, []);
+            
+            // 根据图表类型进行排序
+            let sortedData;
+            switch(chartId) {
+                case 'completionChart':
+                    sortedData = [...uniqueData].sort((a, b) => {
+                        const ratioA = a.actualProgress / a.plannedProgress;
+                        const ratioB = b.actualProgress / b.plannedProgress;
+                        return ratioB - ratioA;
+                    });
+                    break;
+                case 'changeChart':
+                    sortedData = [...uniqueData].sort((a, b) => b.changeTasks - a.changeTasks);
+                    break;
+                case 'testingChart':
+                    sortedData = [...uniqueData].sort((a, b) => b.totalTestCases - a.totalTestCases);
+                    break;
+                case 'bugChart':
+                    sortedData = [...uniqueData].sort((a, b) => {
+                        const totalA = a.preFixed + a.prePending + a.uatFixed + a.uatPending;
+                        const totalB = b.preFixed + b.prePending + b.uatFixed + b.uatPending;
+                        return totalB - totalA;
+                    });
+                    break;
+            }
+            
+            // 创建新的图表配置
+            const modalConfig = {
                 type: originalChart.config.type,
                 data: {
-                    labels: originalChart.data.labels,
-                    datasets: originalChart.data.datasets.map(dataset => ({
-                        ...dataset,
-                        data: [...dataset.data]
-                    }))
+                    labels: sortedData.map(d => d.teamName),
+                    datasets: []
                 },
                 options: {
                     ...originalChart.config.options,
@@ -851,7 +1149,99 @@
                         }
                     }
                 }
-            });
+            };
+            
+            // 根据图表类型设置数据集
+            switch(chartId) {
+                case 'completionChart':
+                    modalConfig.data.datasets = [
+                        {
+                            label: '计划进度',
+                            data: sortedData.map(d => d.plannedProgress),
+                            backgroundColor: 'rgba(75, 192, 192, 0.5)'
+                        },
+                        {
+                            label: '实际进度',
+                            data: sortedData.map(d => d.actualProgress),
+                            backgroundColor: 'rgba(255, 99, 132, 0.5)'
+                        }
+                    ];
+                    break;
+                case 'changeChart':
+                    modalConfig.data.datasets = [
+                        {
+                            label: '变更任务数',
+                            data: sortedData.map(d => d.changeTasks),
+                            backgroundColor: 'rgba(75, 192, 192, 0.5)'
+                        },
+                        {
+                            label: '变更点数',
+                            data: sortedData.map(d => d.changePoints),
+                            backgroundColor: 'rgba(54, 162, 235, 0.5)'
+                        }
+                    ];
+                    break;
+                case 'testingChart':
+                    modalConfig.data.datasets = [
+                        {
+                            label: '总测试用例',
+                            data: sortedData.map(d => d.totalTestCases),
+                            backgroundColor: 'rgba(75, 192, 192, 0.5)'
+                        },
+                        {
+                            label: '已完成测试用例',
+                            data: sortedData.map(d => d.completedTestCases),
+                            backgroundColor: 'rgba(54, 162, 235, 0.5)'
+                        }
+                    ];
+                    break;
+                case 'bugChart':
+                    modalConfig.data.datasets = [
+                        {
+                            label: 'Pre环境已修复',
+                            data: sortedData.map(d => d.preFixed),
+                            backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1,
+                            stack: 'pre'
+                        },
+                        {
+                            label: 'Pre环境待修复',
+                            data: sortedData.map(d => d.prePending),
+                            backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1,
+                            stack: 'pre'
+                        },
+                        {
+                            label: 'UAT环境已修复',
+                            data: sortedData.map(d => d.uatFixed),
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1,
+                            stack: 'uat'
+                        },
+                        {
+                            label: 'UAT环境待修复',
+                            data: sortedData.map(d => d.uatPending),
+                            backgroundColor: 'rgba(255, 159, 64, 0.6)',
+                            borderColor: 'rgba(255, 159, 64, 1)',
+                            borderWidth: 1,
+                            stack: 'uat'
+                        }
+                    ];
+                    modalConfig.options.plugins.tooltip.callbacks.afterBody = function(context) {
+                        const index = context[0].dataIndex;
+                        return [
+                            `Pre环境: ${sortedData[index].preFixed}已修复, ${sortedData[index].prePending}待修复`,
+                            `UAT环境: ${sortedData[index].uatFixed}已修复, ${sortedData[index].uatPending}待修复`
+                        ];
+                    };
+                    break;
+            }
+            
+            // 创建模态框图表实例
+            const modalChart = new Chart(modalCtx, modalConfig);
 
             // 显示模态框
             modal.style.display = 'block';
