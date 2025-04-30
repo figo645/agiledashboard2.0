@@ -9,6 +9,10 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import javax.sql.DataSource;
 
+/**
+ * 数据源配置类。
+ * 提供数据库连接配置和 JdbcTemplate 的创建。
+ */
 @Configuration
 public class DataSourceFactory {
 
@@ -24,6 +28,14 @@ public class DataSourceFactory {
     @Value("${spring.datasource.password}")
     private String dbPassword;
 
+    @Value("${spring.datasource.driver-class-name}")
+    private String driverClassName;
+
+    /**
+     * 创建数据源 Bean。
+     *
+     * @return 配置好的数据源
+     */
     @Bean
     @Primary
     public DataSource dataSource() {
@@ -45,6 +57,12 @@ public class DataSourceFactory {
         }
     }
 
+    /**
+     * 创建 JdbcTemplate Bean。
+     *
+     * @param dataSource 数据源
+     * @return 配置好的 JdbcTemplate
+     */
     @Bean
     public JdbcTemplate jdbcTemplate(DataSource dataSource) {
         return new JdbcTemplate(dataSource);

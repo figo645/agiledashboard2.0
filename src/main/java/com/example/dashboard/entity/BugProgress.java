@@ -4,6 +4,10 @@ import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDate;
 
+/**
+ * 表示缺陷进度跟踪的实体类。
+ * 用于记录和跟踪项目中的缺陷状态和进展。
+ */
 @Data
 @Entity
 @Table(name = "bug_progress")

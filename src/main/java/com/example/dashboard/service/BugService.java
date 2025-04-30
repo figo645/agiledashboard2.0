@@ -10,6 +10,10 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * 缺陷管理服务类。
+ * 提供缺陷数据的查询和处理功能。
+ */
 @Service
 public class BugService {
     @Value("${use.postgresql}")
@@ -27,6 +31,12 @@ public class BugService {
         return usePostgresql ? postgresDataRepository : csvDataRepository;
     }
 
+    /**
+     * 获取指定日期的缺陷进度数据。
+     *
+     * @param date 查询日期
+     * @return 缺陷进度数据列表
+     */
     public List<BugProgress> getBugProgressData(LocalDate date) {
         return getDataRepository().getBugProgressData(date);
     }

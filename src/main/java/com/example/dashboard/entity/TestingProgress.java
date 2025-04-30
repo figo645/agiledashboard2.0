@@ -4,6 +4,10 @@ import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDate;
 
+/**
+ * 表示测试进度的实体类。
+ * 用于记录和跟踪测试活动的进展和结果。
+ */
 @Data
 @Entity
 @Table(name = "testing_progress")

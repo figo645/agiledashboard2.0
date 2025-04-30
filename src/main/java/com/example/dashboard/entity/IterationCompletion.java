@@ -4,6 +4,10 @@ import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDate;
 
+/**
+ * 表示迭代完成情况的实体类。
+ * 用于记录和跟踪每个迭代周期的完成情况和进度。
+ */
 @Data
 @Entity
 @Table(name = "iteration_completion")

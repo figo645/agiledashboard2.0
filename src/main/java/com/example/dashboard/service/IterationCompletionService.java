@@ -14,6 +14,10 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 迭代完成情况服务类。
+ * 提供迭代完成数据的查询和处理功能。
+ */
 @Service
 public class IterationCompletionService {
     @Value("${use.postgresql}")
@@ -31,6 +35,12 @@ public class IterationCompletionService {
         return usePostgresql ? postgresDataRepository : csvDataRepository;
     }
 
+    /**
+     * 获取指定日期的迭代完成数据。
+     *
+     * @param date 查询日期
+     * @return 迭代完成数据列表
+     */
     public List<IterationCompletion> getIterationCompletionData(LocalDate date) {
         if (usePostgresql) {
             return getDataRepository().getIterationCompletionData(date);

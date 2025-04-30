@@ -4,6 +4,10 @@ import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDate;
 
+/**
+ * 表示团队数据的实体类。
+ * 用于记录和跟踪团队的基本信息和绩效指标。
+ */
 @Data
 @Entity
 @Table(name = "sprint_planning")

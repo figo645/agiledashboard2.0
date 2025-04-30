@@ -16,12 +16,31 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * PostgreSQL 数据仓库实现类。
+ * 从 PostgreSQL 数据库读取数据的实现。
+ */
 @Repository
 @Qualifier("postgresDataRepository")
 public class PostgresDataRepository implements DataRepository {
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
+    /**
+     * 构造函数，注入 JdbcTemplate 依赖。
+     *
+     * @param jdbcTemplate JdbcTemplate 实例
+     */
+    @Autowired
+    public PostgresDataRepository(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
+    /**
+     * 获取指定日期的冲刺计划数据。
+     *
+     * @param date 查询日期
+     * @return 团队数据列表
+     */
     @Override
     public List<TeamData> getSprintPlanningData(LocalDate date) {
         String sql = date != null 
@@ -32,6 +51,12 @@ public class PostgresDataRepository implements DataRepository {
             : jdbcTemplate.query(sql, new TeamDataRowMapper());
     }
 
+    /**
+     * 获取指定日期的迭代完成数据。
+     *
+     * @param date 查询日期
+     * @return 迭代完成数据列表
+     */
     @Override
     public List<IterationCompletion> getIterationCompletionData(LocalDate date) {
         String sql = date != null 
@@ -42,6 +67,12 @@ public class PostgresDataRepository implements DataRepository {
             : jdbcTemplate.query(sql, new IterationCompletionRowMapper());
     }
 
+    /**
+     * 获取指定日期的缺陷进度数据。
+     *
+     * @param date 查询日期
+     * @return 缺陷进度数据列表
+     */
     @Override
     public List<BugProgress> getBugProgressData(LocalDate date) {
         String sql = date != null 
@@ -52,6 +83,12 @@ public class PostgresDataRepository implements DataRepository {
             : jdbcTemplate.query(sql, new BugProgressRowMapper());
     }
 
+    /**
+     * 获取指定日期的变更跟踪数据。
+     *
+     * @param date 查询日期
+     * @return 变更跟踪数据列表
+     */
     @Override
     public List<ChangeTracking> getChangeTrackingData(LocalDate date) {
         String sql = date != null 
@@ -62,6 +99,12 @@ public class PostgresDataRepository implements DataRepository {
             : jdbcTemplate.query(sql, new ChangeTrackingRowMapper());
     }
 
+    /**
+     * 获取指定日期的测试进度数据。
+     *
+     * @param date 查询日期
+     * @return 测试进度数据列表
+     */
     @Override
     public List<TestingProgress> getTestingProgressData(LocalDate date) {
         String sql = date != null 
@@ -72,6 +115,9 @@ public class PostgresDataRepository implements DataRepository {
             : jdbcTemplate.query(sql, new TestingProgressRowMapper());
     }
 
+    /**
+     * TeamData 行映射器。
+     */
     private static class TeamDataRowMapper implements RowMapper<TeamData> {
         @Override
         public TeamData mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -98,6 +144,9 @@ public class PostgresDataRepository implements DataRepository {
         }
     }
 
+    /**
+     * IterationCompletion 行映射器。
+     */
     private static class IterationCompletionRowMapper implements RowMapper<IterationCompletion> {
         @Override
         public IterationCompletion mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -116,6 +165,9 @@ public class PostgresDataRepository implements DataRepository {
         }
     }
 
+    /**
+     * BugProgress 行映射器。
+     */
     private static class BugProgressRowMapper implements RowMapper<BugProgress> {
         @Override
         public BugProgress mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -137,6 +189,9 @@ public class PostgresDataRepository implements DataRepository {
         }
     }
 
+    /**
+     * ChangeTracking 行映射器。
+     */
     private static class ChangeTrackingRowMapper implements RowMapper<ChangeTracking> {
         @Override
         public ChangeTracking mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -152,6 +207,9 @@ public class PostgresDataRepository implements DataRepository {
         }
     }
 
+    /**
+     * TestingProgress 行映射器。
+     */
     private static class TestingProgressRowMapper implements RowMapper<TestingProgress> {
         @Override
         public TestingProgress mapRow(ResultSet rs, int rowNum) throws SQLException {

@@ -4,6 +4,10 @@ import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDate;
 
+/**
+ * 表示变更跟踪的实体类。
+ * 用于记录和跟踪项目中的变更请求和变更状态。
+ */
 @Data
 @Entity
 @Table(name = "change_tracking")
