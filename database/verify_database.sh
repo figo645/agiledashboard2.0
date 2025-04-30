@@ -8,234 +8,146 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # 配置变量
-CONTAINER_NAME="sprint-db"      # Docker 容器名称
+CONTAINER_NAME="sprint-db"
 DB_NAME="sprint_dashboard"
 DB_USER="postgres"
 DB_PASSWORD="your_password"
-DB_HOST="localhost"
 DB_PORT="5432"
-LOG_FILE="verify.log"
 
 # 记录日志
 log() {
-    echo -e "$(date '+%Y-%m-%d %H:%M:%S') - $1" | tee -a $LOG_FILE
+    echo -e "$(date '+%Y-%m-%d %H:%M:%S') - $1"
 }
 
 # 检查 Docker 容器状态
-check_docker_container() {
+check_container() {
     log "${BLUE}检查 Docker 容器状态...${NC}"
-    if ! docker ps | grep -q "$CONTAINER_NAME"; then
-        log "${RED}PostgreSQL 容器未运行${NC}"
-        log "请确保已经运行了 setup-postgres.sh 脚本"
-        log "或者手动启动容器：docker start $CONTAINER_NAME"
+    
+    if ! docker ps | grep -q $CONTAINER_NAME; then
+        log "${RED}错误: PostgreSQL 容器未运行${NC}"
+        log "请运行 ./docker-postgres.sh start 启动容器"
         exit 1
     fi
+    
     log "${GREEN}PostgreSQL 容器正在运行${NC}"
-}
-
-# 检查端口是否开放
-check_port() {
-    log "${BLUE}检查端口 $DB_PORT 是否开放...${NC}"
-    if ! nc -z $DB_HOST $DB_PORT; then
-        log "${RED}端口 $DB_PORT 未开放${NC}"
-        log "请检查："
-        log "1. PostgreSQL 容器是否正常运行"
-        log "2. 端口映射是否正确配置"
-        log "3. 防火墙设置"
-        exit 1
-    fi
-    log "${GREEN}端口 $DB_PORT 已开放${NC}"
 }
 
 # 检查数据库连接
 check_connection() {
     log "${BLUE}检查数据库连接...${NC}"
     
-    # 首先检查 Docker 容器
-    check_docker_container
-    
-    # 检查端口
-    check_port
-    
-    # 尝试连接数据库
-    log "尝试连接数据库..."
-    if ! PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -c "SELECT 1" > /dev/null 2>&1; then
-        log "${RED}无法连接到数据库${NC}"
-        log "请检查以下配置："
-        log "1. 数据库配置："
-        log "   - 主机: $DB_HOST"
-        log "   - 端口: $DB_PORT"
-        log "   - 用户名: $DB_USER"
-        log "   - 数据库: $DB_NAME"
-        log "   - 密码: $DB_PASSWORD"
-        log ""
-        log "2. 可能的问题："
-        log "   - 密码是否正确"
-        log "   - 数据库是否已创建"
-        log "   - 用户权限是否正确"
-        log ""
-        log "3. 诊断步骤："
-        log "   a. 检查容器日志：docker logs $CONTAINER_NAME"
-        log "   b. 进入容器检查：docker exec -it $CONTAINER_NAME psql -U postgres"
-        log "   c. 检查数据库列表：docker exec -it $CONTAINER_NAME psql -U postgres -l"
+    if ! docker exec $CONTAINER_NAME pg_isready -U $DB_USER -d $DB_NAME; then
+        log "${RED}错误: 无法连接到数据库${NC}"
         exit 1
     fi
-    log "${GREEN}数据库连接成功${NC}"
+    
+    log "${GREEN}数据库连接正常${NC}"
 }
 
 # 检查表结构
 check_tables() {
     log "${BLUE}检查表结构...${NC}"
     
-    # 创建临时SQL文件
-    cat > temp/check_tables.sql << 'EOL'
-\o temp/table_check.txt
-\pset format unaligned
-\pset tuples_only on
-
--- 检查表是否存在
-SELECT table_name 
-FROM information_schema.tables 
-WHERE table_schema = 'public' 
-AND table_name IN ('sprint_planning', 'iteration_completion', 'bug', 'change', 'testing');
-
--- 检查每个表的行数
-SELECT 'sprint_planning' as table_name, COUNT(*) as row_count FROM sprint_planning;
-SELECT 'iteration_completion' as table_name, COUNT(*) as row_count FROM iteration_completion;
-SELECT 'bug' as table_name, COUNT(*) as row_count FROM bug;
-SELECT 'change' as table_name, COUNT(*) as row_count FROM change;
-SELECT 'testing' as table_name, COUNT(*) as row_count FROM testing;
-
--- 检查表结构
-\o temp/table_structure.txt
-\pset format aligned
-\pset tuples_only off
-
-\d sprint_planning
-\d iteration_completion
-\d bug
-\d change
-\d testing
-EOL
-
-    # 执行SQL检查
-    PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -f temp/check_tables.sql >> $LOG_FILE 2>&1
+    # 定义预期的表结构
+    declare -A expected_tables=(
+        ["sprint_planning"]="id,program_name,team_name,planned_count,completed_count,storypoint_planned,storypoint_completed,test_points,user_story_points,user_story_ratio,enabler_points,enabler_ratio,story_throughput,cv_value,story_granularity,date"
+        ["iteration_completion"]="id,team_name,planned_progress,actual_progress,date"
+        ["change_tracking"]="id,team_name,change_tasks,change_points,date"
+        ["testing_progress"]="id,team_name,total_test_cases,completed_test_cases,date"
+        ["bug_progress"]="id,team_name,pre_fixed,pre_pending,uat_fixed,uat_pending,date"
+    )
     
-    # 分析结果
-    if grep -q "0 rows" temp/table_check.txt; then
-        log "${RED}发现空表${NC}"
-        grep "0 rows" temp/table_check.txt >> $LOG_FILE
+    # 检查每个表
+    for table in "${!expected_tables[@]}"; do
+        log "检查表: $table"
+        
+        # 检查表是否存在
+        if ! docker exec $CONTAINER_NAME psql -U $DB_USER -d $DB_NAME -t -c "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = '$table');" | grep -q t; then
+            log "${RED}错误: 表 $table 不存在${NC}"
+            exit 1
+        fi
+        
+        # 获取实际列名
+        actual_columns=$(docker exec $CONTAINER_NAME psql -U $DB_USER -d $DB_NAME -t -c "SELECT string_agg(column_name, ',') FROM information_schema.columns WHERE table_name = '$table';" | tr -d ' ')
+        
+        # 比较列名
+        if [ "$actual_columns" != "${expected_tables[$table]}" ]; then
+            log "${RED}错误: 表 $table 的列结构不匹配${NC}"
+            log "预期: ${expected_tables[$table]}"
+            log "实际: $actual_columns"
+            exit 1
+        fi
+        
+        # 检查非空约束
+        non_null_columns=$(docker exec $CONTAINER_NAME psql -U $DB_USER -d $DB_NAME -t -c "SELECT string_agg(column_name, ',') FROM information_schema.columns WHERE table_name = '$table' AND is_nullable = 'NO';" | tr -d ' ')
+        
+        if [ "$non_null_columns" != "${expected_tables[$table]}" ]; then
+            log "${RED}错误: 表 $table 的非空约束不匹配${NC}"
+            log "预期所有列都应该是非空的"
+            log "实际非空列: $non_null_columns"
+            exit 1
+        fi
+        
+        log "${GREEN}表 $table 结构正确${NC}"
+    done
+}
+
+# 检查索引
+check_indexes() {
+    log "${BLUE}检查索引...${NC}"
+    
+    # 定义预期的索引
+    declare -a expected_indexes=(
+        "idx_sprint_planning_date"
+        "idx_iteration_completion_date"
+        "idx_change_tracking_date"
+        "idx_testing_progress_date"
+        "idx_bug_progress_date"
+    )
+    
+    # 检查每个索引
+    for index in "${expected_indexes[@]}"; do
+        if ! docker exec $CONTAINER_NAME psql -U $DB_USER -d $DB_NAME -t -c "SELECT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = '$index');" | grep -q t; then
+            log "${RED}错误: 索引 $index 不存在${NC}"
+            exit 1
+        fi
+        log "${GREEN}索引 $index 存在${NC}"
+    done
+}
+
+# 检查视图
+check_views() {
+    log "${BLUE}检查视图...${NC}"
+    
+    if ! docker exec $CONTAINER_NAME psql -U $DB_USER -d $DB_NAME -t -c "SELECT EXISTS (SELECT 1 FROM pg_views WHERE viewname = 'sprint_metrics');" | grep -q t; then
+        log "${RED}错误: 视图 sprint_metrics 不存在${NC}"
+        exit 1
     fi
     
-    # 显示表结构
-    log "${BLUE}表结构详情：${NC}"
-    cat temp/table_structure.txt >> $LOG_FILE
-    
-    # 清理临时文件
-    rm -rf temp
+    log "${GREEN}视图 sprint_metrics 存在${NC}"
 }
 
-# 检查数据完整性
-check_data_integrity() {
-    log "${BLUE}检查数据完整性...${NC}"
-    
-    # 创建临时Python脚本
-    cat > temp/check_data.py << 'EOL'
-import psycopg2
-import pandas as pd
-import logging
-
-# 配置日志
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    filename='data_check.log'
-)
-logger = logging.getLogger(__name__)
-
-# 数据库连接配置
-DB_CONFIG = {
-    'dbname': 'sprint_dashboard',
-    'user': 'postgres',
-    'password': 'your_password',
-    'host': 'localhost',
-    'port': '5432'
-}
-
-def check_data_quality():
-    try:
-        # 连接数据库
-        conn = psycopg2.connect(**DB_CONFIG)
-        
-        # 检查每个表的数据质量
-        tables = ['sprint_planning', 'iteration_completion', 'bug', 'change', 'testing']
-        for table in tables:
-            logger.info(f"\n检查表 {table} 的数据质量:")
-            
-            # 读取数据到DataFrame
-            df = pd.read_sql(f"SELECT * FROM {table}", conn)
-            
-            # 基本统计信息
-            logger.info(f"总行数: {len(df)}")
-            logger.info(f"列数: {len(df.columns)}")
-            
-            # 检查空值
-            null_counts = df.isnull().sum()
-            if null_counts.any():
-                logger.info("空值统计:")
-                for col, count in null_counts[null_counts > 0].items():
-                    logger.info(f"  {col}: {count} 个空值")
-            
-            # 检查数据类型
-            logger.info("数据类型:")
-            for col, dtype in df.dtypes.items():
-                logger.info(f"  {col}: {dtype}")
-            
-            # 数值列的统计信息
-            numeric_cols = df.select_dtypes(include=['number']).columns
-            if not numeric_cols.empty:
-                logger.info("数值列统计:")
-                stats = df[numeric_cols].describe()
-                logger.info(stats.to_string())
-        
-    except Exception as e:
-        logger.error(f"数据质量检查过程中发生错误: {str(e)}")
-    finally:
-        if conn:
-            conn.close()
-
-if __name__ == "__main__":
-    check_data_quality()
-EOL
-
-    # 修改数据库配置
-    sed -i '' "s/'password': 'your_password'/'password': '$DB_PASSWORD'/" temp/check_data.py
-    
-    # 执行数据检查
-    log "执行数据质量检查..."
-    python3 temp/check_data.py
-    
-    # 清理临时文件
-    rm -rf temp
-}
-
-# 主函数
+# 主程序
 main() {
-    log "${BLUE}开始数据库验证...${NC}"
+    log "${BLUE}开始验证数据库...${NC}"
     
-    # 创建临时目录
-    mkdir -p temp
+    # 检查容器状态
+    check_container
     
-    # 执行验证步骤
+    # 检查数据库连接
     check_connection
-    check_tables
-    check_data_integrity
     
-    log "${GREEN}验证完成！${NC}"
-    log "详细结果请查看以下文件："
-    log "- 主要日志: $LOG_FILE"
-    log "- 数据质量检查: data_check.log"
+    # 检查表结构
+    check_tables
+    
+    # 检查索引
+    check_indexes
+    
+    # 检查视图
+    check_views
+    
+    log "${GREEN}数据库验证完成，所有检查都通过！${NC}"
 }
 
-# 执行主函数
+# 执行主程序
 main 

@@ -1,112 +1,150 @@
-# Sprint Dashboard Database
+# Sprint Dashboard 数据库
 
-This directory contains all database-related scripts and configurations for the Sprint Dashboard application.
+这个目录包含了 Sprint Dashboard 项目的数据库相关配置和脚本。
 
-## Directory Structure
+## 目录结构
 
 ```
 database/
-├── init.sql              # Database initialization script
-├── migrations/           # Database migration scripts
-│   ├── 001_create_tables.sql
-│   ├── 002_create_indexes.sql
-│   └── 003_create_triggers.sql
-├── functions/            # Database functions
-│   └── update_timestamp.sql
-├── views/               # Database views
-│   └── metrics_views.sql
-└── scripts/             # Utility scripts
-    └── import_data.py
+├── README.md                 # 数据库文档
+├── init.sql                  # 数据库初始化脚本
+├── docker-postgres.sh        # Docker PostgreSQL 管理脚本
+├── setup-postgres.sh         # 本地 PostgreSQL 设置脚本
+└── verify_database.sh        # 数据库验证脚本
 ```
 
-## Database Setup
+## 数据库配置
 
-1. Create the database:
-   ```bash
-   psql -U postgres -f database/init.sql
-   ```
+- 数据库名称：sprint_dashboard
+- 用户名：postgres
+- 密码：your_password
+- 端口：5432
 
-2. Run migrations in order:
-   ```bash
-   psql -U postgres -d sprint_dashboard -f database/migrations/001_create_tables.sql
-   psql -U postgres -d sprint_dashboard -f database/migrations/002_create_indexes.sql
-   psql -U postgres -d sprint_dashboard -f database/functions/update_timestamp.sql
-   psql -U postgres -d sprint_dashboard -f database/migrations/003_create_triggers.sql
-   ```
+## 数据库表结构
 
-3. Create views:
-   ```bash
-   psql -U postgres -d sprint_dashboard -f database/views/metrics_views.sql
-   ```
+### 1. sprint_planning
+- 存储 Sprint 计划相关数据
+- 包含团队、计划需求数、完成数、故事点等信息
 
-## Data Import
+### 2. iteration_completion
+- 存储迭代完成进度数据
+- 包含团队、计划进度、实际进度等信息
 
-To import data from CSV files:
+### 3. change_tracking
+- 存储变更跟踪数据
+- 包含团队、变更任务数、变更点数等信息
 
-1. Install required Python packages:
-   ```bash
-   pip install psycopg2-binary pandas
-   ```
+### 4. testing_progress
+- 存储测试进度数据
+- 包含团队、总测试用例数、已完成测试用例数等信息
 
-2. Update the database configuration in `database/scripts/import_data.py`
+### 5. bug_progress
+- 存储 Bug 处理进度数据
+- 包含团队、Pre环境、UAT环境的 Bug 状态等信息
 
-3. Run the import script:
-   ```bash
-   python database/scripts/import_data.py
-   ```
+## 使用说明
 
-## Database Schema
+### 1. 使用 Docker 部署
 
-### Tables
+1. 启动 PostgreSQL 容器：
+```bash
+./docker-postgres.sh install
+```
 
-1. `sprint_planning`
-   - Tracks sprint planning metrics
-   - Includes team performance indicators
+2. 管理容器：
+```bash
+# 启动容器
+./docker-postgres.sh start
 
-2. `iteration_completion`
-   - Records iteration completion data
-   - Tracks issue status and points
+# 停止容器
+./docker-postgres.sh stop
 
-3. `bug`
-   - Stores bug-related information
-   - Tracks bug status and severity
+# 重启容器
+./docker-postgres.sh restart
 
-4. `change`
-   - Manages change requests
-   - Tracks change status and impact
+# 查看容器状态
+./docker-postgres.sh status
 
-5. `testing`
-   - Records testing activities
-   - Tracks test coverage and results
+# 查看容器日志
+./docker-postgres.sh logs
 
-### Views
+# 连接到数据库
+./docker-postgres.sh connect
+```
 
-1. `daily_metrics`
-   - Daily performance metrics
-   - Aggregated by team and date
+### 2. 使用本地 PostgreSQL
 
-2. `weekly_metrics`
-   - Weekly performance metrics
-   - Aggregated by team and week
+1. 设置本地数据库：
+```bash
+./setup-postgres.sh
+```
 
-3. `biweekly_metrics`
-   - Bi-weekly performance metrics
-   - Aggregated by team and bi-week period
+### 3. 验证数据库
 
-4. `monthly_metrics`
-   - Monthly performance metrics
-   - Aggregated by team and month
+验证数据库结构和配置：
+```bash
+./verify_database.sh
+```
 
-## Maintenance
+## 数据库维护
 
-- Regular backups should be performed
-- Indexes should be maintained periodically
-- Views should be updated as business requirements change
+### 备份和恢复
 
-## Version Control
+1. 创建备份：
+```bash
+./docker-postgres.sh backup
+```
 
-All database changes should be:
-1. Documented in this README
-2. Added to the appropriate migration script
-3. Tested in a development environment
-4. Applied to production following the change management process 
+2. 恢复备份：
+```bash
+./docker-postgres.sh restore <备份文件>
+```
+
+### 重置数据库
+
+重置数据库（会删除所有数据）：
+```bash
+./docker-postgres.sh reset
+```
+
+## 注意事项
+
+1. 确保 Docker 已安装并运行（如果使用 Docker 部署）
+2. 确保 PostgreSQL 已安装（如果使用本地部署）
+3. 所有脚本都需要执行权限，可以使用 `chmod +x *.sh` 添加权限
+4. 数据库密码在脚本中硬编码为 "your_password"，生产环境请修改
+5. 定期备份重要数据
+
+## 故障排除
+
+1. 如果容器无法启动：
+   - 检查 Docker 是否运行
+   - 检查端口 5432 是否被占用
+   - 查看容器日志：`docker logs sprint-db`
+
+2. 如果数据库连接失败：
+   - 检查容器状态
+   - 验证连接信息（主机、端口、用户名、密码）
+   - 检查防火墙设置
+
+3. 如果验证脚本失败：
+   - 检查数据库结构是否与 init.sql 一致
+   - 检查表、索引、视图是否存在
+   - 检查非空约束是否正确
+
+## 开发建议
+
+1. 修改数据库结构时：
+   - 更新 init.sql 文件
+   - 更新 verify_database.sh 中的验证逻辑
+   - 测试数据库重置和验证流程
+
+2. 数据迁移时：
+   - 创建备份
+   - 使用事务确保数据一致性
+   - 验证迁移后的数据
+
+3. 性能优化：
+   - 使用适当的索引
+   - 定期维护数据库
+   - 监控数据库性能 

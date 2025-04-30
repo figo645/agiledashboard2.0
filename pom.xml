@@ -77,6 +77,48 @@
                     </excludes>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.6.3</version>
+                <configuration>
+                    <source>17</source>
+                    <encoding>UTF-8</encoding>
+                    <charset>UTF-8</charset>
+                    <docencoding>UTF-8</docencoding>
+                    <windowtitle>Sprint Dashboard API Documentation</windowtitle>
+                    <doctitle>Sprint Dashboard API Documentation</doctitle>
+                    <header>Sprint Dashboard API Documentation</header>
+                    <footer>Sprint Dashboard API Documentation</footer>
+                    <bottom>Copyright © 2024 Sprint Dashboard. All rights reserved.</bottom>
+                    <show>public</show>
+                    <nohelp>true</nohelp>
+                    <nocomment>false</nocomment>
+                    <quiet>true</quiet>
+                    <docfilessubdirs>true</docfilessubdirs>
+                    <use>true</use>
+                    <author>true</author>
+                    <version>true</version>
+                    <failOnError>false</failOnError>
+                    <failOnWarnings>false</failOnWarnings>
+                    <additionalJOptions>
+                        <additionalJOption>-Xdoclint:none</additionalJOption>
+                    </additionalJOptions>
+                    <links>
+                        <link>https://docs.oracle.com/en/java/javase/17/docs/api/</link>
+                        <link>https://docs.spring.io/spring-boot/docs/3.2.3/api/</link>
+                        <link>https://docs.spring.io/spring-framework/docs/6.1.5/api/</link>
+                    </links>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>
