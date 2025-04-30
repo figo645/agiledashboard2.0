@@ -1,173 +1,253 @@
-# 我的敏捷迭代看板系统
+# Sprint Dashboard 程序设计文档
 
-## 1. 我的设计理念
+## 系统架构
 
-本项目是一个敏捷迭代看板系统，旨在为团队提供直观、实时的项目进度可视化工具。系统设计遵循以下核心理念：
+Sprint Dashboard 采用标准的 Spring Boot 分层架构，遵循 MVC 设计模式和 RESTful API 设计原则。
 
-- **实时性**：通过自动数据同步，确保看板数据始终反映最新状态
-- **可视化**：采用图表和表格等多种形式展示数据，便于快速理解项目状态
-- **灵活性**：支持自定义布局和拖拽调整，适应不同团队的需求
-- **易用性**：简洁直观的界面设计，降低使用门槛
-- **可扩展性**：模块化设计，便于后续功能扩展
-
-## 2. 程序设计
-
-### 2.1 技术栈
-
-- **前端**：
-  - HTML5 + CSS3
-  - JavaScript (原生)
-  - Chart.js (数据可视化)
-  - HTML5 Drag and Drop API (拖拽功能)
-
-- **后端**：
-  - Spring Boot
-  - Spring Data JPA
-  - RESTful API
-
-### 2.2 系统架构
-
-系统采用前后端分离架构：
+### 架构层次
 
 ```
-├── 前端 (Frontend)
-│   ├── 静态资源 (HTML/CSS/JS)
-│   ├── 数据可视化组件
-│   └── 交互控制逻辑
-│
-└── 后端 (Backend)
-    ├── 控制器层 (Controller)
-    ├── 服务层 (Service)
-    ├── 数据访问层 (Repository)
-    └── 实体层 (Entity)
+com.example.dashboard/
+├── controller/     # 控制器层：处理 HTTP 请求和响应
+├── service/        # 服务层：实现业务逻辑
+├── repository/     # 数据访问层：处理数据库操作
+├── entity/         # 实体层：定义数据模型
+├── config/         # 配置层：系统配置类
+├── util/          # 工具层：通用工具类
+└── test/          # 测试层：单元测试和集成测试
 ```
 
-### 2.3 核心功能模块
+## 核心模块
 
-1. **Sprint计划分析**
-   - 计划需求数与实际完成数对比
-   - 故事点完成情况统计
-   - 用户故事与技术需求占比分析
+### 1. Sprint 计划模块
 
-2. **迭代完成进度**
-   - 可视化展示各团队迭代完成情况
-   - 支持数据缩放和筛选
+- **控制器**: `SprintPlanningController`
+- **服务**: `SprintPlanningService`
+- **实体**: `SprintPlanning`
+- **功能**:
+  - Sprint 计划数据管理
+  - 团队绩效指标跟踪
+  - 故事点统计分析
 
-3. **变更情况追踪**
-   - 变更任务数和变更点数统计
-   - 团队间变更情况对比
+### 2. 迭代完成度模块
 
-4. **测试进度监控**
-   - 测试用例完成情况
-   - 测试覆盖率分析
+- **控制器**: `IterationCompletionController`
+- **服务**: `IterationCompletionService`
+- **实体**: `IterationCompletion`
+- **功能**:
+  - 迭代进度跟踪
+  - 计划与实际进度对比
+  - 完成率分析
 
-5. **Bug处理进度**
-   - Pre环境和UAT环境Bug状态
-   - Bug修复进度追踪
+### 3. 变更跟踪模块
 
-## 3. 核心流程
+- **控制器**: `ChangeTrackingController`
+- **服务**: `ChangeTrackingService`
+- **实体**: `ChangeTracking`
+- **功能**:
+  - 变更任务管理
+  - 变更影响分析
+  - 变更趋势统计
 
-### 3.1 数据同步流程
+### 4. 测试进度模块
 
-1. 系统启动时加载初始数据
-2. 定时从数据源同步最新数据
-3. 数据更新后自动刷新看板显示
+- **控制器**: `TestingProgressController`
+- **服务**: `TestingProgressService`
+- **实体**: `TestingProgress`
+- **功能**:
+  - 测试用例管理
+  - 测试执行跟踪
+  - 测试覆盖率分析
 
-### 3.2 用户交互流程
+### 5. Bug 跟踪模块
 
-1. 页面加载
-   - 初始化看板布局
-   - 加载本地存储的面板顺序
-   - 获取最新数据并渲染
+- **控制器**: `BugProgressController`
+- **服务**: `BugProgressService`
+- **实体**: `BugProgress`
+- **功能**:
+  - Bug 状态管理
+  - 环境分类统计
+  - 修复进度跟踪
 
-2. 数据展示
-   - 表格形式展示详细数据
-   - 图表形式展示趋势和对比
-   - 支持数据筛选和排序
+## 技术栈
 
-3. 布局调整
-   - 拖拽面板调整位置
-   - 自动调整面板宽度
-   - 保存布局配置
+- **后端框架**: Spring Boot
+- **数据库**: PostgreSQL
+- **ORM 框架**: Spring Data JPA
+- **API 文档**: Swagger/OpenAPI
+- **测试框架**: JUnit 5
+- **构建工具**: Maven
 
-4. 数据查看
-   - 支持图表最大化查看
-   - 表格数据分页显示
-   - 数据导出功能
+## 数据模型
 
-## 4. 数据表设计
+### 实体关系
 
-### 4.1 TeamData（团队数据）
-
-```java
-@Entity
-public class TeamData {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    
-    private String programName;        // 项目组名称
-    private String teamName;           // 团队名称
-    private double plannedCount;       // 计划需求数
-    private double completedCount;     // 实际完成数
-    private double storypointPlanned;  // 计划故事点
-    private double storypointCompleted;// 完成故事点
-    private double testPoints;         // 测试故事点
-    private double userStoryPoints;    // 用户故事点
-    private double userStoryRatio;     // 用户故事占比
-    private double enablerPoints;      // 技术需求数
-    private double enablerRatio;       // 技术需求占比
-    private double storyThroughput;    // 百人天故事吞吐量
-}
+```
+SprintPlanning
+└── team_name (关联其他实体)
+    ├── IterationCompletion
+    ├── ChangeTracking
+    ├── TestingProgress
+    └── BugProgress
 ```
 
-### 4.2 IterationCompletion（迭代完成情况）
+### 主要字段说明
 
-```java
-@Entity
-public class IterationCompletion {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    
-    private String teamName;           // 团队名称
-    private String issueType;          // 问题类型
-    private String issueKey;           // 问题编号
-    private String summary;            // 问题摘要
-    private String status;             // 状态
-    private double points;             // 点数
-}
-```
+1. SprintPlanning
+   - program_name: 项目名称
+   - team_name: 团队名称
+   - planned_count: 计划需求数
+   - completed_count: 完成需求数
+   - story_points: 故事点数
 
-## 5. 安全设计
+2. IterationCompletion
+   - team_name: 团队名称
+   - planned_progress: 计划进度
+   - actual_progress: 实际进度
 
-### 5.1 数据安全
+3. ChangeTracking
+   - team_name: 团队名称
+   - change_tasks: 变更任务数
+   - change_points: 变更点数
 
-- 数据加密存储
-- 敏感信息脱敏处理
-- 定期数据备份
-- 数据访问权限控制
+4. TestingProgress
+   - team_name: 团队名称
+   - total_test_cases: 总测试用例数
+   - completed_test_cases: 已完成测试用例数
 
-### 5.2 接口安全
+5. BugProgress
+   - team_name: 团队名称
+   - pre_fixed: Pre环境已修复Bug数
+   - pre_pending: Pre环境待修复Bug数
+   - uat_fixed: UAT环境已修复Bug数
+   - uat_pending: UAT环境待修复Bug数
 
-- RESTful API 认证
-- 请求参数验证
-- 防SQL注入
-- 防XSS攻击
+## API 设计
 
-### 5.3 前端安全
+### RESTful API 规范
 
-- 输入数据验证
-- XSS防护
-- CSRF防护
-- 敏感操作确认
+1. 资源命名
+   - 使用复数名词
+   - 使用小写字母
+   - 使用连字符分隔单词
 
-### 5.4 部署安全
+2. HTTP 方法
+   - GET: 查询资源
+   - POST: 创建资源
+   - PUT: 更新资源
+   - DELETE: 删除资源
 
-- HTTPS加密传输
-- 防火墙配置
-- 定期安全扫描
-- 漏洞及时修复
+3. 状态码
+   - 200: 成功
+   - 201: 创建成功
+   - 400: 请求错误
+   - 404: 资源不存在
+   - 500: 服务器错误
+
+### API 端点
+
+1. Sprint 计划
+   ```
+   GET    /api/sprint-plannings
+   POST   /api/sprint-plannings
+   GET    /api/sprint-plannings/{id}
+   PUT    /api/sprint-plannings/{id}
+   DELETE /api/sprint-plannings/{id}
+   ```
+
+2. 迭代完成度
+   ```
+   GET    /api/iteration-completions
+   POST   /api/iteration-completions
+   GET    /api/iteration-completions/{id}
+   PUT    /api/iteration-completions/{id}
+   DELETE /api/iteration-completions/{id}
+   ```
+
+3. 变更跟踪
+   ```
+   GET    /api/change-trackings
+   POST   /api/change-trackings
+   GET    /api/change-trackings/{id}
+   PUT    /api/change-trackings/{id}
+   DELETE /api/change-trackings/{id}
+   ```
+
+4. 测试进度
+   ```
+   GET    /api/testing-progress
+   POST   /api/testing-progress
+   GET    /api/testing-progress/{id}
+   PUT    /api/testing-progress/{id}
+   DELETE /api/testing-progress/{id}
+   ```
+
+5. Bug 跟踪
+   ```
+   GET    /api/bug-progress
+   POST   /api/bug-progress
+   GET    /api/bug-progress/{id}
+   PUT    /api/bug-progress/{id}
+   DELETE /api/bug-progress/{id}
+   ```
+
+## 安全设计
+
+1. 认证
+   - 使用 JWT 进行身份验证
+   - Token 过期时间设置为 24 小时
+   - 支持 Token 刷新机制
+
+2. 授权
+   - 基于角色的访问控制 (RBAC)
+   - 支持细粒度的权限控制
+   - API 级别的访问控制
+
+3. 数据安全
+   - 敏感数据加密存储
+   - HTTPS 传输加密
+   - SQL 注入防护
+
+## 性能优化
+
+1. 数据库优化
+   - 合理使用索引
+   - 查询语句优化
+   - 连接池配置
+
+2. 缓存策略
+   - 使用 Redis 缓存热点数据
+   - 实现二级缓存
+   - 缓存预热机制
+
+3. 并发处理
+   - 使用线程池
+   - 异步处理
+   - 限流措施
+
+## 监控告警
+
+1. 系统监控
+   - CPU 使用率
+   - 内存使用情况
+   - 磁盘空间
+
+2. 应用监控
+   - API 响应时间
+   - 错误率统计
+   - 并发用户数
+
+3. 业务监控
+   - 关键指标监控
+   - 异常事件告警
+   - 性能瓶颈分析
+
+## 部署架构
+
+1. 环境配置
+   - 开发环境
+   - 测试环境
+   - 生产环境
 
 ## 使用说明
 
@@ -178,9 +258,9 @@ public class IterationCompletion {
 
 ## 开发环境要求
 
-- JDK 1.8+
+- JDK 17+
 - Maven 3.6+
-- MySQL 5.7+
+- PostgreSQL 12+
 - 现代浏览器（Chrome、Firefox、Safari等）
 
 ## 贡献指南
