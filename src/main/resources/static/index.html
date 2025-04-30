@@ -215,45 +215,23 @@
         th:nth-child(13), td:nth-child(13) { width: 8%; }  /* CV值 */
         th:nth-child(14), td:nth-child(14) { width: 8%; }  /* 故事颗粒度 */
         .chart-container {
+            width: 100%;
+            height: 600px;
+            margin: 0;
+            padding: 0;
             position: relative;
-            height: 400px;
-            margin-bottom: 20px;
-            overflow: hidden;
         }
         .chart-wrapper {
+            width: 100%;
             height: 100%;
-            overflow-y: auto;
-            overflow-x: hidden;
-            scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch;
-            padding-right: 8px;
-        }
-        .chart-wrapper::-webkit-scrollbar {
-            width: 8px;
-        }
-        .chart-wrapper::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .chart-wrapper::-webkit-scrollbar-thumb {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 4px;
-            transition: background 0.2s;
-        }
-        .chart-wrapper::-webkit-scrollbar-thumb:hover {
-            background: rgba(0, 0, 0, 0.3);
+            position: relative;
         }
         .chart-wrapper canvas {
             width: 100% !important;
-            height: auto !important;
-            min-height: 400px;
-        }
-        @media (max-width: 768px) {
-            .chart-container {
-                height: 300px;
-            }
-            .chart-wrapper canvas {
-                min-height: 300px;
-            }
+            height: 100% !important;
+            position: absolute;
+            left: 0;
+            top: 0;
         }
         .grid {
             display: grid;
@@ -452,6 +430,19 @@
                 </div>
             </div>
         </div>
+
+        <!-- Throughput Comparison Chart -->
+        <div class="panel full-width" draggable="true" data-panel-id="throughput-comparison">
+            <div class="chart-header">
+                <div class="panel-title">项目集吞吐量对比</div>
+                <button class="maximize-btn" onclick="maximizeChart('throughputChart')">⛶</button>
+            </div>
+            <div class="chart-container">
+                <div class="chart-wrapper">
+                    <canvas id="throughputChart"></canvas>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Modal for maximized charts -->
@@ -465,6 +456,12 @@
     </div>
 
     <script>
+        // 项目集配置
+        const projectSetConfig = {
+            included: ['B端中后台', 'C端中台', 'C端平台'], // 需要计算平均值的项目集
+            excluded: ['平台支持类', '其他项目', '大数据组'] // 不需要计算平均值的项目集
+        };
+
         // 注册缩放插件
         Chart.register(ChartZoom);
         
@@ -473,7 +470,8 @@
             completionChart: null,
             changeChart: null,
             testingChart: null,
-            bugChart: null
+            bugChart: null,
+            throughputChart: null
         };
 
         // 数据缓存
@@ -481,17 +479,14 @@
             completionData: [],
             changeData: [],
             testingData: [],
-            bugData: []
+            bugData: [],
+            sprintData: []
         };
 
         // 团队过滤配置
         const teamFilterConfig = {
-            // 在这里配置要隐藏的团队名称
-            // 例如：'思享驾': true 表示隐藏思享驾团队
-            // 默认都设置为false，表示显示所有团队
             '思享驾': true,
             'Unassigned Team': true
-            // 可以继续添加更多团队...
         };
 
         let iterationChart, bugChart, changeChart, testingChart;
@@ -621,6 +616,7 @@
                 dataCache.changeData = changeData;
                 dataCache.testingData = testingData;
                 dataCache.bugData = bugData;
+                dataCache.sprintData = sprintData;
 
                 // 更新各个组件
                 updateSprintTable(sprintData);
@@ -628,11 +624,31 @@
                 updateChangeChart(changeData);
                 updateTestingChart(testingData);
                 updateBugChart(bugData);
+                updateThroughputChart(sprintData);
 
                 // 更新团队选择器
                 updateTeamSelector();
             } catch (error) {
                 console.error('Error loading data:', error);
+                // 使用本地数据
+                const localData = [
+                    { programName: 'B端中后台', teamName: '企业微信', storyThroughput: 39.29 },
+                    { programName: 'B端中后台', teamName: 'B端基础', storyThroughput: 30.47 },
+                    { programName: 'B端中后台', teamName: 'NewbieLTO&OTD', storyThroughput: 32.20 },
+                    { programName: 'B端中后台', teamName: '售后（DTCC）', storyThroughput: 19.69 },
+                    { programName: 'B端中后台', teamName: 'LiteCRM', storyThroughput: 41.38 },
+                    { programName: 'C端中台', teamName: '销售中台', storyThroughput: 41.67 },
+                    { programName: 'C端中台', teamName: '用户运营', storyThroughput: 44.44 },
+                    { programName: 'C端中台', teamName: '中台充电&售后', storyThroughput: 54.90 },
+                    { programName: 'C端中台', teamName: '充电中台', storyThroughput: 100.00 },
+                    { programName: 'C端中台', teamName: '中台基础&商城', storyThroughput: 36.56 },
+                    { programName: 'C端平台', teamName: '移动充电售后', storyThroughput: 59.65 },
+                    { programName: 'C端平台', teamName: '移动基础&商城', storyThroughput: 44.03 },
+                    { programName: 'C端平台', teamName: '移动销售购车', storyThroughput: 49.56 },
+                    { programName: 'C端平台', teamName: '移动活动', storyThroughput: 30.95 },
+                    { programName: 'C端平台', teamName: '移动活动&用户运营团队', storyThroughput: 40.62 }
+                ];
+                updateThroughputChart(localData);
             }
         }
 
@@ -1054,6 +1070,140 @@
                                         `Pre环境: ${displayData[index].preFixed}已修复, ${displayData[index].prePending}待修复`,
                                         `UAT环境: ${displayData[index].uatFixed}已修复, ${displayData[index].uatPending}待修复`
                                     ];
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 更新吞吐量对比图表
+        function updateThroughputChart(data) {
+            const ctx = document.getElementById('throughputChart').getContext('2d');
+            
+            // 如果已存在图表实例，先销毁它
+            if (chartInstances.throughputChart) {
+                chartInstances.throughputChart.destroy();
+            }
+            
+            // 按项目集分组团队数据
+            const programTeams = {};
+            data.forEach(row => {
+                if (!programTeams[row.programName]) {
+                    programTeams[row.programName] = [];
+                }
+                programTeams[row.programName].push({
+                    teamName: row.teamName,
+                    throughput: row.storyThroughput
+                });
+            });
+            
+            // 准备图表数据
+            const labels = [];
+            const teamThroughputs = [];
+            const programAverages = [];
+            const filteredAverages = [];
+            
+            // 计算每个项目集的平均吞吐量
+            Object.entries(programTeams).forEach(([program, teams]) => {
+                const average = teams.reduce((sum, team) => sum + team.throughput, 0) / teams.length;
+                programAverages.push(average);
+                
+                // 如果不是排除的项目集，计算过滤后的平均值
+                if (!projectSetConfig.excluded.includes(program)) {
+                    filteredAverages.push(average);
+                }
+                
+                // 添加团队数据
+                teams.forEach(team => {
+                    labels.push(`${program} - ${team.teamName}`);
+                    teamThroughputs.push(team.throughput);
+                });
+            });
+            
+            // 计算过滤后的总平均值
+            const filteredAverage = filteredAverages.reduce((sum, val) => sum + val, 0) / filteredAverages.length;
+            
+            chartInstances.throughputChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '团队吞吐量',
+                            data: teamThroughputs,
+                            backgroundColor: function(context) {
+                                const program = labels[context.dataIndex].split(' - ')[0];
+                                if (projectSetConfig.excluded.includes(program)) {
+                                    return 'rgba(200, 200, 200, 0.5)'; // 灰色表示排除的项目集
+                                }
+                                return 'rgba(75, 192, 192, 0.5)'; // 正常颜色
+                            },
+                            borderColor: function(context) {
+                                const program = labels[context.dataIndex].split(' - ')[0];
+                                if (projectSetConfig.excluded.includes(program)) {
+                                    return 'rgba(200, 200, 200, 1)';
+                                }
+                                return 'rgba(75, 192, 192, 1)';
+                            },
+                            borderWidth: 1
+                        },
+                        {
+                            label: '过滤后平均吞吐量',
+                            data: labels.map(() => filteredAverage),
+                            type: 'line',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            fill: false
+                        },
+                        {
+                            label: '2025年目标',
+                            data: labels.map(() => 40),
+                            type: 'line',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 2,
+                            borderDash: [2, 2],
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'x',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '吞吐量'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45,
+                                autoSkip: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '项目集团队吞吐量对比'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    if (context.datasetIndex === 0) {
+                                        return `吞吐量: ${context.raw.toFixed(2)}`;
+                                    } else if (context.datasetIndex === 1) {
+                                        return `过滤后平均: ${context.raw.toFixed(2)}`;
+                                    } else {
+                                        return `2025年目标: ${context.raw.toFixed(2)}`;
+                                    }
                                 }
                             }
                         }
