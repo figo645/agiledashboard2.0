@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>看板配置</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        .navbar {
+            background-color: #343a40;
+            padding: 0.5rem 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .navbar-brand {
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .config-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .config-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .config-section h3 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .btn-save {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn-save:hover {
+            background-color: #0056b3;
+        }
+        .team-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .team-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .team-item input[type="checkbox"] {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="./">敏捷迭代看板</a>
+            <div class="ms-auto d-flex align-items-center">
+                <div class="date-picker-container me-3">
+                    <label for="datePicker" class="text-white me-2 mb-0">选择日期：</label>
+                    <input type="date" id="datePicker" class="form-control form-control-sm d-inline-block" style="width: auto;">
+                </div>
+                <a href="config.html" class="btn btn-outline-light">配置</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="config-container">
+        <h2>看板配置</h2>
+        
+        <!-- 团队过滤配置 -->
+        <div class="config-section">
+            <h3>团队过滤配置</h3>
+            <div class="team-list" id="teamList">
+                <!-- 团队列表将通过JavaScript动态生成 -->
+            </div>
+        </div>
+
+        <!-- 项目集配置 -->
+        <div class="config-section">
+            <h3>项目集配置</h3>
+            <div class="form-group">
+                <label>包含的项目集</label>
+                <div class="team-list" id="includedSetsList">
+                    <!-- 项目集列表将通过JavaScript动态生成 -->
+                </div>
+            </div>
+            <div class="form-group">
+                <label>排除的项目集</label>
+                <div class="team-list" id="excludedSetsList">
+                    <!-- 项目集列表将通过JavaScript动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 阈值配置 -->
+        <div class="config-section">
+            <h3>阈值配置</h3>
+            <div class="form-group">
+                <label>用户故事占比阈值（%）</label>
+                <input type="number" id="userStoryRatioThreshold" class="form-control" min="0" max="100">
+            </div>
+            <div class="form-group">
+                <label>技术需求占比阈值（%）</label>
+                <input type="number" id="enablerRatioThreshold" class="form-control" min="0" max="100">
+            </div>
+            <div class="form-group">
+                <label>百人天吞吐量阈值</label>
+                <input type="number" id="throughputThreshold" class="form-control" min="0">
+            </div>
+            <div class="form-group">
+                <label>CV值阈值</label>
+                <input type="number" id="cvThreshold" class="form-control" min="0">
+            </div>
+        </div>
+
+        <button class="btn-save" onclick="saveConfig()">保存配置</button>
+    </div>
+
+    <script>
+        // 从localStorage加载配置
+        function loadConfig() {
+            // 加载团队过滤配置
+            const teamFilterConfig = JSON.parse(localStorage.getItem('teamFilterConfig') || '{}');
+            const teamList = document.getElementById('teamList');
+            
+            // 使用硬编码的团队列表
+            const teams = [
+                '思享驾', '企业微信', '质效平台', '销售中台', '用户运营', '移动充电售后',
+                'B端基础', 'NewbieLTO&OTD', '售后（DTCC）', 'LiteCRM', '中台充电&售后',
+                '充电中台', '中台基础&商城', '移动基础&商城', '移动销售购车', '移动活动',
+                '移动活动&用户运营团队', '移动用户运营', '湖仓', 'CDPMA', '数据治理',
+                'CMS DMF', 'DOMP', 'VCDC BI 销售', 'VCDC BI 网发', 'VCDC BI 售后',
+                'VCDC BI 新业务', 'IAM', 'AI Drives', 'Unassigned Team'
+            ];
+
+            // 生成团队列表
+            teams.forEach(team => {
+                const div = document.createElement('div');
+                div.className = 'team-item';
+                div.innerHTML = `
+                    <input type="checkbox" id="team-${team}" ${teamFilterConfig[team] ? 'checked' : ''}>
+                    <label for="team-${team}">${team}</label>
+                `;
+                teamList.appendChild(div);
+            });
+
+            // 加载项目集配置
+            const projectSetConfig = JSON.parse(localStorage.getItem('projectSetConfig') || '{"included":[],"excluded":[]}');
+            const includedSetsList = document.getElementById('includedSetsList');
+            const excludedSetsList = document.getElementById('excludedSetsList');
+            
+            // 使用硬编码的项目集列表
+            const projectSets = [
+                'B端中后台', 'C端中台', 'C端平台', '平台支持类', '其他项目', '大数据组', 'Unassigned Program'
+            ];
+
+            // 生成包含的项目集列表
+            projectSets.forEach(set => {
+                const div = document.createElement('div');
+                div.className = 'team-item';
+                div.innerHTML = `
+                    <input type="checkbox" id="included-${set}" ${projectSetConfig.included.includes(set) ? 'checked' : ''}>
+                    <label for="included-${set}">${set}</label>
+                `;
+                includedSetsList.appendChild(div);
+            });
+
+            // 生成排除的项目集列表
+            projectSets.forEach(set => {
+                const div = document.createElement('div');
+                div.className = 'team-item';
+                div.innerHTML = `
+                    <input type="checkbox" id="excluded-${set}" ${projectSetConfig.excluded.includes(set) ? 'checked' : ''}>
+                    <label for="excluded-${set}">${set}</label>
+                `;
+                excludedSetsList.appendChild(div);
+            });
+
+            // 加载阈值配置
+            const thresholds = JSON.parse(localStorage.getItem('thresholds') || '{}');
+            document.getElementById('userStoryRatioThreshold').value = thresholds.userStoryRatio || 70;
+            document.getElementById('enablerRatioThreshold').value = thresholds.enablerRatio || 30;
+            document.getElementById('throughputThreshold').value = thresholds.throughput || 40;
+            document.getElementById('cvThreshold').value = thresholds.cv || 50;
+
+            // 设置日期选择器的值
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('datePicker').value = today;
+        }
+
+        // 保存配置
+        function saveConfig() {
+            // 保存团队过滤配置
+            const teamFilterConfig = {};
+            document.querySelectorAll('#teamList input[type="checkbox"]').forEach(checkbox => {
+                teamFilterConfig[checkbox.id.replace('team-', '')] = checkbox.checked;
+            });
+            localStorage.setItem('teamFilterConfig', JSON.stringify(teamFilterConfig));
+
+            // 保存项目集配置
+            const projectSetConfig = {
+                included: Array.from(document.querySelectorAll('#includedSetsList input[type="checkbox"]:checked'))
+                    .map(checkbox => checkbox.id.replace('included-', '')),
+                excluded: Array.from(document.querySelectorAll('#excludedSetsList input[type="checkbox"]:checked'))
+                    .map(checkbox => checkbox.id.replace('excluded-', ''))
+            };
+            localStorage.setItem('projectSetConfig', JSON.stringify(projectSetConfig));
+
+            // 保存阈值配置
+            const thresholds = {
+                userStoryRatio: parseFloat(document.getElementById('userStoryRatioThreshold').value),
+                enablerRatio: parseFloat(document.getElementById('enablerRatioThreshold').value),
+                throughput: parseFloat(document.getElementById('throughputThreshold').value),
+                cv: parseFloat(document.getElementById('cvThreshold').value),
+                cvWarningRange: 0.1 // CV值预警范围（10%）
+            };
+            localStorage.setItem('thresholds', JSON.stringify(thresholds));
+
+            // 保存成功后跳转回首页
+            window.location.href = './';
+        }
+
+        // 页面加载时加载配置
+        document.addEventListener('DOMContentLoaded', loadConfig);
+    </script>
+</body>
+</html> 

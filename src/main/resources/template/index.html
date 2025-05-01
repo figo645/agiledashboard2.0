@@ -1,0 +1,1926 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>敏捷迭代看板</title>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        .navbar {
+            background-color: #343a40;
+            padding: 0.5rem 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .navbar-brand {
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .date-picker-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: auto;
+            padding-right: 20px;
+            white-space: nowrap;
+        }
+        .date-picker-container label {
+            color: white;
+            margin: 0;
+            white-space: nowrap;
+        }
+        .date-picker-container input {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            border: 1px solid #ced4da;
+            width: auto;
+        }
+        .team-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: 10px;
+            position: relative;
+        }
+        .team-selector .dropdown-toggle {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            border: 1px solid #ced4da;
+            background-color: white;
+            color: #333;
+            min-width: 150px;
+            text-align: left;
+            cursor: pointer;
+            position: relative;
+        }
+        .team-selector .dropdown-toggle::after {
+            content: '';
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid #333;
+        }
+        .team-selector .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: white;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            padding: 5px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            min-width: 200px;
+        }
+        .team-selector .dropdown-menu.show {
+            display: block;
+        }
+        .team-selector .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px;
+            cursor: pointer;
+        }
+        .team-selector .checkbox-item:hover {
+            background-color: #f8f9fa;
+        }
+        .team-selector .checkbox-item input[type="checkbox"] {
+            margin: 0;
+        }
+        .team-selector .checkbox-item label {
+            color: #333;
+            margin: 0;
+            font-size: 14px;
+            cursor: pointer;
+            flex: 1;
+        }
+        .team-selector .dropdown-menu::-webkit-scrollbar {
+            width: 6px;
+        }
+        .team-selector .dropdown-menu::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .team-selector .dropdown-menu::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+        }
+        .team-selector .dropdown-menu::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+        .team-selector label {
+            color: white;
+            margin: 0;
+            white-space: nowrap;
+        }
+        .dashboard {
+            max-width: 1400px;
+            margin: 20px auto;
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 20px;
+            padding: 20px;
+        }
+        .full-width {
+            grid-column: span 12;
+        }
+        .half-width {
+            grid-column: span 6;
+        }
+        .third-width {
+            grid-column: span 4;
+        }
+        .quarter-width {
+            grid-column: span 3;
+        }
+        .two-thirds-width {
+            grid-column: span 8;
+        }
+        .three-quarters-width {
+            grid-column: span 9;
+        }
+        .panel {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            cursor: move;
+            transition: box-shadow 0.3s ease;
+        }
+        .panel.dragging {
+            opacity: 0.5;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .panel-placeholder {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+        }
+        .panel-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .table-container {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            min-width: 100px;
+        }
+        th:nth-child(1), td:nth-child(1) { width: 10%; } /* 项目组 */
+        th:nth-child(2), td:nth-child(2) { width: 10%; } /* 团队 */
+        th:nth-child(3), td:nth-child(3) { width: 8%; }  /* 计划需求数 */
+        th:nth-child(4), td:nth-child(4) { width: 8%; }  /* 实际完成数 */
+        th:nth-child(5), td:nth-child(5) { width: 8%; }  /* 计划故事点 */
+        th:nth-child(6), td:nth-child(6) { width: 8%; }  /* 完成故事点 */
+        th:nth-child(7), td:nth-child(7) { width: 8%; }  /* 测试故事点 */
+        th:nth-child(8), td:nth-child(8) { width: 8%; }  /* 用户故事点 */
+        th:nth-child(9), td:nth-child(9) { width: 8%; }  /* 用户故事占比 */
+        th:nth-child(10), td:nth-child(10) { width: 8%; } /* 技术需求数 */
+        th:nth-child(11), td:nth-child(11) { width: 8%; } /* 技术需求占比 */
+        th:nth-child(12), td:nth-child(12) { width: 8%; } /* 百人天故事吞吐量 */
+        th:nth-child(13), td:nth-child(13) { width: 8%; }  /* CV值 */
+        th:nth-child(14), td:nth-child(14) { width: 8%; }  /* 故事颗粒度 */
+        .chart-container {
+            width: 100%;
+            height: 400px; /* 默认图表高度 */
+            margin: 0;
+            padding: 0;
+            position: relative;
+        }
+        /* 项目集吞吐量对比图表的特殊高度 */
+        #throughput-comparison .chart-container {
+            height: 600px;
+        }
+        .chart-wrapper {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        .chart-wrapper canvas {
+            width: 100% !important;
+            height: 100% !important;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .maximize-btn {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            padding: 5px;
+            font-size: 16px;
+            transition: color 0.2s;
+        }
+        .maximize-btn:hover {
+            color: #333;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+        .modal-content {
+            position: relative;
+            background-color: white;
+            margin: 5% auto;
+            padding: 20px;
+            width: 90%;
+            height: 80%;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .close-btn {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+        .close-btn:hover {
+            color: #333;
+        }
+        .modal-chart-container {
+            height: calc(100% - 40px);
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .table-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .modal-table-container {
+            height: calc(100% - 40px);
+            overflow-y: auto;
+        }
+        .modal-table-container table {
+            width: 100%;
+        }
+        .modal-table-container th {
+            position: sticky;
+            top: 0;
+            background-color: #f8f9fa;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="./">敏捷迭代看板</a>
+            <div class="ms-auto d-flex align-items-center">
+                <div class="date-picker-container me-3">
+                    <label for="datePicker" class="text-white me-2">选择日期：</label>
+                    <input type="date" id="datePicker" class="form-control form-control-sm">
+                </div>
+                <a href="config.html" class="btn btn-outline-light">配置</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard">
+        <!-- Sprint Planning Analysis Table -->
+        <div class="panel full-width" draggable="true" data-panel-id="sprint-planning">
+            <div class="chart-header">
+                <div class="panel-title">Sprint计划分析</div>
+                <button class="maximize-btn" onclick="maximizeTable('sprintTable')">⛶</button>
+            </div>
+            <div class="table-container">
+                <table id="sprintTable">
+                    <thead>
+                        <tr>
+                            <th>项目组</th>
+                            <th>团队</th>
+                            <th>计划需求数</th>
+                            <th>实际完成数</th>
+                            <th>计划故事点</th>
+                            <th>完成故事点</th>
+                            <th>测试故事点</th>
+                            <th>用户故事点</th>
+                            <th>用户故事占比</th>
+                            <th>技术需求数</th>
+                            <th>技术需求占比</th>
+                            <th>百人天故事吞吐量</th>
+                            <th>CV值</th>
+                            <th>故事颗粒度</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Modal for maximized tables -->
+        <div id="tableModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeTableModal()">&times;</span>
+                <div class="modal-table-container">
+                    <table id="modalSprintTable">
+                        <thead>
+                            <tr>
+                                <th>项目组</th>
+                                <th>团队</th>
+                                <th>计划需求数</th>
+                                <th>实际完成数</th>
+                                <th>计划故事点</th>
+                                <th>完成故事点</th>
+                                <th>测试故事点</th>
+                                <th>用户故事点</th>
+                                <th>用户故事占比</th>
+                                <th>技术需求数</th>
+                                <th>技术需求占比</th>
+                                <th>百人天故事吞吐量</th>
+                                <th>CV值</th>
+                                <th>故事颗粒度</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- Iteration Completion Progress -->
+            <div class="panel half-width" draggable="true" data-panel-id="iteration-completion">
+                <div class="chart-header">
+                    <div class="panel-title">迭代完成进度</div>
+                    <button class="maximize-btn" onclick="maximizeChart('completionChart')">⛶</button>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-wrapper">
+                        <canvas id="completionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Change Tracking -->
+            <div class="panel half-width" draggable="true" data-panel-id="change-tracking">
+                <div class="chart-header">
+                    <div class="panel-title">变更情况</div>
+                    <button class="maximize-btn" onclick="maximizeChart('changeChart')">⛶</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="changeChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Testing Progress -->
+            <div class="panel half-width" draggable="true" data-panel-id="testing-progress">
+                <div class="chart-header">
+                    <div class="panel-title">测试进度</div>
+                    <button class="maximize-btn" onclick="maximizeChart('testingChart')">⛶</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="testingChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Bug Handling Progress -->
+            <div class="panel half-width" draggable="true" data-panel-id="bug-progress">
+                <div class="chart-header">
+                    <div class="panel-title">Bug处理进度</div>
+                    <button class="maximize-btn" onclick="maximizeChart('bugChart')">⛶</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="bugChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Throughput Comparison Chart -->
+        <div class="panel full-width" draggable="true" data-panel-id="throughput-comparison">
+            <div class="chart-header">
+                <div class="panel-title">项目集吞吐量对比</div>
+                <button class="maximize-btn" onclick="maximizeChart('throughputChart')">⛶</button>
+            </div>
+            <div class="chart-container">
+                <div class="chart-wrapper">
+                    <canvas id="throughputChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for maximized charts -->
+    <div id="chartModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <div class="modal-chart-container">
+                <canvas id="modalChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 项目集配置
+        const projectSetConfig = {
+            included: ['B端中后台', 'C端中台', 'C端平台', 'Unassigned Program'], // 需要计算平均值的项目集
+            excluded: ['平台支持类', '其他项目', '大数据组'] // 不需要计算平均值的项目集
+        };
+
+        // 注册缩放插件
+        Chart.register(ChartZoom);
+        
+        // 存储所有图表实例
+        const chartInstances = {
+            completionChart: null,
+            changeChart: null,
+            testingChart: null,
+            bugChart: null,
+            throughputChart: null
+        };
+
+        // 数据缓存
+        const dataCache = {
+            completionData: [],
+            changeData: [],
+            testingData: [],
+            bugData: [],
+            sprintData: []
+        };
+
+        // 团队过滤配置
+        const teamFilterConfig = {
+            '思享驾': true,
+            'Unassigned Team': true
+        };
+
+        let iterationChart, bugChart, changeChart, testingChart;
+        let selectedDate = '';
+        let selectedTeams = [];
+
+        $(document).ready(function() {
+            // 设置日期选择器的初始值为今天
+            const today = new Date().toISOString().split('T')[0];
+            $('#datePicker').val(today);
+            selectedDate = today;
+
+            // 监听日期变化
+            $('#datePicker').on('change', function() {
+                selectedDate = $(this).val();
+                console.log('Date changed to:', selectedDate);
+                loadData(selectedDate);
+            });
+
+            // 监听下拉框点击
+            $('#teamDropdownToggle').on('click', function(e) {
+                e.stopPropagation();
+                $('#teamDropdownMenu').toggleClass('show');
+            });
+
+            // 点击其他地方关闭下拉框
+            $(document).on('click', function() {
+                $('#teamDropdownMenu').removeClass('show');
+            });
+
+            // 监听复选框变化
+            $(document).on('change', '.team-checkbox', function() {
+                selectedTeams = $('.team-checkbox:checked').map(function() {
+                    return $(this).val();
+                }).get();
+                updateSelectedCount();
+                loadData(selectedDate);
+            });
+
+            // 加载初始数据
+            loadData(today);
+        });
+
+        // 更新选中团队数量
+        function updateSelectedCount() {
+            $('#selectedCount').text(selectedTeams.length);
+        }
+
+        // 更新团队选择器
+        function updateTeamSelector() {
+            const container = $('#teamDropdownMenu');
+            container.empty();
+            
+            // 从当前数据中获取团队列表
+            const teams = new Set();
+            $('.panel').each(function() {
+                const table = $(this).find('table');
+                if (table.length) {
+                    table.find('tbody tr').each(function() {
+                        teams.add($(this).find('td:nth-child(2)').text());
+                    });
+                }
+            });
+            
+            // 添加团队复选框
+            Array.from(teams).forEach(team => {
+                const checkboxId = `team-${team.replace(/\s+/g, '-')}`;
+                const isChecked = selectedTeams.length === 0 || selectedTeams.includes(team);
+                if (isChecked && !selectedTeams.includes(team)) {
+                    selectedTeams.push(team);
+                }
+                container.append(`
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="${checkboxId}" class="team-checkbox" value="${team}" ${isChecked ? 'checked' : ''}>
+                        <label for="${checkboxId}">${team}</label>
+                    </div>
+                `);
+            });
+            
+            updateSelectedCount();
+        }
+
+        // 更新图表数据
+        function updateCharts(data) {
+            // 根据配置过滤团队
+            const filteredData = data.filter(row => !teamFilterConfig[row.teamName]);
+            
+            // 更新各个图表
+            if (chartInstances.completionChart) {
+                updateCompletionChart(filteredData);
+            }
+            if (chartInstances.changeChart) {
+                updateChangeChart(filteredData);
+            }
+            if (chartInstances.testingChart) {
+                updateTestingChart(filteredData);
+            }
+            if (chartInstances.bugChart) {
+                updateBugChart(filteredData);
+            }
+        }
+
+        // 从后端API加载数据
+        async function loadData(date) {
+            try {
+                console.log('Loading data for date:', date);
+                
+                // 加载所有数据
+                const [sprintResponse, completionResponse, changeResponse, testingResponse, bugResponse] = await Promise.all([
+                    fetch(`/dashboard/api/sprint-planning?date=${date}`),
+                    fetch(`/dashboard/api/iteration-completion?date=${date}`),
+                    fetch(`/dashboard/api/change-tracking?date=${date}`),
+                    fetch(`/dashboard/api/testing-progress?date=${date}`),
+                    fetch(`/dashboard/api/bug-progress?date=${date}`)
+                ]);
+
+                const [sprintData, completionData, changeData, testingData, bugData] = await Promise.all([
+                    sprintResponse.json(),
+                    completionResponse.json(),
+                    changeResponse.json(),
+                    testingResponse.json(),
+                    bugResponse.json()
+                ]);
+
+                // 更新数据缓存
+                dataCache.completionData = completionData;
+                dataCache.changeData = changeData;
+                dataCache.testingData = testingData;
+                dataCache.bugData = bugData;
+                dataCache.sprintData = sprintData;
+
+                // 更新各个组件
+                updateSprintTable(sprintData);
+                updateCompletionChart(completionData);
+                updateChangeChart(changeData);
+                updateTestingChart(testingData);
+                updateBugChart(bugData);
+                updateThroughputChart(sprintData);
+
+                // 更新团队选择器
+                updateTeamSelector();
+            } catch (error) {
+                console.error('Error loading data:', error);
+                // 使用本地数据
+                const localData = [
+                    { programName: 'B端中后台', teamName: '企业微信', storyThroughput: 39.29 },
+                    { programName: 'B端中后台', teamName: 'B端基础', storyThroughput: 30.47 },
+                    { programName: 'B端中后台', teamName: 'NewbieLTO&OTD', storyThroughput: 32.20 },
+                    { programName: 'B端中后台', teamName: '售后（DTCC）', storyThroughput: 19.69 },
+                    { programName: 'B端中后台', teamName: 'LiteCRM', storyThroughput: 41.38 },
+                    { programName: 'C端中台', teamName: '销售中台', storyThroughput: 41.67 },
+                    { programName: 'C端中台', teamName: '用户运营', storyThroughput: 44.44 },
+                    { programName: 'C端中台', teamName: '中台充电&售后', storyThroughput: 54.90 },
+                    { programName: 'C端中台', teamName: '充电中台', storyThroughput: 100.00 },
+                    { programName: 'C端中台', teamName: '中台基础&商城', storyThroughput: 36.56 },
+                    { programName: 'C端平台', teamName: '移动充电售后', storyThroughput: 59.65 },
+                    { programName: 'C端平台', teamName: '移动基础&商城', storyThroughput: 44.03 },
+                    { programName: 'C端平台', teamName: '移动销售购车', storyThroughput: 49.56 },
+                    { programName: 'C端平台', teamName: '移动活动', storyThroughput: 30.95 },
+                    { programName: 'C端平台', teamName: '移动活动&用户运营团队', storyThroughput: 40.62 }
+                ];
+                updateThroughputChart(localData);
+            }
+        }
+
+        // 更新Sprint Planning表格
+        function updateSprintTable(data) {
+            const tbody = document.querySelector('#sprintTable tbody');
+            const modalTbody = document.querySelector('#modalSprintTable tbody');
+            tbody.innerHTML = '';
+            modalTbody.innerHTML = '';
+            
+            // 获取配置
+            const teamFilterConfig = JSON.parse(localStorage.getItem('teamFilterConfig') || '{}');
+            const thresholds = JSON.parse(localStorage.getItem('thresholds') || '{}');
+            
+            // 根据配置过滤团队
+            const filteredData = data.filter(row => !teamFilterConfig[row.teamName]);
+            
+            // 显示过滤后的团队
+            filteredData.forEach(row => {
+                // 检查各项指标是否超过阈值
+                const userStoryRatioClass = row.userStoryRatio < thresholds.userStoryRatio ? 'text-danger' : '';
+                const enablerRatioClass = row.enablerRatio > thresholds.enablerRatio ? 'text-danger' : '';
+                const throughputClass = row.storyThroughput < thresholds.throughput ? 'text-danger' : '';
+                
+                // 计算CV值是否在阈值±10%范围内
+                const cvLowerBound = thresholds.cv * (1 - thresholds.cvWarningRange);
+                const cvUpperBound = thresholds.cv * (1 + thresholds.cvWarningRange);
+                const cvClass = (row.cvValue < cvLowerBound || row.cvValue > cvUpperBound) ? 'text-danger' : '';
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.programName}</td>
+                    <td>${row.teamName}</td>
+                    <td>${row.plannedCount}</td>
+                    <td>${row.completedCount}</td>
+                    <td>${row.storypointPlanned}</td>
+                    <td>${row.storypointCompleted}</td>
+                    <td>${row.testPoints}</td>
+                    <td class="${userStoryRatioClass}">${row.userStoryPoints}</td>
+                    <td class="${userStoryRatioClass}">${row.userStoryRatio}%</td>
+                    <td class="${enablerRatioClass}">${row.enablerPoints}</td>
+                    <td class="${enablerRatioClass}">${row.enablerRatio}%</td>
+                    <td class="${throughputClass}">${row.storyThroughput}</td>
+                    <td class="${cvClass}">${row.cvValue.toFixed(2)}</td>
+                    <td>${row.storyGranularity.toFixed(2)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // 在模态框中显示过滤后的团队
+            filteredData.forEach(row => {
+                // 检查各项指标是否超过阈值
+                const userStoryRatioClass = row.userStoryRatio < thresholds.userStoryRatio ? 'text-danger' : '';
+                const enablerRatioClass = row.enablerRatio > thresholds.enablerRatio ? 'text-danger' : '';
+                const throughputClass = row.storyThroughput < thresholds.throughput ? 'text-danger' : '';
+                
+                // 计算CV值是否在阈值±10%范围内
+                const cvLowerBound = thresholds.cv * (1 - thresholds.cvWarningRange);
+                const cvUpperBound = thresholds.cv * (1 + thresholds.cvWarningRange);
+                const cvClass = (row.cvValue < cvLowerBound || row.cvValue > cvUpperBound) ? 'text-danger' : '';
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.programName}</td>
+                    <td>${row.teamName}</td>
+                    <td>${row.plannedCount}</td>
+                    <td>${row.completedCount}</td>
+                    <td>${row.storypointPlanned}</td>
+                    <td>${row.storypointCompleted}</td>
+                    <td>${row.testPoints}</td>
+                    <td class="${userStoryRatioClass}">${row.userStoryPoints}</td>
+                    <td class="${userStoryRatioClass}">${row.userStoryRatio}%</td>
+                    <td class="${enablerRatioClass}">${row.enablerPoints}</td>
+                    <td class="${enablerRatioClass}">${row.enablerRatio}%</td>
+                    <td class="${throughputClass}">${row.storyThroughput}</td>
+                    <td class="${cvClass}">${row.cvValue.toFixed(2)}</td>
+                    <td>${row.storyGranularity.toFixed(2)}</td>
+                `;
+                modalTbody.appendChild(tr);
+            });
+        }
+
+        // 更新Iteration Completion图表
+        function updateCompletionChart(data) {
+            const ctx = document.getElementById('completionChart').getContext('2d');
+            
+            // 如果已存在图表实例，先销毁它
+            if (chartInstances.completionChart) {
+                chartInstances.completionChart.destroy();
+            }
+            
+            // 根据配置过滤团队并去重
+            const uniqueData = data.reduce((acc, current) => {
+                const existing = acc.find(item => item.teamName === current.teamName);
+                if (!existing && !teamFilterConfig[current.teamName]) {
+                    acc.push(current);
+                }
+                return acc;
+            }, []);
+            
+            // 按照实际进度/计划进度的比例从高到低排序
+            const sortedData = [...uniqueData].sort((a, b) => {
+                const ratioA = a.actualProgress / a.plannedProgress;
+                const ratioB = b.actualProgress / b.plannedProgress;
+                return ratioB - ratioA;
+            });
+            
+            // 只取前8个团队
+            const displayData = sortedData.slice(0, 8);
+            
+            chartInstances.completionChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: displayData.map(d => d.teamName),
+                    datasets: [
+                        {
+                            label: '计划进度',
+                            data: displayData.map(d => d.plannedProgress),
+                            backgroundColor: 'rgba(75, 192, 192, 0.5)'
+                        },
+                        {
+                            label: '实际进度',
+                            data: displayData.map(d => d.actualProgress),
+                            backgroundColor: 'rgba(255, 99, 132, 0.5)'
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '进度百分比'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                maxRotation: 0,
+                                autoSkip: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        zoom: {
+                            pan: {
+                                enabled: true,
+                                mode: 'y'
+                            },
+                            zoom: {
+                                wheel: {
+                                    enabled: true,
+                                    speed: 0.1
+                                },
+                                pinch: {
+                                    enabled: true
+                                },
+                                mode: 'y'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 更新Change Tracking图表
+        function updateChangeChart(data) {
+            const ctx = document.getElementById('changeChart').getContext('2d');
+            
+            // 如果已存在图表实例，先销毁它
+            if (chartInstances.changeChart) {
+                chartInstances.changeChart.destroy();
+            }
+            
+            // 根据配置过滤团队并去重
+            const uniqueData = data.reduce((acc, current) => {
+                const existing = acc.find(item => item.teamName === current.teamName);
+                if (!existing && !teamFilterConfig[current.teamName]) {
+                    acc.push(current);
+                }
+                return acc;
+            }, []);
+            
+            // 按照变更任务数从高到低排序
+            const sortedData = [...uniqueData].sort((a, b) => b.changeTasks - a.changeTasks);
+            
+            // 只取前8个团队
+            const displayData = sortedData.slice(0, 8);
+            
+            chartInstances.changeChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: displayData.map(d => d.teamName),
+                    datasets: [
+                        {
+                            label: '变更任务数',
+                            data: displayData.map(d => d.changeTasks),
+                            backgroundColor: 'rgba(75, 192, 192, 0.5)'
+                        },
+                        {
+                            label: '变更点数',
+                            data: displayData.map(d => d.changePoints),
+                            backgroundColor: 'rgba(54, 162, 235, 0.5)'
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '数量'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                maxRotation: 0,
+                                autoSkip: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        zoom: {
+                            pan: {
+                                enabled: true,
+                                mode: 'y'
+                            },
+                            zoom: {
+                                wheel: {
+                                    enabled: true,
+                                    speed: 0.1
+                                },
+                                pinch: {
+                                    enabled: true
+                                },
+                                mode: 'y'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 更新Testing Progress图表
+        function updateTestingChart(data) {
+            const ctx = document.getElementById('testingChart').getContext('2d');
+            
+            // 如果已存在图表实例，先销毁它
+            if (chartInstances.testingChart) {
+                chartInstances.testingChart.destroy();
+            }
+            
+            // 根据配置过滤团队并去重
+            const uniqueData = data.reduce((acc, current) => {
+                const existing = acc.find(item => item.teamName === current.teamName);
+                if (!existing && !teamFilterConfig[current.teamName]) {
+                    acc.push(current);
+                }
+                return acc;
+            }, []);
+            
+            // 按照总测试用例从高到低排序
+            const sortedData = [...uniqueData].sort((a, b) => b.totalTestCases - a.totalTestCases);
+            
+            // 只取前8个团队
+            const displayData = sortedData.slice(0, 8);
+            
+            chartInstances.testingChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: displayData.map(d => d.teamName),
+                    datasets: [
+                        {
+                            label: '总测试用例',
+                            data: displayData.map(d => d.totalTestCases),
+                            backgroundColor: 'rgba(75, 192, 192, 0.5)'
+                        },
+                        {
+                            label: '已完成测试用例',
+                            data: displayData.map(d => d.completedTestCases),
+                            backgroundColor: 'rgba(54, 162, 235, 0.5)'
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '测试用例数量'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                maxRotation: 0,
+                                autoSkip: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        zoom: {
+                            pan: {
+                                enabled: true,
+                                mode: 'y'
+                            },
+                            zoom: {
+                                wheel: {
+                                    enabled: true,
+                                    speed: 0.1
+                                },
+                                pinch: {
+                                    enabled: true
+                                },
+                                mode: 'y'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 更新Bug Progress图表
+        function updateBugChart(data) {
+            const ctx = document.getElementById('bugChart').getContext('2d');
+            
+            // 如果已存在图表实例，先销毁它
+            if (chartInstances.bugChart) {
+                chartInstances.bugChart.destroy();
+            }
+            
+            // 根据配置过滤团队并去重
+            const uniqueData = data.reduce((acc, current) => {
+                const existing = acc.find(item => item.teamName === current.teamName);
+                if (!existing && !teamFilterConfig[current.teamName]) {
+                    acc.push(current);
+                }
+                return acc;
+            }, []);
+            
+            // 按照Bug总量（Pre和UAT环境的总和）从高到低排序
+            const sortedData = [...uniqueData].sort((a, b) => {
+                const totalA = a.preFixed + a.prePending + a.uatFixed + a.uatPending;
+                const totalB = b.preFixed + b.prePending + b.uatFixed + b.uatPending;
+                return totalB - totalA;
+            });
+            
+            // 只取前8个团队
+            const displayData = sortedData.slice(0, 8);
+            
+            chartInstances.bugChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: displayData.map(d => d.teamName),
+                    datasets: [
+                        {
+                            label: 'Pre环境已修复',
+                            data: displayData.map(d => d.preFixed),
+                            backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1,
+                            stack: 'pre'
+                        },
+                        {
+                            label: 'Pre环境待修复',
+                            data: displayData.map(d => d.prePending),
+                            backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1,
+                            stack: 'pre'
+                        },
+                        {
+                            label: 'UAT环境已修复',
+                            data: displayData.map(d => d.uatFixed),
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1,
+                            stack: 'uat'
+                        },
+                        {
+                            label: 'UAT环境待修复',
+                            data: displayData.map(d => d.uatPending),
+                            backgroundColor: 'rgba(255, 159, 64, 0.6)',
+                            borderColor: 'rgba(255, 159, 64, 1)',
+                            borderWidth: 1,
+                            stack: 'uat'
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Bug数量'
+                            },
+                            stacked: true
+                        },
+                        y: {
+                            ticks: {
+                                maxRotation: 0,
+                                autoSkip: false
+                            },
+                            stacked: true
+                        }
+                    },
+                    plugins: {
+                        zoom: {
+                            pan: {
+                                enabled: true,
+                                mode: 'y'
+                            },
+                            zoom: {
+                                wheel: {
+                                    enabled: true,
+                                    speed: 0.1
+                                },
+                                pinch: {
+                                    enabled: true
+                                },
+                                mode: 'y'
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                afterBody: function(context) {
+                                    const index = context[0].dataIndex;
+                                    return [
+                                        `Pre环境: ${displayData[index].preFixed}已修复, ${displayData[index].prePending}待修复`,
+                                        `UAT环境: ${displayData[index].uatFixed}已修复, ${displayData[index].uatPending}待修复`
+                                    ];
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 更新吞吐量对比图表
+        function updateThroughputChart(data) {
+            const ctx = document.getElementById('throughputChart').getContext('2d');
+            
+            // 如果已存在图表实例，先销毁它
+            if (chartInstances.throughputChart) {
+                chartInstances.throughputChart.destroy();
+            }
+            
+            // 按项目集分组团队数据
+            const programTeams = {};
+            data.forEach(row => {
+                if (!programTeams[row.programName]) {
+                    programTeams[row.programName] = [];
+                }
+                programTeams[row.programName].push({
+                    teamName: row.teamName,
+                    throughput: row.storyThroughput
+                });
+            });
+            
+            // 准备图表数据
+            const labels = [];
+            const teamThroughputs = [];
+            const programAverages = [];
+            const filteredAverages = [];
+            
+            // 计算每个项目集的平均吞吐量
+            Object.entries(programTeams).forEach(([program, teams]) => {
+                const average = teams.reduce((sum, team) => sum + team.throughput, 0) / teams.length;
+                programAverages.push(average);
+                
+                // 如果不是排除的项目集，计算过滤后的平均值
+                if (!projectSetConfig.excluded.includes(program)) {
+                    filteredAverages.push(average);
+                }
+                
+                // 添加团队数据
+                teams.forEach(team => {
+                    labels.push(`${program} - ${team.teamName}`);
+                    teamThroughputs.push(team.throughput);
+                });
+            });
+            
+            // 计算过滤后的总平均值
+            const filteredAverage = filteredAverages.reduce((sum, val) => sum + val, 0) / filteredAverages.length;
+            
+            chartInstances.throughputChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '团队吞吐量',
+                            data: teamThroughputs,
+                            backgroundColor: function(context) {
+                                const program = labels[context.dataIndex].split(' - ')[0];
+                                if (projectSetConfig.excluded.includes(program)) {
+                                    return 'rgba(200, 200, 200, 0.5)';
+                                }
+                                return 'rgba(75, 192, 192, 0.5)';
+                            },
+                            borderColor: function(context) {
+                                const program = labels[context.dataIndex].split(' - ')[0];
+                                if (projectSetConfig.excluded.includes(program)) {
+                                    return 'rgba(200, 200, 200, 1)';
+                                }
+                                return 'rgba(75, 192, 192, 1)';
+                            },
+                            borderWidth: 1
+                        },
+                        {
+                            label: '过滤后平均吞吐量',
+                            data: labels.map(() => filteredAverage),
+                            type: 'line',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            fill: false
+                        },
+                        {
+                            label: '2025年目标',
+                            data: labels.map(() => 40),
+                            type: 'line',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 2,
+                            borderDash: [2, 2],
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'x',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '吞吐量'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45,
+                                autoSkip: false,
+                                font: {
+                                    size: 12 // 设置固定字体大小
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '项目集团队吞吐量对比'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    if (context.datasetIndex === 0) {
+                                        return `吞吐量: ${context.raw.toFixed(2)}`;
+                                    } else if (context.datasetIndex === 1) {
+                                        return `过滤后平均: ${context.raw.toFixed(2)}`;
+                                    } else {
+                                        return `2025年目标: ${context.raw.toFixed(2)}`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 最大化图表
+        function maximizeChart(chartId) {
+            console.log('Maximizing chart:', chartId);
+            const modal = document.getElementById('chartModal');
+            const modalCanvas = document.getElementById('modalChart');
+            
+            // 获取当前图表实例
+            const originalChart = chartInstances[chartId];
+            if (!originalChart) {
+                console.error('Original chart not found:', chartId);
+                return;
+            }
+            
+            // 创建新的图表实例
+            const modalCtx = modalCanvas.getContext('2d');
+            
+            // 获取原始数据
+            let allData;
+            switch(chartId) {
+                case 'completionChart':
+                    allData = dataCache.completionData;
+                    break;
+                case 'changeChart':
+                    allData = dataCache.changeData;
+                    break;
+                case 'testingChart':
+                    allData = dataCache.testingData;
+                    break;
+                case 'bugChart':
+                    allData = dataCache.bugData;
+                    break;
+                case 'throughputChart':
+                    allData = dataCache.sprintData;
+                    break;
+            }
+            
+            // 根据图表类型创建配置
+            let modalConfig;
+            if (chartId === 'throughputChart') {
+                // 项目集吞吐量对比图表的特殊处理
+                const programTeams = {};
+                allData.forEach(row => {
+                    if (!programTeams[row.programName]) {
+                        programTeams[row.programName] = [];
+                    }
+                    programTeams[row.programName].push({
+                        teamName: row.teamName,
+                        throughput: row.storyThroughput
+                    });
+                });
+                
+                const labels = [];
+                const teamThroughputs = [];
+                const filteredAverages = [];
+                
+                Object.entries(programTeams).forEach(([program, teams]) => {
+                    const average = teams.reduce((sum, team) => sum + team.throughput, 0) / teams.length;
+                    if (!projectSetConfig.excluded.includes(program)) {
+                        filteredAverages.push(average);
+                    }
+                    teams.forEach(team => {
+                        labels.push(`${program} - ${team.teamName}`);
+                        teamThroughputs.push(team.throughput);
+                    });
+                });
+                
+                const filteredAverage = filteredAverages.reduce((sum, val) => sum + val, 0) / filteredAverages.length;
+                
+                modalConfig = {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: '团队吞吐量',
+                                data: teamThroughputs,
+                                backgroundColor: function(context) {
+                                    const program = labels[context.dataIndex].split(' - ')[0];
+                                    if (projectSetConfig.excluded.includes(program)) {
+                                        return 'rgba(200, 200, 200, 0.5)';
+                                    }
+                                    return 'rgba(75, 192, 192, 0.5)';
+                                },
+                                borderColor: function(context) {
+                                    const program = labels[context.dataIndex].split(' - ')[0];
+                                    if (projectSetConfig.excluded.includes(program)) {
+                                        return 'rgba(200, 200, 200, 1)';
+                                    }
+                                    return 'rgba(75, 192, 192, 1)';
+                                },
+                                borderWidth: 1
+                            },
+                            {
+                                label: '过滤后平均吞吐量',
+                                data: labels.map(() => filteredAverage),
+                                type: 'line',
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                borderWidth: 2,
+                                borderDash: [5, 5],
+                                fill: false
+                            },
+                            {
+                                label: '2025年目标',
+                                data: labels.map(() => 40),
+                                type: 'line',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 2,
+                                borderDash: [2, 2],
+                                fill: false
+                            }
+                        ]
+                    },
+                    options: {
+                        indexAxis: 'x',
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: '吞吐量'
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    maxRotation: 45,
+                                    minRotation: 45,
+                                    autoSkip: false
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '项目集团队吞吐量对比'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        if (context.datasetIndex === 0) {
+                                            return `吞吐量: ${context.raw.toFixed(2)}`;
+                                        } else if (context.datasetIndex === 1) {
+                                            return `过滤后平均: ${context.raw.toFixed(2)}`;
+                                        } else {
+                                            return `2025年目标: ${context.raw.toFixed(2)}`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+            } else if (chartId === 'completionChart') {
+                // 迭代完成进度图表的处理
+                const uniqueData = allData.reduce((acc, current) => {
+                    const existing = acc.find(item => item.teamName === current.teamName);
+                    if (!existing && !teamFilterConfig[current.teamName]) {
+                        acc.push(current);
+                    }
+                    return acc;
+                }, []);
+                
+                const sortedData = [...uniqueData].sort((a, b) => {
+                    const ratioA = a.actualProgress / a.plannedProgress;
+                    const ratioB = b.actualProgress / b.plannedProgress;
+                    return ratioB - ratioA;
+                });
+                
+                modalConfig = {
+                    type: 'bar',
+                    data: {
+                        labels: sortedData.map(d => d.teamName),
+                        datasets: [
+                            {
+                                label: '计划进度',
+                                data: sortedData.map(d => d.plannedProgress),
+                                backgroundColor: 'rgba(75, 192, 192, 0.5)'
+                            },
+                            {
+                                label: '实际进度',
+                                data: sortedData.map(d => d.actualProgress),
+                                backgroundColor: 'rgba(255, 99, 132, 0.5)'
+                            }
+                        ]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: '进度百分比'
+                                }
+                            },
+                            y: {
+                                ticks: {
+                                    maxRotation: 0,
+                                    autoSkip: false
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '迭代完成进度'
+                            }
+                        }
+                    }
+                };
+            } else if (chartId === 'changeChart') {
+                // 变更情况图表的处理
+                const uniqueData = allData.reduce((acc, current) => {
+                    const existing = acc.find(item => item.teamName === current.teamName);
+                    if (!existing && !teamFilterConfig[current.teamName]) {
+                        acc.push(current);
+                    }
+                    return acc;
+                }, []);
+                
+                const sortedData = [...uniqueData].sort((a, b) => b.changeTasks - a.changeTasks);
+                
+                modalConfig = {
+                    type: 'bar',
+                    data: {
+                        labels: sortedData.map(d => d.teamName),
+                        datasets: [
+                            {
+                                label: '变更任务数',
+                                data: sortedData.map(d => d.changeTasks),
+                                backgroundColor: 'rgba(75, 192, 192, 0.5)'
+                            },
+                            {
+                                label: '变更点数',
+                                data: sortedData.map(d => d.changePoints),
+                                backgroundColor: 'rgba(54, 162, 235, 0.5)'
+                            }
+                        ]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: '数量'
+                                }
+                            },
+                            y: {
+                                ticks: {
+                                    maxRotation: 0,
+                                    autoSkip: false
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '变更情况'
+                            }
+                        }
+                    }
+                };
+            } else if (chartId === 'testingChart') {
+                // 测试进度图表的处理
+                const uniqueData = allData.reduce((acc, current) => {
+                    const existing = acc.find(item => item.teamName === current.teamName);
+                    if (!existing && !teamFilterConfig[current.teamName]) {
+                        acc.push(current);
+                    }
+                    return acc;
+                }, []);
+                
+                const sortedData = [...uniqueData].sort((a, b) => b.totalTestCases - a.totalTestCases);
+                
+                modalConfig = {
+                    type: 'bar',
+                    data: {
+                        labels: sortedData.map(d => d.teamName),
+                        datasets: [
+                            {
+                                label: '总测试用例',
+                                data: sortedData.map(d => d.totalTestCases),
+                                backgroundColor: 'rgba(75, 192, 192, 0.5)'
+                            },
+                            {
+                                label: '已完成测试用例',
+                                data: sortedData.map(d => d.completedTestCases),
+                                backgroundColor: 'rgba(54, 162, 235, 0.5)'
+                            }
+                        ]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: '测试用例数量'
+                                }
+                            },
+                            y: {
+                                ticks: {
+                                    maxRotation: 0,
+                                    autoSkip: false
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '测试进度'
+                            }
+                        }
+                    }
+                };
+            } else if (chartId === 'bugChart') {
+                // Bug处理进度图表的处理
+                const uniqueData = allData.reduce((acc, current) => {
+                    const existing = acc.find(item => item.teamName === current.teamName);
+                    if (!existing && !teamFilterConfig[current.teamName]) {
+                        acc.push(current);
+                    }
+                    return acc;
+                }, []);
+                
+                const sortedData = [...uniqueData].sort((a, b) => {
+                    const totalA = a.preFixed + a.prePending + a.uatFixed + a.uatPending;
+                    const totalB = b.preFixed + b.prePending + b.uatFixed + b.uatPending;
+                    return totalB - totalA;
+                });
+                
+                modalConfig = {
+                    type: 'bar',
+                    data: {
+                        labels: sortedData.map(d => d.teamName),
+                        datasets: [
+                            {
+                                label: 'Pre环境已修复',
+                                data: sortedData.map(d => d.preFixed),
+                                backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                borderWidth: 1,
+                                stack: 'pre'
+                            },
+                            {
+                                label: 'Pre环境待修复',
+                                data: sortedData.map(d => d.prePending),
+                                backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                borderWidth: 1,
+                                stack: 'pre'
+                            },
+                            {
+                                label: 'UAT环境已修复',
+                                data: sortedData.map(d => d.uatFixed),
+                                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 1,
+                                stack: 'uat'
+                            },
+                            {
+                                label: 'UAT环境待修复',
+                                data: sortedData.map(d => d.uatPending),
+                                backgroundColor: 'rgba(255, 159, 64, 0.6)',
+                                borderColor: 'rgba(255, 159, 64, 1)',
+                                borderWidth: 1,
+                                stack: 'uat'
+                            }
+                        ]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Bug数量'
+                                },
+                                stacked: true
+                            },
+                            y: {
+                                ticks: {
+                                    maxRotation: 0,
+                                    autoSkip: false
+                                },
+                                stacked: true
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Bug处理进度'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    afterBody: function(context) {
+                                        const index = context[0].dataIndex;
+                                        return [
+                                            `Pre环境: ${sortedData[index].preFixed}已修复, ${sortedData[index].prePending}待修复`,
+                                            `UAT环境: ${sortedData[index].uatFixed}已修复, ${sortedData[index].uatPending}待修复`
+                                        ];
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+            }
+            
+            // 创建模态框图表实例
+            const modalChart = new Chart(modalCtx, modalConfig);
+
+            // 显示模态框
+            modal.style.display = 'block';
+
+            // 监听窗口大小变化，重新调整图表
+            window.addEventListener('resize', function modalResize() {
+                modalChart.resize();
+            });
+
+            // 存储模态框图表实例
+            window.modalChart = modalChart;
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            const modal = document.getElementById('chartModal');
+            modal.style.display = 'none';
+            
+            // 销毁模态框中的图表实例
+            if (window.modalChart) {
+                window.modalChart.destroy();
+                delete window.modalChart;
+            }
+        }
+
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            const modal = document.getElementById('chartModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+
+        // 最大化表格
+        function maximizeTable(tableId) {
+            const modal = document.getElementById('tableModal');
+            modal.style.display = 'block';
+        }
+
+        // 关闭表格模态框
+        function closeTableModal() {
+            const modal = document.getElementById('tableModal');
+            modal.style.display = 'none';
+        }
+
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            const modal = document.getElementById('tableModal');
+            if (event.target == modal) {
+                closeTableModal();
+            }
+        }
+
+        // 添加拖拽功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const dashboard = document.querySelector('.dashboard');
+            const panels = document.querySelectorAll('.panel');
+            let draggedPanel = null;
+            let placeholder = null;
+
+            // 创建占位符元素
+            function createPlaceholder() {
+                const div = document.createElement('div');
+                div.className = 'panel panel-placeholder';
+                return div;
+            }
+
+            // 处理拖拽开始
+            panels.forEach(panel => {
+                panel.addEventListener('dragstart', function(e) {
+                    draggedPanel = this;
+                    this.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', this.dataset.panelId);
+                    
+                    // 创建占位符
+                    placeholder = createPlaceholder();
+                    this.parentNode.insertBefore(placeholder, this.nextSibling);
+                });
+
+                panel.addEventListener('dragend', function() {
+                    this.classList.remove('dragging');
+                    if (placeholder) {
+                        placeholder.remove();
+                        placeholder = null;
+                    }
+                    draggedPanel = null;
+                });
+            });
+
+            // 处理拖拽过程
+            dashboard.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                
+                if (!draggedPanel) return;
+                
+                const panels = [...this.querySelectorAll('.panel:not(.dragging)')];
+                const closestPanel = panels.reduce((closest, panel) => {
+                    const box = panel.getBoundingClientRect();
+                    const offset = e.clientY - (box.top + box.height / 2);
+                    
+                    if (offset < 0 && offset > closest.offset) {
+                        return { offset: offset, element: panel };
+                    } else {
+                        return closest;
+                    }
+                }, { offset: Number.NEGATIVE_INFINITY }).element;
+
+                if (closestPanel) {
+                    // 检查是否在同一行
+                    const draggedRect = draggedPanel.getBoundingClientRect();
+                    const closestRect = closestPanel.getBoundingClientRect();
+                    const isSameRow = Math.abs(draggedRect.top - closestRect.top) < 10;
+
+                    if (isSameRow) {
+                        // 如果在同一行，将占位符放在目标面板旁边
+                        const isBefore = e.clientX < closestRect.left + closestRect.width / 2;
+                        if (isBefore) {
+                            dashboard.insertBefore(placeholder, closestPanel);
+                        } else {
+                            dashboard.insertBefore(placeholder, closestPanel.nextSibling);
+                        }
+                    } else {
+                        dashboard.insertBefore(placeholder, closestPanel);
+                    }
+                } else {
+                    dashboard.appendChild(placeholder);
+                }
+            });
+
+            // 处理放置
+            dashboard.addEventListener('drop', function(e) {
+                e.preventDefault();
+                if (!draggedPanel) return;
+                
+                if (placeholder) {
+                    dashboard.insertBefore(draggedPanel, placeholder);
+                    placeholder.remove();
+                    placeholder = null;
+                }
+                
+                // 检查并调整面板宽度
+                adjustPanelWidths();
+                
+                // 保存新的面板顺序到本地存储
+                savePanelOrder();
+            });
+
+            // 调整面板宽度
+            function adjustPanelWidths() {
+                const panels = Array.from(dashboard.querySelectorAll('.panel'));
+                const positions = panels.map(panel => {
+                    const rect = panel.getBoundingClientRect();
+                    return { panel, top: rect.top };
+                });
+
+                // 按垂直位置分组
+                const rows = [];
+                let currentRow = [];
+                let currentTop = null;
+
+                positions.forEach(({ panel, top }) => {
+                    if (currentTop === null) {
+                        currentTop = top;
+                    }
+
+                    if (Math.abs(top - currentTop) < 10) { // 10px 的容差
+                        currentRow.push(panel);
+                    } else {
+                        if (currentRow.length > 0) {
+                            rows.push(currentRow);
+                        }
+                        currentRow = [panel];
+                        currentTop = top;
+                    }
+                });
+
+                if (currentRow.length > 0) {
+                    rows.push(currentRow);
+                }
+
+                // 调整每行的面板宽度
+                rows.forEach(row => {
+                    if (row.length === 1) {
+                        // 如果一行只有一个面板，设置为全宽
+                        row[0].className = row[0].className.replace(/\b(half-width|third-width|quarter-width|two-thirds-width|three-quarters-width)\b/g, '');
+                        row[0].classList.add('full-width');
+                    } else {
+                        // 如果一行有多个面板，设置为半宽
+                        row.forEach(panel => {
+                            panel.className = panel.className.replace(/\b(full-width|third-width|quarter-width|two-thirds-width|three-quarters-width)\b/g, '');
+                            panel.classList.add('half-width');
+                        });
+                    }
+                });
+
+                // 检查是否有连续的全宽面板，如果有则调整为半宽
+                let previousPanel = null;
+                panels.forEach(panel => {
+                    if (previousPanel && 
+                        Math.abs(panel.getBoundingClientRect().top - previousPanel.getBoundingClientRect().top) < 10) {
+                        // 如果两个面板在同一行，都设置为半宽
+                        panel.className = panel.className.replace(/\b(full-width|third-width|quarter-width|two-thirds-width|three-quarters-width)\b/g, '');
+                        panel.classList.add('half-width');
+                        previousPanel.className = previousPanel.className.replace(/\b(full-width|third-width|quarter-width|two-thirds-width|three-quarters-width)\b/g, '');
+                        previousPanel.classList.add('half-width');
+                    }
+                    previousPanel = panel;
+                });
+            }
+
+            // 保存面板顺序
+            function savePanelOrder() {
+                const order = Array.from(dashboard.querySelectorAll('.panel'))
+                    .map(panel => panel.dataset.panelId);
+                localStorage.setItem('dashboardPanelOrder', JSON.stringify(order));
+            }
+
+            // 加载保存的面板顺序
+            function loadPanelOrder() {
+                const savedOrder = localStorage.getItem('dashboardPanelOrder');
+                if (savedOrder) {
+                    const order = JSON.parse(savedOrder);
+                    const panels = Array.from(dashboard.querySelectorAll('.panel'));
+                    
+                    order.forEach(panelId => {
+                        const panel = panels.find(p => p.dataset.panelId === panelId);
+                        if (panel) {
+                            dashboard.appendChild(panel);
+                        }
+                    });
+                }
+            }
+
+            // 页面加载时恢复面板顺序
+            loadPanelOrder();
+            
+            // 初始调整面板宽度
+            adjustPanelWidths();
+            
+            // 监听窗口大小变化
+            window.addEventListener('resize', adjustPanelWidths);
+        });
+    </script>
+</body>
+</html> 
