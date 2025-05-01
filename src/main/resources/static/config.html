@@ -90,8 +90,8 @@
             <a class="navbar-brand" href="./">敏捷迭代看板</a>
             <div class="ms-auto d-flex align-items-center">
                 <div class="date-picker-container me-3">
-                    <label for="datePicker" class="text-white me-2">选择日期：</label>
-                    <input type="date" id="datePicker" class="form-control form-control-sm">
+                    <label for="datePicker" class="text-white me-2 mb-0">选择日期：</label>
+                    <input type="date" id="datePicker" class="form-control form-control-sm d-inline-block" style="width: auto;">
                 </div>
                 <a href="config.html" class="btn btn-outline-light">配置</a>
             </div>
@@ -164,7 +164,7 @@
                 '充电中台', '中台基础&商城', '移动基础&商城', '移动销售购车', '移动活动',
                 '移动活动&用户运营团队', '移动用户运营', '湖仓', 'CDPMA', '数据治理',
                 'CMS DMF', 'DOMP', 'VCDC BI 销售', 'VCDC BI 网发', 'VCDC BI 售后',
-                'VCDC BI 新业务', 'IAM', 'AI Drives'
+                'VCDC BI 新业务', 'IAM', 'AI Drives', 'Unassigned Team'
             ];
 
             // 生成团队列表
@@ -185,7 +185,7 @@
             
             // 使用硬编码的项目集列表
             const projectSets = [
-                'B端中后台', 'C端中台', 'C端平台', '平台支持类', '其他项目', '大数据组'
+                'B端中后台', 'C端中台', 'C端平台', '平台支持类', '其他项目', '大数据组', 'Unassigned Program'
             ];
 
             // 生成包含的项目集列表
@@ -216,6 +216,10 @@
             document.getElementById('enablerRatioThreshold').value = thresholds.enablerRatio || 30;
             document.getElementById('throughputThreshold').value = thresholds.throughput || 40;
             document.getElementById('cvThreshold').value = thresholds.cv || 50;
+
+            // 设置日期选择器的值
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('datePicker').value = today;
         }
 
         // 保存配置
@@ -241,7 +245,8 @@
                 userStoryRatio: parseFloat(document.getElementById('userStoryRatioThreshold').value),
                 enablerRatio: parseFloat(document.getElementById('enablerRatioThreshold').value),
                 throughput: parseFloat(document.getElementById('throughputThreshold').value),
-                cv: parseFloat(document.getElementById('cvThreshold').value)
+                cv: parseFloat(document.getElementById('cvThreshold').value),
+                cvWarningRange: 0.1 // CV值预警范围（10%）
             };
             localStorage.setItem('thresholds', JSON.stringify(thresholds));
 
