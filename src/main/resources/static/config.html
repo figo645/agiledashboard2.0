@@ -212,8 +212,8 @@
 
             // 加载阈值配置
             const thresholds = JSON.parse(localStorage.getItem('thresholds') || '{}');
-            document.getElementById('userStoryRatioThreshold').value = thresholds.userStoryRatio || 70;
-            document.getElementById('enablerRatioThreshold').value = thresholds.enablerRatio || 30;
+            document.getElementById('userStoryRatioThreshold').value = thresholds.userStoryRatio || 60;
+            document.getElementById('enablerRatioThreshold').value = thresholds.enablerRatio || 40;
             document.getElementById('throughputThreshold').value = thresholds.throughput || 40;
             document.getElementById('cvThreshold').value = thresholds.cv || 50;
 
