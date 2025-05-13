@@ -250,8 +250,22 @@
             };
             localStorage.setItem('thresholds', JSON.stringify(thresholds));
 
-            // 保存成功后跳转回首页
-            window.location.href = './';
+            // 触发storage事件
+            window.dispatchEvent(new StorageEvent('storage', {
+                key: 'teamFilterConfig',
+                newValue: JSON.stringify(teamFilterConfig),
+                oldValue: localStorage.getItem('teamFilterConfig'),
+                storageArea: localStorage
+            }));
+
+            window.dispatchEvent(new StorageEvent('storage', {
+                key: 'projectSetConfig',
+                newValue: JSON.stringify(projectSetConfig),
+                oldValue: localStorage.getItem('projectSetConfig'),
+                storageArea: localStorage
+            }));
+
+            alert('配置已保存');
         }
 
         // 页面加载时加载配置

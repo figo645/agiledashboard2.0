@@ -397,51 +397,49 @@
             </div>
         </div>
 
-        <div class="grid">
-            <!-- Iteration Completion Progress -->
-            <div class="panel half-width" draggable="true" data-panel-id="iteration-completion">
-                <div class="chart-header">
-                    <div class="panel-title">迭代完成进度</div>
-                    <button class="maximize-btn" onclick="maximizeChart('completionChart')">⛶</button>
-                </div>
-                <div class="chart-container">
-                    <div class="chart-wrapper">
-                        <canvas id="completionChart"></canvas>
-                    </div>
+        <!-- Iteration Completion Progress -->
+        <div class="panel half-width" draggable="true" data-panel-id="iteration-completion">
+            <div class="chart-header">
+                <div class="panel-title">迭代完成进度</div>
+                <button class="maximize-btn" onclick="maximizeChart('completionChart')">⛶</button>
+            </div>
+            <div class="chart-container">
+                <div class="chart-wrapper">
+                    <canvas id="completionChart"></canvas>
                 </div>
             </div>
+        </div>
 
-            <!-- Change Tracking -->
-            <div class="panel half-width" draggable="true" data-panel-id="change-tracking">
-                <div class="chart-header">
-                    <div class="panel-title">变更情况</div>
-                    <button class="maximize-btn" onclick="maximizeChart('changeChart')">⛶</button>
-                </div>
-                <div class="chart-container">
-                    <canvas id="changeChart"></canvas>
-                </div>
+        <!-- Change Tracking -->
+        <div class="panel half-width" draggable="true" data-panel-id="change-tracking">
+            <div class="chart-header">
+                <div class="panel-title">变更情况</div>
+                <button class="maximize-btn" onclick="maximizeChart('changeChart')">⛶</button>
             </div>
-
-            <!-- Testing Progress -->
-            <div class="panel half-width" draggable="true" data-panel-id="testing-progress">
-                <div class="chart-header">
-                    <div class="panel-title">测试进度</div>
-                    <button class="maximize-btn" onclick="maximizeChart('testingChart')">⛶</button>
-                </div>
-                <div class="chart-container">
-                    <canvas id="testingChart"></canvas>
-                </div>
+            <div class="chart-container">
+                <canvas id="changeChart"></canvas>
             </div>
+        </div>
 
-            <!-- Bug Handling Progress -->
-            <div class="panel half-width" draggable="true" data-panel-id="bug-progress">
-                <div class="chart-header">
-                    <div class="panel-title">Bug处理进度</div>
-                    <button class="maximize-btn" onclick="maximizeChart('bugChart')">⛶</button>
-                </div>
-                <div class="chart-container">
-                    <canvas id="bugChart"></canvas>
-                </div>
+        <!-- Testing Progress -->
+        <div class="panel half-width" draggable="true" data-panel-id="testing-progress">
+            <div class="chart-header">
+                <div class="panel-title">测试进度</div>
+                <button class="maximize-btn" onclick="maximizeChart('testingChart')">⛶</button>
+            </div>
+            <div class="chart-container">
+                <canvas id="testingChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Bug Handling Progress -->
+        <div class="panel half-width" draggable="true" data-panel-id="bug-progress">
+            <div class="chart-header">
+                <div class="panel-title">Bug处理进度</div>
+                <button class="maximize-btn" onclick="maximizeChart('bugChart')">⛶</button>
+            </div>
+            <div class="chart-container">
+                <canvas id="bugChart"></canvas>
             </div>
         </div>
 
@@ -481,6 +479,7 @@
         
         // 存储所有图表实例
         const chartInstances = {
+            sprintPlanningChart: null,
             completionChart: null,
             changeChart: null,
             testingChart: null,
@@ -498,10 +497,7 @@
         };
 
         // 团队过滤配置
-        const teamFilterConfig = {
-            '思享驾': true,
-            'Unassigned Team': true
-        };
+        const teamFilterConfig = {};
 
         let iterationChart, bugChart, changeChart, testingChart;
         let selectedDate = '';
@@ -583,6 +579,21 @@
             updateSelectedCount();
         }
 
+        // 加载配置
+        function loadConfig() {
+            // 加载团队过滤配置
+            const savedTeamFilterConfig = localStorage.getItem('teamFilterConfig');
+            if (savedTeamFilterConfig) {
+                Object.assign(teamFilterConfig, JSON.parse(savedTeamFilterConfig));
+            }
+
+            // 加载项目集配置
+            const savedProjectSetConfig = localStorage.getItem('projectSetConfig');
+            if (savedProjectSetConfig) {
+                Object.assign(projectSetConfig, JSON.parse(savedProjectSetConfig));
+            }
+        }
+
         // 更新图表数据
         function updateCharts(data) {
             // 根据配置过滤团队
@@ -600,6 +611,9 @@
             }
             if (chartInstances.bugChart) {
                 updateBugChart(filteredData);
+            }
+            if (chartInstances.throughputChart) {
+                updateThroughputChart(filteredData);
             }
         }
 
@@ -674,7 +688,6 @@
             modalTbody.innerHTML = '';
             
             // 获取配置
-            const teamFilterConfig = JSON.parse(localStorage.getItem('teamFilterConfig') || '{}');
             const thresholds = JSON.parse(localStorage.getItem('thresholds') || '{}');
             
             // 根据配置过滤团队
